@@ -1,75 +1,162 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
-import LiquidGlassContainer from '../components/organisms/LiquidGlassContainer.astro';
+import ExhibitCard from '../components/molecules/ExhibitCard.astro';
+import LensExhibit from '../components/organisms/LensExhibit.astro';
+import ButtonExhibit from '../components/organisms/ButtonExhibit.astro';
+import SwitchExhibit from '../components/organisms/SwitchExhibit.astro';
+import SliderExhibit from '../components/organisms/SliderExhibit.astro';
+import DockExhibit from '../components/organisms/DockExhibit.astro';
+import CursorExhibit from '../components/organisms/CursorExhibit.astro';
+import InputExhibit from '../components/organisms/InputExhibit.astro';
+import TabsExhibit from '../components/organisms/TabsExhibit.astro';
+import CheckboxExhibit from '../components/organisms/CheckboxExhibit.astro';
+import ProgressExhibit from '../components/organisms/ProgressExhibit.astro';
+import TooltipExhibit from '../components/organisms/TooltipExhibit.astro';
+import RadioExhibit from '../components/organisms/RadioExhibit.astro';
+import ToastExhibit from '../components/organisms/ToastExhibit.astro';
 ---
 
-<MainLayout title="Liquid Glass con Tailwind y Astro">
-  <div class="min-h-screen flex items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100 via-gray-50 to-white dark:from-gray-800 dark:via-gray-900 dark:to-black">
+<MainLayout title="Liquid Glass - Interactive Gallery">
+  
+  <div class="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
     
-    <!-- Decoración de fondo -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40">
-      <div class="absolute -top-40 -left-40 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob"></div>
-      <div class="absolute top-0 -right-40 w-96 h-96 bg-teal-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob animation-delay-2000"></div>
-      <div class="absolute -bottom-40 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-70 animate-blob animation-delay-4000"></div>
-    </div>
+    <!-- Hero Header -->
+    <header class="w-full px-8 py-24 md:py-32 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+      <div class="max-w-screen-2xl mx-auto">
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-6">
+          Liquid<br/>Glass
+        </h1>
+        <p class="text-xl md:text-2xl font-light text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+          A study of refraction, optics, and surface tension on the web. 
+          Built with pure mathematics, SVG displacement maps, and Astro.
+        </p>
+      </div>
+    </header>
 
-    <!-- Grid / Líneas arquitectónicas de prueba para que se note la refracción -->
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none dark:bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)]"></div>
-
-    <div class="w-full max-w-4xl relative z-10">
-      
-      <LiquidGlassContainer id="main-lens" glassWidth={240} glassHeight={120} glassRadius={60} glassThickness={150}>
+    <!-- Gallery Grid -->
+    <main class="w-full max-w-screen-2xl mx-auto border-l border-gray-200 dark:border-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-12">
         
-        <div class="bg-white/70 dark:bg-gray-800/80 backdrop-blur-xl border border-white/40 dark:border-gray-700/50 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
-          <div class="relative z-10 flex flex-col gap-6">
-            <div class="inline-flex items-center gap-3">
-              <span class="w-8 h-[2px] bg-blue-600 dark:bg-blue-400"></span>
-              <span class="text-sm font-bold tracking-widest uppercase text-blue-600 dark:text-blue-400">Atomic Design</span>
-            </div>
-            
-            <h1 class="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight">
-              Liquid Glass <br />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">— Lens Demo</span>
-            </h1>
-            
-            <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
-              Arrastra la cápsula sobre este contenido. Esto no usa <code>backdrop-filter</code>, sino filtros SVG de desplazamiento inyectados nativamente para refracción cruzada perfecta.
-            </p>
-            
-            <div class="flex flex-wrap gap-4 mt-4 relative z-20">
-              <button onclick="alert('¡Iniciando experiencia Liquid Glass!')" class="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:scale-105 transition-transform shadow-xl cursor-pointer">
-                Empezar
-              </button>
-              <a href="https://github.com/winaviation/liquid-glass-demo" target="_blank" rel="noopener noreferrer" class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm cursor-pointer flex items-center justify-center">
-                Leer Documentación
-              </a>
-            </div>
-          </div>
-          
-          <!-- Elemento visual fuerte para contraste -->
-          <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-blue-50/50 to-transparent dark:from-blue-900/20 pointer-events-none hidden md:block"></div>
-        </div>
+        <ExhibitCard 
+          number="01" 
+          title="The Lens" 
+          description="A free-floating magnifying glass demonstrating real-time backdrop refraction and chromatic aberration over complex DOM elements."
+          span="col-span-12"
+        >
+          <LensExhibit />
+        </ExhibitCard>
 
-      </LiquidGlassContainer>
+        <ExhibitCard 
+          number="02" 
+          title="Action Button" 
+          description="A hyper-tactile button with inner tension. Click and hold to feel the surface pull inward."
+          span="col-span-12 md:col-span-6"
+        >
+          <ButtonExhibit />
+        </ExhibitCard>
 
-    </div>
+        <ExhibitCard 
+          number="03" 
+          title="The Switch" 
+          description="A toggle switch with physical mass. Drag or click to snap. Refraction intensity increases when pressed."
+          span="col-span-12 md:col-span-6"
+        >
+          <SwitchExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="04" 
+          title="The Slider" 
+          description="A liquid slider track. The glass thumb stretches and distorts based on dragging velocity."
+          span="col-span-12"
+        >
+          <SliderExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="05" 
+          title="The Dock" 
+          description="A row of reactive lenses. Each item magnifies, bringing its own dynamic displacement map into focus."
+          span="col-span-12 md:col-span-6"
+        >
+          <DockExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="06" 
+          title="The Cursor" 
+          description="A custom glass pointer with spring physics, stretching and refracting based on velocity."
+          span="col-span-12 md:col-span-6"
+        >
+          <CursorExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="07" 
+          title="Liquid Input" 
+          description="A glass input field that reacts to typing with microscopic physical tremors and refraction bursts."
+          span="col-span-12 md:col-span-6"
+        >
+          <InputExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="08" 
+          title="Liquid Tabs" 
+          description="Sliding glass navigation. The active indicator stretches and refracts based on velocity."
+          span="col-span-12 md:col-span-6"
+        >
+          <TabsExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="09" 
+          title="Liquid Checkbox" 
+          description="A tactile checkbox with elastic bounce and ink-fill physics."
+          span="col-span-12 md:col-span-6"
+        >
+          <CheckboxExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="10" 
+          title="Liquid Progress" 
+          description="A progress bar with dynamic refraction tracking the leading edge."
+          span="col-span-12 md:col-span-6"
+        >
+          <ProgressExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="11" 
+          title="Liquid Tooltip" 
+          description="A glass tooltip that appears with springy entrance."
+          span="col-span-12 md:col-span-4"
+        >
+          <TooltipExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="12" 
+          title="Liquid Radio" 
+          description="Selectable sizes with magnetic snap and bounce."
+          span="col-span-12 md:col-span-4"
+        >
+          <RadioExhibit />
+        </ExhibitCard>
+
+        <ExhibitCard 
+          number="13" 
+          title="Liquid Toast" 
+          description="A sliding notification with glass blur depth."
+          span="col-span-12 md:col-span-4"
+        >
+          <ToastExhibit />
+        </ExhibitCard>
+
+      </div>
+    </main>
+
   </div>
-</MainLayout>
 
-<style>
-  .animate-blob {
-    animation: blob 7s infinite;
-  }
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-  @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
-  }
-</style>
+</MainLayout>

@@ -1,0 +1,254 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "cursor-glass-filter";
+---
+
+<div class="relative w-full h-full overflow-hidden" id="cursor-demo-area">
+  <!-- Real World Background (Typography and shapes) -->
+  <div id="cursor-real-world" class="absolute inset-0 pointer-events-none bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+    <!-- Abstract Shapes -->
+    <div class="absolute w-64 h-64 border-[40px] border-blue-500/20 dark:border-blue-500/30 rounded-full mix-blend-multiply dark:mix-blend-screen -top-10 -left-20"></div>
+    <div class="absolute w-64 h-64 border-[40px] border-emerald-400/20 dark:border-emerald-400/30 rounded-full mix-blend-multiply dark:mix-blend-screen bottom-10 right-0"></div>
+    
+    <!-- Heavy Typography -->
+    <div class="max-w-2xl px-12 text-center mix-blend-difference dark:mix-blend-normal">
+      <h3 class="text-[80px] leading-none font-black tracking-tighter text-gray-900 dark:text-white uppercase mb-4">
+        Follow <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-400">The Path</span>
+      </h3>
+      <p class="text-xl font-medium text-gray-600 dark:text-gray-400">
+        Interact with the canvas to reveal hidden optics and fluid displacement tracking your every move.
+      </p>
+    </div>
+  </div>
+
+  <!-- The Custom Glass Cursor -->
+  <div 
+    class="absolute pointer-events-none z-50 mix-blend-normal will-change-transform opacity-0 transition-opacity duration-300" 
+    id="liquid-cursor"
+    style="width: 120px; height: 120px; border-radius: 60px; left: 0; top: 0;"
+  >
+    <div id="cursor-content-clone" class="absolute inset-0 overflow-hidden rounded-inherit z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+      <div id="cursor-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-white dark:bg-[#0a0a0a]">
+         <!-- JS will inject the clone here -->
+      </div>
+    </div>
+    
+    <SvgFilter filterId={filterId} />
+    
+    <div class="absolute inset-0 z-[3] rounded-inherit border border-white/40 dark:border-white/20 bg-white/5 dark:bg-black/10 shadow-[0_12px_24px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.6)]"></div>
+    
+    <!-- Crosshair indicator -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-black/50 dark:bg-white/50 rounded-full z-10"></div>
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class CursorExhibit {
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private cursor: HTMLElement;
+    private cloneInner: HTMLElement;
+    
+    private config = { w: 120, h: 120, bw: 20, gt: 100, r: 60, ri: 1.8, maxDisp: 0 };
+    private state = { 
+      mouseX: 0, 
+      mouseY: 0, 
+      isActive: false, 
+      isClicking: false,
+      lastX: 0,
+      lastY: 0,
+      velocityX: 0,
+      velocityY: 0,
+      lastTime: performance.now()
+    };
+    
+    private springs = {
+      x: new Spring(0, 300, 30),
+      y: new Spring(0, 300, 30),
+      scaleX: new Spring(1, 400, 25),
+      scaleY: new Spring(1, 400, 25),
+      dispScale: new Spring(1, 300, 25)
+    };
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.demoArea = document.getElementById('cursor-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('cursor-real-world') as HTMLElement;
+      this.cursor = document.getElementById('liquid-cursor') as HTMLElement;
+      this.cloneInner = document.getElementById('cursor-clone-inner') as HTMLElement;
+
+      if (!this.cursor) return;
+      this.init();
+    }
+
+    private init() {
+      // Setup Clone
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+
+      // Setup Optics
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("cursor-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("cursor-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      // Initial center position
+      const rect = this.demoArea.getBoundingClientRect();
+      this.state.mouseX = rect.width / 2;
+      this.state.mouseY = rect.height / 2;
+      this.springs.x.setTarget(this.state.mouseX);
+      this.springs.y.setTarget(this.state.mouseY);
+      this.springs.x.value = this.state.mouseX;
+      this.springs.y.value = this.state.mouseY;
+
+      // Events
+      this.demoArea.addEventListener('mouseenter', this.onMouseEnter.bind(this));
+      this.demoArea.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+      this.demoArea.addEventListener('mousemove', this.onMouseMove.bind(this));
+      this.demoArea.addEventListener('mousedown', this.onMouseDown.bind(this));
+      this.demoArea.addEventListener('mouseup', this.onMouseUp.bind(this));
+      
+      window.addEventListener('resize', this.updateCloneSize.bind(this));
+      
+      this.updateCloneSize();
+      this.startLoop();
+    }
+
+    private onMouseEnter() {
+      this.state.isActive = true;
+      this.cursor.style.opacity = '1';
+      this.demoArea.style.cursor = 'none'; // hide default cursor
+      this.startLoop();
+    }
+
+    private onMouseLeave() {
+      this.state.isActive = false;
+      this.cursor.style.opacity = '0';
+      this.demoArea.style.cursor = 'default';
+      this.startLoop();
+    }
+
+    private onMouseMove(e: MouseEvent) {
+      if (!this.state.isActive) {
+        this.onMouseEnter();
+      }
+      
+      const rect = this.demoArea.getBoundingClientRect();
+      const nx = e.clientX - rect.left;
+      const ny = e.clientY - rect.top;
+      
+      this.state.mouseX = nx;
+      this.state.mouseY = ny;
+      
+      this.springs.x.setTarget(nx);
+      this.springs.y.setTarget(ny);
+      
+      const dt = Math.max(1, performance.now() - this.state.lastTime) / 1000;
+      this.state.velocityX = (nx - this.state.lastX) / dt;
+      this.state.velocityY = (ny - this.state.lastY) / dt;
+      
+      this.state.lastX = nx;
+      this.state.lastY = ny;
+      this.state.lastTime = performance.now();
+      
+      // Velocity-based stretching
+      const vM = Math.sqrt(this.state.velocityX ** 2 + this.state.velocityY ** 2);
+      const sq = Math.min(0.2, vM / 4000);
+      
+      if (vM > 50 && !this.state.isClicking) {
+          const vx = this.state.velocityX / vM, vy = this.state.velocityY / vM;
+          this.springs.scaleX.setTarget(1 + sq * Math.abs(vx) - sq * 0.5 * Math.abs(vy));
+          this.springs.scaleY.setTarget(1 + sq * Math.abs(vy) - sq * 0.5 * Math.abs(vx));
+      } else if (!this.state.isClicking) {
+          this.springs.scaleX.setTarget(1);
+          this.springs.scaleY.setTarget(1);
+      }
+
+      this.startLoop();
+    }
+
+    private onMouseDown() {
+      this.state.isClicking = true;
+      this.springs.scaleX.setTarget(0.85);
+      this.springs.scaleY.setTarget(0.85);
+      this.springs.dispScale.setTarget(1.6);
+      this.startLoop();
+    }
+
+    private onMouseUp() {
+      this.state.isClicking = false;
+      this.springs.scaleX.setTarget(1);
+      this.springs.scaleY.setTarget(1);
+      this.springs.dispScale.setTarget(1);
+      this.startLoop();
+    }
+
+    private updateCloneSize() {
+      const aR = this.demoArea.getBoundingClientRect();
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+    }
+
+    private updateClonePosition() {
+      const scX = this.springs.scaleX.value;
+      const scY = this.springs.scaleY.value;
+      
+      const curX = this.springs.x.value;
+      const curY = this.springs.y.value;
+      
+      const offsetX = curX - (this.config.w / 2);
+      const offsetY = curY - (this.config.h / 2);
+
+      this.cloneInner.style.transform = `scale(${1/scX}, ${1/scY}) translate(${-offsetX * scX}px, ${-offsetY * scY}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const x = this.springs.x.update(dt);
+      const y = this.springs.y.update(dt);
+      const sx = this.springs.scaleX.update(dt);
+      const sy = this.springs.scaleY.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      
+      this.cursor.style.transform = `translate(${x - this.config.w/2}px, ${y - this.config.h/2}px) scale(${sx}, ${sy})`;
+      
+      document.getElementById("cursor-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClonePosition();
+      
+      if (!this.state.isActive && !this.state.isClicking) {
+        this.state.velocityX *= 0.9;
+        this.state.velocityY *= 0.9;
+      }
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new CursorExhibit();
+  });
+</script>

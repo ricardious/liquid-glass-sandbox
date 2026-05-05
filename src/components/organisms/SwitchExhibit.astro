@@ -1,0 +1,212 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "switch-glass-filter";
+---
+
+<div class="relative w-full h-full flex items-center justify-center" id="switch-demo-area">
+  <!-- Real World Background (ambient shapes) -->
+  <div id="switch-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-gray-50 dark:bg-[#0f0f0f]">
+    <!-- Background grid pattern for clear refraction -->
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:20px_20px] dark:bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] pointer-events-none"></div>
+    <div class="absolute w-32 h-32 bg-orange-500/30 dark:bg-orange-600/40 mix-blend-multiply filter blur-2xl top-1/4 left-1/4"></div>
+    <div class="absolute w-40 h-40 bg-pink-500/30 dark:bg-pink-600/40 mix-blend-multiply filter blur-2xl bottom-1/4 right-1/4"></div>
+  </div>
+
+  <!-- The Switch Container -->
+  <div class="relative w-[140px] h-[72px] rounded-none border border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-black/50 backdrop-blur-sm cursor-pointer shadow-inner flex items-center p-2" id="liquid-switch-container">
+    
+    <!-- The Glass Thumb -->
+    <div 
+      class="relative w-[56px] h-[56px] z-10 will-change-transform touch-none" 
+      id="liquid-switch-thumb"
+      style="transform: translateX(0px);"
+    >
+      <div id="switch-content-clone" class="absolute inset-0 overflow-hidden rounded-none z-[1] will-change-filter">
+        <div id="switch-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-50 dark:bg-[#0f0f0f]">
+           <!-- JS will inject the clone here -->
+        </div>
+      </div>
+      <SvgFilter filterId={filterId} />
+      <div id="switch-thumb-inner" class="absolute inset-0 z-[3] rounded-none border border-gray-200 dark:border-white/30 bg-white/20 dark:bg-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-300"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class SwitchExhibit {
+    private container: HTMLElement;
+    private thumb: HTMLElement;
+    private inner: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private cloneWrapper: HTMLElement;
+    
+    // Switch config
+    private config = { w: 56, h: 56, bw: 15, gt: 60, r: 0, ri: 1.5, maxDisp: 0 };
+    private state = { 
+      toggled: false, 
+      isDragging: false, 
+      startX: 0, 
+      currentX: 0,
+      trackWidth: 140,
+      thumbWidth: 56,
+      padding: 8, // padding inside container (4px * 2) -> actually container is 140, p-2 is 8px each side. 140 - 16 = 124 inner width. 124 - 56 = 68px travel.
+      travel: 68
+    };
+    
+    private springs = {
+      x: new Spring(0, 400, 25), // X position
+      scale: new Spring(1, 400, 25), // Press scale
+      dispScale: new Spring(1, 300, 25) // Refraction intensity
+    };
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.container = document.getElementById('liquid-switch-container') as HTMLElement;
+      this.thumb = document.getElementById('liquid-switch-thumb') as HTMLElement;
+      this.inner = document.getElementById('switch-thumb-inner') as HTMLElement;
+      this.cloneInner = document.getElementById('switch-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('switch-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('switch-real-world') as HTMLElement;
+      this.cloneWrapper = document.getElementById('switch-content-clone') as HTMLElement;
+
+      if (!this.container) return;
+      this.init();
+    }
+
+    private init() {
+      // Setup Clone
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+      this.cloneWrapper.style.filter = "url(#switch-glass-filter)";
+
+      // Setup Optics
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("switch-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("switch-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      // Events
+      this.thumb.addEventListener('pointerdown', this.onPointerDown.bind(this));
+      window.addEventListener('pointermove', this.onPointerMove.bind(this));
+      window.addEventListener('pointerup', this.onPointerUp.bind(this));
+      
+      // Toggle on container click
+      this.container.addEventListener('click', (e) => {
+        if (e.target === this.thumb || this.state.isDragging) return;
+        this.toggle();
+      });
+
+      window.addEventListener('resize', this.updateClone.bind(this));
+      
+      this.updateClone();
+      this.startLoop();
+    }
+    
+    private toggle() {
+      this.state.toggled = !this.state.toggled;
+      this.springs.x.setTarget(this.state.toggled ? this.state.travel : 0);
+      this.springs.scale.setTarget(0.9); // Brief compress
+      setTimeout(() => this.springs.scale.setTarget(1), 100);
+      this.startLoop();
+    }
+
+    private onPointerDown(e: PointerEvent) {
+      e.preventDefault();
+      this.state.isDragging = true;
+      this.state.startX = e.clientX - this.state.currentX;
+      
+      this.springs.scale.setTarget(0.95);
+      this.springs.dispScale.setTarget(1.4);
+      this.startLoop();
+    }
+
+    private onPointerMove(e: PointerEvent) {
+      if (!this.state.isDragging) return;
+      e.preventDefault();
+      
+      let newX = e.clientX - this.state.startX;
+      newX = Math.max(0, Math.min(newX, this.state.travel));
+      
+      this.state.currentX = newX;
+      this.springs.x.setTarget(newX);
+      this.startLoop();
+    }
+
+    private onPointerUp() {
+      if (!this.state.isDragging) return;
+      this.state.isDragging = false;
+      
+      // Snap to closest side
+      this.state.toggled = this.state.currentX > (this.state.travel / 2);
+      this.state.currentX = this.state.toggled ? this.state.travel : 0;
+      this.springs.x.setTarget(this.state.currentX);
+      
+      this.springs.scale.setTarget(1);
+      this.springs.dispScale.setTarget(1);
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const thumbRect = this.thumb.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const offsetX = thumbRect.left - aR.left;
+      const offsetY = thumbRect.top - aR.top;
+      
+      this.cloneInner.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const x = this.springs.x.update(dt);
+      const sc = this.springs.scale.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      
+      this.thumb.style.transform = `translateX(${x}px) scale(${sc})`;
+      
+      if (this.state.toggled) {
+        this.inner.style.boxShadow = `0 4px 12px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.8), inset 0 0 10px rgba(74, 222, 128, 0.4)`; // Green glow when on
+      } else {
+        this.inner.style.boxShadow = `0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)`;
+      }
+
+      document.getElementById("switch-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new SwitchExhibit();
+  });
+</script>

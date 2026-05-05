@@ -1,0 +1,258 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "slider-glass-filter";
+---
+
+<div class="relative w-full h-full flex flex-col items-center justify-center p-8" id="slider-demo-area">
+  <!-- Real World Background (ambient shapes) -->
+  <div id="slider-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-white dark:bg-[#0f0f0f]">
+    <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    <div class="absolute w-[200%] h-32 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 mix-blend-multiply blur-3xl top-1/2 -translate-y-1/2 transform rotate-12"></div>
+  </div>
+
+  <!-- The Slider Value Display -->
+  <div class="mb-12 font-mono text-5xl font-bold tracking-tighter text-gray-800 dark:text-gray-100 z-10" id="slider-value-display">
+    50%
+  </div>
+
+  <!-- The Slider Container -->
+  <div class="relative w-full max-w-sm h-[8px] bg-gray-200 dark:bg-gray-800" id="liquid-slider-track">
+    <!-- Active Track -->
+    <div class="absolute top-0 left-0 h-full bg-black dark:bg-white" id="liquid-slider-active-track" style="width: 50%;"></div>
+    
+    <!-- The Glass Thumb -->
+    <div 
+      class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[48px] h-[48px] z-10 will-change-transform touch-none cursor-grab active:cursor-grabbing" 
+      id="liquid-slider-thumb"
+      style="left: 50%;"
+    >
+      <div id="slider-content-clone" class="absolute inset-0 overflow-hidden rounded-none z-[1] will-change-filter">
+        <div id="slider-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-white dark:bg-[#0f0f0f]">
+           <!-- JS will inject the clone here -->
+        </div>
+      </div>
+      <SvgFilter filterId={filterId} />
+      <div id="slider-thumb-inner" class="absolute inset-0 z-[3] rounded-none border border-gray-300 dark:border-white/20 bg-white/40 dark:bg-white/10 shadow-[0_8px_16px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] pointer-events-none transition-shadow duration-300"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class SliderExhibit {
+    private track: HTMLElement;
+    private activeTrack: HTMLElement;
+    private thumb: HTMLElement;
+    private inner: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private cloneWrapper: HTMLElement;
+    private valueDisplay: HTMLElement;
+    
+    private config = { w: 48, h: 48, bw: 12, gt: 70, r: 0, ri: 1.6, maxDisp: 0 };
+    private state = { 
+      isDragging: false, 
+      value: 0.5,
+      startX: 0, 
+      startValue: 0.5,
+      trackWidth: 0,
+      thumbVelocity: 0,
+      lastX: 0,
+      lastTime: 0
+    };
+    
+    private springs = {
+      val: new Spring(0.5, 400, 30),
+      scaleX: new Spring(1, 400, 25), 
+      scaleY: new Spring(1, 400, 25), 
+      dispScale: new Spring(1, 300, 25)
+    };
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.track = document.getElementById('liquid-slider-track') as HTMLElement;
+      this.activeTrack = document.getElementById('liquid-slider-active-track') as HTMLElement;
+      this.thumb = document.getElementById('liquid-slider-thumb') as HTMLElement;
+      this.inner = document.getElementById('slider-thumb-inner') as HTMLElement;
+      this.cloneInner = document.getElementById('slider-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('slider-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('slider-real-world') as HTMLElement;
+      this.cloneWrapper = document.getElementById('slider-content-clone') as HTMLElement;
+      this.valueDisplay = document.getElementById('slider-value-display') as HTMLElement;
+
+      if (!this.track) return;
+      this.init();
+    }
+
+    private init() {
+      // Setup Clone
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+      this.cloneWrapper.style.filter = "url(#slider-glass-filter)";
+
+      // Setup Optics
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("slider-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("slider-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      // Events
+      this.thumb.addEventListener('pointerdown', this.onPointerDown.bind(this));
+      window.addEventListener('pointermove', this.onPointerMove.bind(this));
+      window.addEventListener('pointerup', this.onPointerUp.bind(this));
+      
+      // Click on track to jump
+      this.track.addEventListener('click', (e) => {
+        if (e.target === this.thumb || this.state.isDragging) return;
+        const rect = this.track.getBoundingClientRect();
+        let val = (e.clientX - rect.left) / rect.width;
+        val = Math.max(0, Math.min(1, val));
+        this.state.value = val;
+        this.springs.val.setTarget(val);
+        
+        // Wobble effect on jump
+        this.springs.scaleX.setTarget(1.2);
+        this.springs.scaleY.setTarget(0.8);
+        setTimeout(() => {
+          this.springs.scaleX.setTarget(1);
+          this.springs.scaleY.setTarget(1);
+        }, 50);
+
+        this.startLoop();
+      });
+
+      window.addEventListener('resize', () => {
+        this.state.trackWidth = this.track.getBoundingClientRect().width;
+        this.updateClone();
+      });
+      
+      this.state.trackWidth = this.track.getBoundingClientRect().width;
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private onPointerDown(e: PointerEvent) {
+      e.preventDefault();
+      this.state.isDragging = true;
+      this.state.trackWidth = this.track.getBoundingClientRect().width;
+      this.state.startX = e.clientX;
+      this.state.startValue = this.state.value;
+      
+      this.state.lastX = e.clientX;
+      this.state.lastTime = performance.now();
+      this.state.thumbVelocity = 0;
+
+      this.springs.dispScale.setTarget(1.5);
+      this.startLoop();
+    }
+
+    private onPointerMove(e: PointerEvent) {
+      if (!this.state.isDragging) return;
+      e.preventDefault();
+      
+      const dx = e.clientX - this.state.startX;
+      let newVal = this.state.startValue + (dx / this.state.trackWidth);
+      newVal = Math.max(0, Math.min(1, newVal));
+      
+      this.state.value = newVal;
+      this.springs.val.setTarget(newVal);
+
+      // Velocity calculation for stretching
+      const dt = Math.max(1, performance.now() - this.state.lastTime);
+      const v = (e.clientX - this.state.lastX) / dt;
+      this.state.lastX = e.clientX;
+      this.state.lastTime = performance.now();
+      this.state.thumbVelocity = v;
+
+      // Stretch based on velocity
+      const stretch = Math.min(0.4, Math.abs(v) * 0.1);
+      this.springs.scaleX.setTarget(1 + stretch);
+      this.springs.scaleY.setTarget(1 - stretch * 0.5);
+
+      this.startLoop();
+    }
+
+    private onPointerUp() {
+      if (!this.state.isDragging) return;
+      this.state.isDragging = false;
+      this.state.thumbVelocity = 0;
+      
+      this.springs.scaleX.setTarget(1);
+      this.springs.scaleY.setTarget(1);
+      this.springs.dispScale.setTarget(1);
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const thumbRect = this.thumb.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const offsetX = thumbRect.left - aR.left;
+      const offsetY = thumbRect.top - aR.top;
+      
+      // We must reverse the scale to keep the background 1:1
+      const scX = this.springs.scaleX.value;
+      const scY = this.springs.scaleY.value;
+
+      this.cloneInner.style.transform = `scale(${1/scX}, ${1/scY}) translate(${-offsetX * scX}px, ${-offsetY * scY}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const v = this.springs.val.update(dt);
+      const sx = this.springs.scaleX.update(dt);
+      const sy = this.springs.scaleY.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      
+      // Update DOM
+      this.thumb.style.left = `${v * 100}%`;
+      this.thumb.style.transform = `translate(-50%, -50%) scale(${sx}, ${sy})`;
+      this.activeTrack.style.width = `${v * 100}%`;
+      
+      // Update text
+      this.valueDisplay.innerText = `${Math.round(v * 100)}%`;
+
+      if (this.state.isDragging) {
+        this.inner.style.boxShadow = `0 12px 24px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.9)`;
+      } else {
+        this.inner.style.boxShadow = `0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)`;
+      }
+
+      document.getElementById("slider-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new SliderExhibit();
+  });
+</script>

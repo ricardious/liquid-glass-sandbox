@@ -1,0 +1,156 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "tooltip-glass-filter";
+---
+
+<div class="relative w-full h-full flex items-center justify-center p-8 bg-gray-50 dark:bg-[#0f0f0f]" id="tooltip-demo-area">
+  
+  <div id="tooltip-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%,#e5e7eb),linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%,#e5e7eb)] bg-[size:20px_20px] dark:bg-[linear-gradient(45deg,#262626_25%,transparent_25%,transparent_75%,#262626_75%,#262626),linear-gradient(45deg,#262626_25%,transparent_25%,transparent_75%,#262626_75%,#262626)] opacity-30"></div>
+    <div class="absolute w-32 h-32 bg-blue-500/20 rounded-full blur-3xl mix-blend-multiply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+  </div>
+
+  <SvgFilter filterId={filterId} />
+
+  <div class="relative flex flex-col items-center gap-8 z-10" id="tooltip-trigger-area">
+    
+    <div class="relative w-16 h-16 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center cursor-pointer shadow-xl hover:scale-110 transition-transform" id="tooltip-trigger">
+      <svg class="w-6 h-6 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </div>
+
+    <div class="relative hidden" id="tooltip-glass-wrapper">
+      <div id="tooltip-glass" class="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full px-4 py-2 rounded-lg z-50 will-change-transform">
+        <div id="tooltip-content-clone" class="absolute inset-0 overflow-hidden rounded-lg z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+          <div id="tooltip-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-white dark:bg-gray-800"></div>
+        </div>
+        
+        <div class="absolute inset-0 z-[2] rounded-lg border border-gray-200 dark:border-white/30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-xl"></div>
+        
+        <div class="relative z-[3] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+          System Update Available
+        </div>
+        
+        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-900 border-r border-b border-gray-200 dark:border-white/30 transform rotate-45"></div>
+      </div>
+    </div>
+
+    <span class="text-sm text-gray-500 font-medium">Hover for details</span>
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import { calculateDisplacementMap1D, calculateDisplacementMap2D, calculateSpecularHighlight, imageDataToDataURL } from "../../quarks/surfaceRenderer";
+
+  class TooltipExhibit {
+    private trigger: HTMLElement;
+    private wrapper: HTMLElement;
+    private glass: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    
+    private config = { w: 200, h: 48, bw: 8, gt: 30, r: 8, ri: 1.5, maxDisp: 0 };
+    private state = { visible: false };
+    
+    private springs = {
+      opacity: new Spring(0, 300, 20),
+      scale: new Spring(0.8, 400, 25),
+      y: new Spring(10, 400, 25),
+      dispScale: new Spring(1, 300, 20)
+    };
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.trigger = document.getElementById('tooltip-trigger') as HTMLElement;
+      this.wrapper = document.getElementById('tooltip-glass-wrapper') as HTMLElement;
+      this.glass = document.getElementById('tooltip-glass') as HTMLElement;
+      this.cloneInner = document.getElementById('tooltip-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('tooltip-demo-area') as HTMLElement;
+
+      if (!this.trigger) return;
+      this.init();
+    }
+
+    private init() {
+      const rw = document.getElementById('tooltip-real-world');
+      if (rw) this.cloneInner.innerHTML = rw.outerHTML;
+
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("tooltip-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("tooltip-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      this.trigger.addEventListener('mouseenter', () => { this.state.visible = true; this.wrapper.classList.remove('hidden'); this.startLoop(); });
+      this.trigger.addEventListener('mouseleave', () => { this.state.visible = false; this.startLoop(); });
+      
+      window.addEventListener('resize', this.updateClone.bind(this));
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const gR = this.glass.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const offsetX = gR.left - aR.left;
+      const offsetY = gR.top - aR.top - 10;
+      
+      const sc = this.springs.scale.value;
+      this.cloneInner.style.transform = `scale(${1/sc}) translate(${-offsetX * sc}px, ${-offsetY * sc}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const op = this.springs.opacity.update(dt);
+      const sc = this.springs.scale.update(dt);
+      const y = this.springs.y.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      
+      if (this.state.visible) {
+        this.springs.opacity.setTarget(1);
+        this.springs.scale.setTarget(1);
+        this.springs.y.setTarget(0);
+        this.springs.dispScale.setTarget(1.3);
+      } else {
+        this.springs.opacity.setTarget(0);
+        this.springs.scale.setTarget(0.8);
+        this.springs.y.setTarget(10);
+        this.springs.dispScale.setTarget(1);
+      }
+      
+      this.glass.style.opacity = op;
+      this.glass.style.transform = `translate(-50%, ${y}px) scale(${sc})`;
+      this.glass.style.pointerEvents = op > 0.1 ? 'auto' : 'none';
+      
+      document.getElementById("tooltip-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+        if (!this.state.visible) this.wrapper.classList.add('hidden');
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new TooltipExhibit();
+  });
+</script>

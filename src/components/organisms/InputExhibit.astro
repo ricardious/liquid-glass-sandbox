@@ -1,0 +1,212 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "input-glass-filter";
+---
+
+<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-gray-100 dark:bg-[#0f0f0f]" id="input-demo-area">
+  
+  <!-- Real World Background (ambient elements that will be refracted) -->
+  <div id="input-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05)_100%)] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_25%,rgba(255,255,255,0.02)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.02)_75%,rgba(255,255,255,0.02)_100%)] bg-[length:40px_40px]"></div>
+    
+    <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 dark:bg-blue-600/30 rounded-full blur-xl mix-blend-multiply"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-40 h-40 bg-purple-500/20 dark:bg-purple-600/30 rounded-full blur-xl mix-blend-multiply"></div>
+  </div>
+
+  <SvgFilter filterId={filterId} />
+
+  <!-- The Glass Input Field -->
+  <div class="relative w-full max-w-sm h-16 z-10" id="liquid-input-container">
+    
+    <div id="input-content-clone" class="absolute inset-0 overflow-hidden rounded-xl z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+      <div id="input-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-100 dark:bg-[#0f0f0f]">
+         <!-- JS will inject the clone here -->
+      </div>
+    </div>
+    
+    <div class="absolute inset-0 z-[2] rounded-xl border border-white/50 dark:border-white/20 bg-white/30 dark:bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-300" id="input-glass-overlay"></div>
+    
+    <input 
+      type="text" 
+      placeholder="Type something..." 
+      class="absolute inset-0 z-[3] w-full h-full bg-transparent border-none outline-none px-6 text-gray-900 dark:text-white font-medium placeholder-gray-500/70 dark:placeholder-gray-400 focus:ring-0"
+      id="liquid-input-field"
+    />
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class InputExhibit {
+    private container: HTMLElement;
+    private inputField: HTMLInputElement;
+    private overlay: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    
+    private config = { w: 384, h: 64, bw: 12, gt: 40, r: 12, ri: 1.4, maxDisp: 0 };
+    private state = { isFocused: false, isTyping: false };
+    
+    private springs = {
+      scale: new Spring(1, 400, 25),
+      dispScale: new Spring(1, 300, 20),
+      shake: new Spring(0, 600, 15) // For typing impact
+    };
+    
+    private af: number | null = null;
+    private typingTimeout: any = null;
+
+    constructor() {
+      this.container = document.getElementById('liquid-input-container') as HTMLElement;
+      this.inputField = document.getElementById('liquid-input-field') as HTMLInputElement;
+      this.overlay = document.getElementById('input-glass-overlay') as HTMLElement;
+      this.cloneInner = document.getElementById('input-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('input-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('input-real-world') as HTMLElement;
+
+      if (!this.container) return;
+      this.init();
+    }
+
+    private init() {
+      // Container width might be dynamic in responsive mode, we get initial
+      const rect = this.container.getBoundingClientRect();
+      this.config.w = Math.max(100, rect.width); // Prevent zero
+
+      // Setup Clone
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+
+      // Setup Optics
+      this.renderOptics();
+
+      // Events
+      this.inputField.addEventListener('focus', this.onFocus.bind(this));
+      this.inputField.addEventListener('blur', this.onBlur.bind(this));
+      this.inputField.addEventListener('input', this.onInput.bind(this));
+      window.addEventListener('resize', this.onResize.bind(this));
+      
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private renderOptics() {
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("input-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("input-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+    }
+
+    private onResize() {
+      const rect = this.container.getBoundingClientRect();
+      if (Math.abs(this.config.w - rect.width) > 10) {
+        this.config.w = rect.width;
+        this.renderOptics();
+      }
+      this.updateClone();
+    }
+
+    private onFocus() {
+      this.state.isFocused = true;
+      this.springs.scale.setTarget(1.02);
+      this.springs.dispScale.setTarget(1.3);
+      this.startLoop();
+    }
+
+    private onBlur() {
+      this.state.isFocused = false;
+      this.springs.scale.setTarget(1);
+      this.springs.dispScale.setTarget(1);
+      this.startLoop();
+    }
+
+    private onInput() {
+      this.state.isTyping = true;
+      
+      // Bump refraction and scale briefly
+      this.springs.dispScale.setTarget(2);
+      this.springs.scale.setTarget(1.04);
+      
+      // Add physical "shake" or bump
+      this.springs.shake.value = (Math.random() - 0.5) * 10;
+      this.springs.shake.setTarget(0);
+
+      clearTimeout(this.typingTimeout);
+      this.typingTimeout = setTimeout(() => {
+        this.state.isTyping = false;
+        if (this.state.isFocused) {
+          this.springs.dispScale.setTarget(1.3);
+          this.springs.scale.setTarget(1.02);
+        } else {
+          this.springs.dispScale.setTarget(1);
+          this.springs.scale.setTarget(1);
+        }
+      }, 100);
+
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const contRect = this.container.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const offsetX = contRect.left - aR.left;
+      const offsetY = contRect.top - aR.top;
+      
+      const sc = this.springs.scale.value;
+      const shake = this.springs.shake.value;
+
+      this.cloneInner.style.transform = `scale(${1/sc}) translate(${(-offsetX - shake) * sc}px, ${-offsetY * sc}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const sc = this.springs.scale.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      const shake = this.springs.shake.update(dt);
+      
+      this.container.style.transform = `scale(${sc}) translateX(${shake}px)`;
+      
+      if (this.state.isFocused) {
+        this.overlay.style.boxShadow = `0 12px 32px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,1), 0 0 0 2px rgba(59, 130, 246, 0.5)`;
+      } else {
+        this.overlay.style.boxShadow = `0 8px 32px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.8)`;
+      }
+
+      document.getElementById("input-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new InputExhibit();
+  });
+</script>

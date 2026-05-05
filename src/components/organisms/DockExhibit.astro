@@ -1,0 +1,186 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+// We will use one single filter definition for all dock items to save DOM nodes
+const filterId = "dock-glass-filter";
+---
+
+<div class="relative w-full h-full flex items-end justify-center pb-12" id="dock-demo-area">
+  <!-- Real World Background (ambient shapes) -->
+  <div id="dock-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-gray-100 dark:bg-[#0f0f0f]">
+    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay dark:mix-blend-lighten" alt="Abstract fluid" />
+  </div>
+
+  <SvgFilter filterId={filterId} />
+
+  <!-- The Dock Container -->
+  <div class="relative flex items-end gap-4 p-4 rounded-3xl bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl z-10" id="liquid-dock">
+    
+    <!-- Dock Items will be generated via JS to attach logic easily, or we can hardcode the DOM and attach logic -->
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div class="dock-item relative w-[64px] h-[64px] will-change-transform cursor-pointer touch-none" data-index={i}>
+        <div class="dock-content-clone absolute inset-0 overflow-hidden rounded-2xl z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+          <div class="dock-clone-inner absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-100 dark:bg-[#0f0f0f]">
+             <!-- JS will inject the clone here -->
+          </div>
+        </div>
+        <div class="dock-thumb-inner absolute inset-0 z-[3] rounded-2xl border border-white/40 dark:border-white/20 bg-white/20 dark:bg-white/10 shadow-[0_8px_16px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-300 flex items-center justify-center">
+            <span class="text-white text-xl drop-shadow-md font-bold">{i + 1}</span>
+        </div>
+      </div>
+    ))}
+
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class DockExhibit {
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private dock: HTMLElement;
+    private items: HTMLElement[] = [];
+    private clones: HTMLElement[] = [];
+    
+    private config = { w: 128, h: 128, bw: 20, gt: 80, r: 24, ri: 1.5, maxDisp: 0 };
+    private state = { mouseX: -1000, isHovering: false };
+    
+    // One spring per item for its scale
+    private scales: Spring[] = [];
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.demoArea = document.getElementById('dock-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('dock-real-world') as HTMLElement;
+      this.dock = document.getElementById('liquid-dock') as HTMLElement;
+
+      if (!this.dock) return;
+      this.init();
+    }
+
+    private init() {
+      // Find items
+      const itemNodes = this.dock.querySelectorAll('.dock-item');
+      
+      itemNodes.forEach((node) => {
+        const el = node as HTMLElement;
+        this.items.push(el);
+        this.scales.push(new Spring(64, 400, 25)); // Base size is 64px
+        
+        const cloneInner = el.querySelector('.dock-clone-inner') as HTMLElement;
+        cloneInner.innerHTML = this.realWorld.outerHTML;
+        this.clones.push(cloneInner);
+      });
+
+      // Setup Optics (We pre-render a larger map (128x128) and scale it down via CSS for the icons, this is a trick to allow magnification without re-rendering maps)
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("dock-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("dock-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      // Events
+      this.dock.addEventListener('mousemove', this.onMouseMove.bind(this));
+      this.dock.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+      window.addEventListener('resize', this.updateClones.bind(this));
+      
+      this.updateClones();
+      this.startLoop();
+    }
+
+    private onMouseMove(e: MouseEvent) {
+      this.state.isHovering = true;
+      this.state.mouseX = e.clientX;
+      this.startLoop();
+    }
+
+    private onMouseLeave() {
+      this.state.isHovering = false;
+      this.startLoop();
+    }
+
+    private updateClones() {
+      const aR = this.demoArea.getBoundingClientRect();
+      
+      this.items.forEach((item, i) => {
+        const clone = this.clones[i];
+        const rect = item.getBoundingClientRect();
+        
+        clone.style.width = aR.width + "px";
+        clone.style.height = aR.height + "px";
+        
+        const offsetX = rect.left - aR.left;
+        const offsetY = rect.top - aR.top;
+        
+        // We scale the inner content inversely to the item's scale
+        const currentSize = this.scales[i].value;
+        const scaleRatio = currentSize / 128; // our base map is 128
+        
+        clone.style.transform = `scale(${1/scaleRatio}) translate(${-offsetX * scaleRatio}px, ${-offsetY * scaleRatio}px)`;
+      });
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      let anyMoving = false;
+
+      this.items.forEach((item, i) => {
+        let targetSize = 64;
+        
+        if (this.state.isHovering) {
+            const rect = item.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const dist = Math.abs(this.state.mouseX - centerX);
+            
+            if (dist < 150) {
+                // macOS dock magnification curve
+                const scale = 1 + (1 - dist / 150) * 0.8;
+                targetSize = 64 * scale;
+            }
+        }
+        
+        this.scales[i].setTarget(targetSize);
+        const currentSize = this.scales[i].update(dt);
+        
+        if (!this.scales[i].isSettled()) anyMoving = true;
+        
+        item.style.width = `${currentSize}px`;
+        item.style.height = `${currentSize}px`;
+      });
+      
+      this.updateClones();
+      
+      // Update global map scale based on the largest item to avoid clipping
+      // Actually since all use the same filter, they share the map scale. 
+      // In a real scenario with different sizes, they should use individual filters, 
+      // but for this demo a shared scale works well enough visually.
+      document.getElementById("dock-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * 1.2).toString());
+
+      if (anyMoving) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new DockExhibit();
+  });
+</script>

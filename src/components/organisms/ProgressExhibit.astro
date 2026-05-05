@@ -1,0 +1,164 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "progress-glass-filter";
+---
+
+<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#0f0f0f]" id="progress-demo-area">
+  
+  <div id="progress-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-200 to-transparent dark:from-gray-800"></div>
+    <div class="absolute w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-30 bottom-1/3"></div>
+  </div>
+
+  <SvgFilter filterId={filterId} />
+
+  <div class="relative w-full max-w-sm h-12 z-10" id="progress-container">
+    <div id="progress-content-clone" class="absolute inset-0 overflow-hidden rounded-full z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+      <div id="progress-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-50 dark:bg-[#0f0f0f]"></div>
+    </div>
+    
+    <div class="absolute inset-0 z-[2] rounded-full border border-gray-300 dark:border-white/20 bg-white/10 dark:bg-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] pointer-events-none" id="progress-bg"></div>
+    
+    <div class="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500" id="progress-bar" style="width: 0%"></div>
+    
+    <div class="absolute inset-0 z-[3] flex items-center justify-center">
+      <span class="text-sm font-bold text-white drop-shadow-md tracking-wider" id="progress-text">0%</span>
+    </div>
+  </div>
+  
+  <button id="progress-trigger" class="mt-8 px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-full hover:scale-105 transition-transform">Simulate Load</button>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import { calculateDisplacementMap1D, calculateDisplacementMap2D, calculateSpecularHighlight, imageDataToDataURL } from "../../quarks/surfaceRenderer";
+
+  class ProgressExhibit {
+    private container: HTMLElement;
+    private bar: HTMLElement;
+    private text: HTMLElement;
+    private trigger: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    
+    private config = { w: 384, h: 48, bw: 10, gt: 30, r: 24, ri: 1.4, maxDisp: 0 };
+    private state = { progress: 0, isAnimating: false };
+    
+    private springs = {
+      progress: new Spring(0, 400, 30),
+      wave: new Spring(0, 500, 20)
+    };
+    
+    private af: number | null = null;
+
+    constructor() {
+      this.container = document.getElementById('progress-container') as HTMLElement;
+      this.bar = document.getElementById('progress-bar') as HTMLElement;
+      this.text = document.getElementById('progress-text') as HTMLElement;
+      this.trigger = document.getElementById('progress-trigger') as HTMLElement;
+      this.cloneInner = document.getElementById('progress-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('progress-demo-area') as HTMLElement;
+
+      if (!this.container) return;
+      this.init();
+    }
+
+    private init() {
+      const rw = document.getElementById('progress-real-world');
+      if (rw) this.cloneInner.innerHTML = rw.outerHTML;
+
+      const rect = this.container.getBoundingClientRect();
+      this.config.w = rect.width || 384;
+
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("progress-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("progress-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      this.trigger.addEventListener('click', this.animate.bind(this));
+      window.addEventListener('resize', () => {
+        this.config.w = this.container.getBoundingClientRect().width;
+        this.updateClone();
+      });
+      
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private animate() {
+      if (this.state.isAnimating) return;
+      this.state.isAnimating = true;
+      
+      const target = 10 + Math.random() * 90;
+      this.springs.progress.setTarget(target);
+      
+      this.springs.wave.setTarget(1);
+      this.springs.wave.setTarget(0);
+      
+      setTimeout(() => {
+        this.state.isAnimating = false;
+        if (Math.random() > 0.5) this.animate();
+      }, 300);
+      
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const cR = this.container.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const p = this.springs.progress.value / 100;
+      const barWidth = this.config.w * p;
+      
+      const offsetX = cR.left + barWidth / 2 - aR.left;
+      const offsetY = cR.top - aR.top;
+
+      this.cloneInner.style.transform = `scale(${1/Math.max(0.1,p)}) translate(${-offsetX}px, ${-offsetY}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const p = this.springs.progress.update(dt);
+      const w = this.springs.wave.update(dt);
+      
+      this.bar.style.width = `${p}%`;
+      this.text.innerText = `${Math.round(p)}%`;
+      
+      if (p > 80) {
+        this.text.classList.add('text-white');
+      } else {
+        this.text.classList.remove('text-white');
+      }
+      
+      // Refraction intensity based on progress
+      const ds = 1 + (p / 100) * 0.5;
+      document.getElementById("progress-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (this.state.isAnimating || !this.springs.progress.isSettled()) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new ProgressExhibit();
+  });
+</script>

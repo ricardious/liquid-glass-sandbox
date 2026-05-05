@@ -1,0 +1,138 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "button-glass-filter";
+---
+
+<div class="relative w-full h-full" id="button-demo-area">
+  <!-- Real World Background (ambient orbs) -->
+  <div id="button-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-gray-50 dark:bg-[#0f0f0f]">
+    <div class="absolute w-40 h-40 bg-blue-500/20 dark:bg-blue-600/30 rounded-full mix-blend-multiply blur-3xl -top-10 -left-10"></div>
+    <div class="absolute w-40 h-40 bg-teal-400/20 dark:bg-teal-500/30 rounded-full mix-blend-multiply blur-3xl -bottom-10 -right-10"></div>
+  </div>
+
+  <div class="absolute inset-0 flex items-center justify-center">
+    <div class="relative w-[220px] h-[64px] rounded-none cursor-pointer select-none touch-none z-10 will-change-transform" id="liquid-button">
+      <div id="liquid-button-clone" class="absolute inset-0 overflow-hidden rounded-none z-[1] will-change-filter">
+        <div id="liquid-button-clone-world" class="absolute top-0 left-0 pointer-events-none will-change-transform origin-top-left bg-gray-50 dark:bg-[#0f0f0f]">
+          <!-- JS injects real world here -->
+        </div>
+      </div>
+      <SvgFilter filterId={filterId} />
+      <div id="liquid-button-inner" class="absolute inset-0 rounded-none z-[3] bg-white/5 dark:bg-white/10 border border-gray-200 dark:border-white/20 pointer-events-none will-change-[box-shadow]"></div>
+      <div class="absolute inset-0 z-[5] flex items-center justify-center font-mono font-bold tracking-widest text-sm text-gray-900 dark:text-white uppercase drop-shadow-md">
+        Deploy
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class ButtonExhibit {
+    private btn: HTMLElement;
+    private inner: HTMLElement;
+    private cloneWorld: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private cloneWrapper: HTMLElement;
+    
+    private config = { w: 220, h: 64, r: 0, bw: 10, gt: 80, ri: 1.8, maxDisp: 0 };
+    private state = { ih: false, ip: false };
+    private springs = {
+      sc: new Spring(1, 400, 20),
+      sd: new Spring(8, 400, 20),
+      rs: new Spring(0.8, 300, 20)
+    };
+    private af: number | null = null;
+
+    constructor() {
+      this.btn = document.getElementById('liquid-button') as HTMLElement;
+      this.inner = document.getElementById('liquid-button-inner') as HTMLElement;
+      this.cloneWorld = document.getElementById('liquid-button-clone-world') as HTMLElement;
+      this.demoArea = document.getElementById('button-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('button-real-world') as HTMLElement;
+      this.cloneWrapper = document.getElementById('liquid-button-clone') as HTMLElement;
+
+      if (!this.btn) return;
+      this.init();
+    }
+
+    private init() {
+      this.cloneWorld.innerHTML = this.realWorld.outerHTML;
+      this.cloneWrapper.style.filter = "url(#button-glass-filter)";
+
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("button-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("button-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      this.btn.addEventListener('mouseenter', () => { this.state.ih = true; this.startLoop(); });
+      this.btn.addEventListener('mouseleave', () => { this.state.ih = false; this.state.ip = false; this.startLoop(); });
+      this.btn.addEventListener('mousedown', () => { this.state.ip = true; this.startLoop(); });
+      this.btn.addEventListener('mouseup', () => { this.state.ip = false; this.startLoop(); });
+
+      window.addEventListener('resize', this.startLoop.bind(this));
+      
+      this.startLoop();
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      if (this.state.ip) { 
+        this.springs.sc.setTarget(0.95); 
+        this.springs.sd.setTarget(2); 
+        this.springs.rs.setTarget(1.5); 
+      } else if (this.state.ih) { 
+        this.springs.sc.setTarget(1.02); 
+        this.springs.sd.setTarget(12); 
+        this.springs.rs.setTarget(1.2); 
+      } else { 
+        this.springs.sc.setTarget(1); 
+        this.springs.sd.setTarget(6); 
+        this.springs.rs.setTarget(0.8); 
+      }
+
+      const sc = this.springs.sc.update(dt), sd = this.springs.sd.update(dt), rs = this.springs.rs.update(dt);
+      
+      this.btn.style.transform = `scale(${sc})`;
+      this.inner.style.boxShadow = `0 ${sd}px ${sd * 2}px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.1)`;
+      document.getElementById("button-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * rs).toString());
+
+      const aR = this.demoArea.getBoundingClientRect();
+      this.cloneWorld.style.width = aR.width + "px";
+      this.cloneWorld.style.height = aR.height + "px";
+      
+      const ol = (aR.width - this.config.w) / 2;
+      const ot = (aR.height - this.config.h) / 2;
+      this.cloneWorld.style.transform = `scale(${1 / sc}) translate(${-ol}px, ${-ot}px)`;
+
+      if (!Object.values(this.springs).every(x => x.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new ButtonExhibit();
+  });
+</script>

@@ -1,0 +1,224 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "lens-glass-filter";
+---
+
+<div class="relative w-full h-full" id="lens-demo-area">
+  <!-- Content to be refracted -->
+  <div id="lens-real-world" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white dark:bg-[#0f0f0f]">
+    <div class="w-full max-w-md grid grid-cols-1 md:grid-cols-2 gap-8 items-center pointer-events-none">
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-mono font-bold tracking-widest text-gray-400 uppercase">Optics Study</span>
+        <h3 class="text-4xl font-bold tracking-tighter text-gray-900 dark:text-white leading-none">Sharp<br>Focus</h3>
+        <p class="text-sm text-gray-500 mt-2">Minimalist glass over clean geometry.</p>
+      </div>
+      <div class="relative aspect-square border border-gray-200 dark:border-gray-800 overflow-hidden bg-gray-100 dark:bg-zinc-800">
+         <img src="https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-luminosity dark:mix-blend-screen opacity-80" alt="Abstract geometry" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Glass Lens -->
+  <div 
+    id="lens-glass-element" 
+    class="absolute z-10 cursor-grab active:cursor-grabbing will-change-transform shadow-[0_20px_40px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.6)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700/50 bg-white/5 dark:bg-black/5"
+    style="width: 200px; height: 200px; border-radius: 12px; left: 50%; top: 50%; transform: translate(-50%, -50%);"
+  >
+    <div id="lens-content-clone" class="absolute inset-0 overflow-hidden rounded-inherit z-[1] will-change-filter">
+      <div id="lens-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu bg-white dark:bg-[#0f0f0f]">
+         <!-- JS will inject the clone here -->
+      </div>
+    </div>
+    <div class="absolute inset-0 rounded-inherit z-[3] pointer-events-none"></div>
+    
+    <SvgFilter filterId={filterId} />
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class LensExhibit {
+    private glassEl: HTMLElement;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    private cloneWrapper: HTMLElement;
+    
+    private config = { bezelWidth: 30, glassThickness: 150, refractiveIndex: 1.5, refractionScale: 1.5, width: 200, height: 200, radius: 12 };
+    private state = { isDragging: false, dragOffset: {x: 0, y: 0}, velocityX: 0, velocityY: 0, lastX: 0, lastY: 0, lastTime: 0 };
+    
+    private springs = {
+      scale: new Spring(0.9, 400, 25),
+      scaleX: new Spring(1, 400, 30),
+      scaleY: new Spring(1, 400, 30),
+      ox: new Spring(0, 400, 30),
+      oy: new Spring(4, 400, 30),
+      blur: new Spring(12, 400, 30),
+      alpha: new Spring(0.1, 300, 25)
+    };
+    
+    private af: number | null = null;
+    private maxDisp = 0;
+
+    constructor() {
+      this.glassEl = document.getElementById("lens-glass-element") as HTMLElement;
+      this.cloneInner = document.getElementById("lens-clone-inner") as HTMLElement;
+      this.demoArea = document.getElementById("lens-demo-area") as HTMLElement;
+      this.realWorld = document.getElementById("lens-real-world") as HTMLElement;
+      this.cloneWrapper = document.getElementById("lens-content-clone") as HTMLElement;
+
+      if (!this.glassEl) return;
+      this.init();
+    }
+
+    private init() {
+      // Setup HTML clone
+      this.cloneInner.innerHTML = this.realWorld.innerHTML;
+      this.cloneWrapper.style.filter = "url(#lens-glass-filter)";
+
+      // Setup SVGs
+      const pc = calculateDisplacementMap1D(this.config.glassThickness, this.config.bezelWidth, SurfaceEquations.convex_squircle, this.config.refractiveIndex);
+      this.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.width, this.config.height, this.config.width, this.config.height, this.config.radius, this.config.bezelWidth, this.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.width, this.config.height, this.config.radius, this.config.bezelWidth);
+
+      document.getElementById("lens-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("lens-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      // Events
+      this.glassEl.addEventListener("pointerdown", this.onPointerDown.bind(this));
+      window.addEventListener("pointermove", this.onPointerMove.bind(this));
+      window.addEventListener("pointerup", this.onPointerUp.bind(this));
+      window.addEventListener("resize", this.updateClone.bind(this));
+
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      // Calculate current translation based on center positioning
+      const glassRect = this.glassEl.getBoundingClientRect();
+      const glassLeft = glassRect.left - aR.left;
+      const glassTop = glassRect.top - aR.top;
+      
+      this.cloneInner.style.transform = `translate(${-glassLeft}px, ${-glassTop}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      this.springs.scale.setTarget(this.state.isDragging ? 1 : 0.9);
+      this.springs.ox.setTarget(this.state.isDragging ? 4 : 0);
+      this.springs.oy.setTarget(this.state.isDragging ? 16 : 4);
+      this.springs.blur.setTarget(this.state.isDragging ? 24 : 12);
+      this.springs.alpha.setTarget(this.state.isDragging ? 0.2 : 0.1);
+
+      const vM = Math.sqrt(this.state.velocityX ** 2 + this.state.velocityY ** 2);
+      const sq = Math.min(0.15, vM / 3000);
+
+      if (vM > 50) {
+          const vx = this.state.velocityX / vM, vy = this.state.velocityY / vM;
+          this.springs.scaleX.setTarget(1 + sq * Math.abs(vx) - sq * 0.5 * Math.abs(vy));
+          this.springs.scaleY.setTarget(1 + sq * Math.abs(vy) - sq * 0.5 * Math.abs(vx));
+      } else {
+          this.springs.scaleX.setTarget(1);
+          this.springs.scaleY.setTarget(1);
+      }
+
+      const sc = this.springs.scale.update(dt), sx = this.springs.scaleX.update(dt), sy = this.springs.scaleY.update(dt);
+      
+      // Center transform + scale
+      this.glassEl.style.transform = `translate(-50%, -50%) scale(${sc * sx}, ${sc * sy})`;
+      
+      document.getElementById("lens-glass-filter-map")?.setAttribute("scale", (this.maxDisp * this.config.refractionScale).toString());
+
+      if (!this.state.isDragging) {
+        this.state.velocityX *= 0.95;
+        this.state.velocityY *= 0.95;
+      }
+
+      if (!(Object.values(this.springs).every(x => x.isSettled()) && Math.abs(this.state.velocityX) < 1 && Math.abs(this.state.velocityY) < 1)) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+
+    private onPointerDown(e: PointerEvent) {
+      e.preventDefault();
+      this.state.isDragging = true;
+      this.glassEl.setPointerCapture(e.pointerId);
+      
+      const r = this.glassEl.getBoundingClientRect();
+      const cs = this.springs.scale.value;
+      this.state.dragOffset.x = (e.clientX - r.left - r.width/2) / cs;
+      this.state.dragOffset.y = (e.clientY - r.top - r.height/2) / cs;
+      
+      this.state.lastX = e.clientX;
+      this.state.lastY = e.clientY;
+      this.state.lastTime = performance.now();
+      this.state.velocityX = 0;
+      this.state.velocityY = 0;
+      
+      this.startLoop();
+    }
+
+    private onPointerMove(e: PointerEvent) {
+      if (!this.state.isDragging) return;
+      e.preventDefault();
+      
+      const cx = e.clientX;
+      const cy = e.clientY;
+      const dt = Math.max(1, performance.now() - this.state.lastTime) / 1000;
+      
+      this.state.velocityX = (cx - this.state.lastX) / dt;
+      this.state.velocityY = (cy - this.state.lastY) / dt;
+      this.state.lastX = cx;
+      this.state.lastY = cy;
+      this.state.lastTime = performance.now();
+      
+      const aR = this.demoArea.getBoundingClientRect();
+      
+      // Calculate new center
+      let nx = cx - aR.left - this.state.dragOffset.x;
+      let ny = cy - aR.top - this.state.dragOffset.y;
+      
+      // Bounds
+      nx = Math.max(this.config.width/2, Math.min(nx, aR.width - this.config.width/2));
+      ny = Math.max(this.config.height/2, Math.min(ny, aR.height - this.config.height/2));
+      
+      this.glassEl.style.left = nx + "px";
+      this.glassEl.style.top = ny + "px";
+      
+      this.updateClone();
+    }
+
+    private onPointerUp() {
+      this.state.isDragging = false;
+      this.startLoop();
+    }
+  }
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    new LensExhibit();
+  });
+</script>

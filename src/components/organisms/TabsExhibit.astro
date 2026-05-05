@@ -1,0 +1,260 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+const filterId = "tabs-glass-filter";
+---
+
+<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#111]" id="tabs-demo-area">
+  
+  <!-- Real World Background (ambient shapes) -->
+  <div id="tabs-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-200 via-gray-100 to-transparent dark:from-gray-800 dark:via-gray-900 dark:to-transparent opacity-50"></div>
+    <div class="absolute w-[400px] h-[400px] bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl mix-blend-multiply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+  </div>
+
+  <SvgFilter filterId={filterId} />
+
+  <!-- The Tabs Container -->
+  <div class="relative flex p-1.5 bg-gray-200/50 dark:bg-black/50 backdrop-blur-md rounded-2xl border border-gray-300/50 dark:border-gray-800/80 shadow-inner z-10" id="liquid-tabs-container">
+    
+    <!-- The Glass Active Indicator -->
+    <div 
+      class="absolute top-1.5 left-1.5 h-[calc(100%-12px)] rounded-xl z-0 will-change-transform touch-none" 
+      id="liquid-tabs-indicator"
+    >
+      <div id="tabs-content-clone" class="absolute inset-0 overflow-hidden rounded-inherit z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
+        <div id="tabs-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-50 dark:bg-[#111]">
+           <!-- JS will inject the clone here -->
+        </div>
+      </div>
+      <div class="absolute inset-0 z-[2] rounded-inherit border border-white/60 dark:border-white/20 bg-white/40 dark:bg-white/5 shadow-[0_4px_16px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.9)] pointer-events-none"></div>
+    </div>
+    
+    <!-- Tab Buttons -->
+    <button class="liquid-tab relative z-10 px-8 py-3 text-sm font-semibold tracking-wide text-gray-900 dark:text-white transition-colors duration-300 mix-blend-difference dark:mix-blend-normal focus:outline-none" data-index="0">Design</button>
+    <button class="liquid-tab relative z-10 px-8 py-3 text-sm font-semibold tracking-wide text-gray-500 dark:text-gray-400 transition-colors duration-300 mix-blend-difference dark:mix-blend-normal focus:outline-none" data-index="1">Physics</button>
+    <button class="liquid-tab relative z-10 px-8 py-3 text-sm font-semibold tracking-wide text-gray-500 dark:text-gray-400 transition-colors duration-300 mix-blend-difference dark:mix-blend-normal focus:outline-none" data-index="2">Optics</button>
+    <button class="liquid-tab relative z-10 px-8 py-3 text-sm font-semibold tracking-wide text-gray-500 dark:text-gray-400 transition-colors duration-300 mix-blend-difference dark:mix-blend-normal focus:outline-none" data-index="3">Settings</button>
+
+  </div>
+</div>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class TabsExhibit {
+    private container: HTMLElement;
+    private indicator: HTMLElement;
+    private tabs: NodeListOf<HTMLElement>;
+    private cloneInner: HTMLElement;
+    private demoArea: HTMLElement;
+    private realWorld: HTMLElement;
+    
+    private config = { w: 100, h: 44, bw: 10, gt: 40, r: 12, ri: 1.5, maxDisp: 0 };
+    private state = { activeIndex: 0, targetLeft: 0, targetWidth: 0, isHovering: false };
+    
+    private springs = {
+      x: new Spring(0, 350, 30),
+      width: new Spring(100, 350, 30),
+      scale: new Spring(1, 400, 25),
+      dispScale: new Spring(1, 300, 20)
+    };
+    
+    private af: number | null = null;
+    private needsReRender = false;
+
+    constructor() {
+      this.container = document.getElementById('liquid-tabs-container') as HTMLElement;
+      this.indicator = document.getElementById('liquid-tabs-indicator') as HTMLElement;
+      this.tabs = this.container.querySelectorAll('.liquid-tab');
+      this.cloneInner = document.getElementById('tabs-clone-inner') as HTMLElement;
+      this.demoArea = document.getElementById('tabs-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('tabs-real-world') as HTMLElement;
+
+      if (!this.container) return;
+      this.init();
+    }
+
+    private init() {
+      // Setup Clone
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+
+      // Initial active tab
+      const activeTab = this.tabs[0];
+      const contRect = this.container.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      
+      this.state.targetWidth = tabRect.width;
+      this.state.targetLeft = tabRect.left - contRect.left - 6; // -6 for container padding
+      
+      this.springs.width.value = this.state.targetWidth;
+      this.springs.x.value = this.state.targetLeft;
+      this.config.w = this.state.targetWidth;
+
+      // Setup Optics
+      this.renderOptics();
+
+      // Events
+      this.tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => this.setActiveTab(index, tab));
+      });
+      
+      this.indicator.addEventListener('mouseenter', () => {
+        this.state.isHovering = true;
+        this.springs.scale.setTarget(1.05);
+        this.springs.dispScale.setTarget(1.3);
+        this.startLoop();
+      });
+      
+      this.indicator.addEventListener('mouseleave', () => {
+        this.state.isHovering = false;
+        this.springs.scale.setTarget(1);
+        this.springs.dispScale.setTarget(1);
+        this.startLoop();
+      });
+
+      window.addEventListener('resize', this.onResize.bind(this));
+      
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private setActiveTab(index: number, tab: HTMLElement) {
+      if (this.state.activeIndex === index) return;
+      
+      this.state.activeIndex = index;
+      
+      // Update text colors
+      this.tabs.forEach((t, i) => {
+        if (i === index) {
+          t.classList.remove('text-gray-500', 'dark:text-gray-400');
+          t.classList.add('text-gray-900', 'dark:text-white');
+        } else {
+          t.classList.add('text-gray-500', 'dark:text-gray-400');
+          t.classList.remove('text-gray-900', 'dark:text-white');
+        }
+      });
+      
+      const contRect = this.container.getBoundingClientRect();
+      const tabRect = tab.getBoundingClientRect();
+      
+      this.state.targetWidth = tabRect.width;
+      this.state.targetLeft = tabRect.left - contRect.left - 6;
+
+      this.springs.width.setTarget(this.state.targetWidth);
+      this.springs.x.setTarget(this.state.targetLeft);
+      
+      // Dynamic stretch effect based on distance traveled
+      const distance = Math.abs(this.springs.x.value - this.state.targetLeft);
+      if (distance > 10) {
+          this.springs.scale.setTarget(0.9);
+          this.springs.dispScale.setTarget(1.8);
+          setTimeout(() => {
+              this.springs.scale.setTarget(this.state.isHovering ? 1.05 : 1);
+              this.springs.dispScale.setTarget(this.state.isHovering ? 1.3 : 1);
+          }, 150);
+      }
+
+      this.startLoop();
+    }
+
+    private renderOptics() {
+      // Avoid rendering zero-width maps
+      if (this.config.w < 10) return;
+      
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("tabs-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("tabs-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+      
+      this.needsReRender = false;
+    }
+
+    private onResize() {
+      const activeTab = this.tabs[this.state.activeIndex];
+      const contRect = this.container.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      
+      this.state.targetWidth = tabRect.width;
+      this.state.targetLeft = tabRect.left - contRect.left - 6;
+      
+      this.springs.width.value = this.state.targetWidth;
+      this.springs.width.setTarget(this.state.targetWidth);
+      
+      this.springs.x.value = this.state.targetLeft;
+      this.springs.x.setTarget(this.state.targetLeft);
+      
+      this.config.w = this.state.targetWidth;
+      this.renderOptics();
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+      const contRect = this.container.getBoundingClientRect();
+      
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+      
+      const sc = this.springs.scale.value;
+      const curX = this.springs.x.value;
+      
+      const offsetX = contRect.left + curX + 6 - aR.left; // +6 for container padding
+      const offsetY = contRect.top + 6 - aR.top;
+
+      this.cloneInner.style.transform = `scale(${1/sc}) translate(${-offsetX * sc}px, ${-offsetY * sc}px)`;
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+      
+      const x = this.springs.x.update(dt);
+      const w = this.springs.width.update(dt);
+      const sc = this.springs.scale.update(dt);
+      const ds = this.springs.dispScale.update(dt);
+      
+      this.indicator.style.transform = `translateX(${x}px) scale(${sc}, ${sc > 1 ? 2 - sc : sc})`;
+      this.indicator.style.width = `${w}px`;
+      
+      // Debounce optics re-render if width changes significantly
+      if (Math.abs(w - this.config.w) > 5) {
+          this.config.w = w;
+          this.needsReRender = true;
+      }
+      
+      if (this.needsReRender && this.springs.width.isSettled()) {
+          this.renderOptics();
+      }
+
+      document.getElementById("tabs-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+
+      this.updateClone();
+
+      if (!Object.values(this.springs).every(s => s.isSettled())) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new TabsExhibit();
+  });
+</script>
