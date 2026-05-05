@@ -36,13 +36,13 @@ import LiquidGlassContainer from '../components/organisms/LiquidGlassContainer.a
               Arrastra la cápsula sobre este contenido. Esto no usa <code>backdrop-filter</code>, sino filtros SVG de desplazamiento inyectados nativamente para refracción cruzada perfecta.
             </p>
             
-            <div class="flex flex-wrap gap-4 mt-4">
-              <button class="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:scale-105 transition-transform shadow-xl">
+            <div class="flex flex-wrap gap-4 mt-4 relative z-20">
+              <button onclick="alert('¡Iniciando experiencia Liquid Glass!')" class="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold hover:scale-105 transition-transform shadow-xl cursor-pointer">
                 Empezar
               </button>
-              <button class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+              <a href="https://github.com/winaviation/liquid-glass-demo" target="_blank" rel="noopener noreferrer" class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm cursor-pointer flex items-center justify-center">
                 Leer Documentación
-              </button>
+              </a>
             </div>
           </div>
           

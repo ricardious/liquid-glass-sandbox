@@ -95,6 +95,8 @@ const filterId = `${id}-filter`;
       filter: "",
     };
 
+    private initialized = false;
+
     constructor() {
       super();
       this.glassLens = this.querySelector(".glass-lens") as HTMLElement;
@@ -115,6 +117,12 @@ const filterId = `${id}-filter`;
     }
 
     connectedCallback() {
+      if (this.initialized) return;
+      this.initialized = true;
+
+      // Limpiar cloneInner por si Astro HMR lo re-ejecuta
+      this.cloneInner.innerHTML = '';
+
       // Clone background content
       const clonedNode = this.bgContent.cloneNode(true) as HTMLElement;
       clonedNode.classList.remove("glass-bg-content");
