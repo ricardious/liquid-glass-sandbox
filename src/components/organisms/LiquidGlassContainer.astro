@@ -1,0 +1,248 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+
+interface Props {
+  id?: string;
+  glassWidth?: number;
+  glassHeight?: number;
+  glassRadius?: number;
+  glassThickness?: number;
+  bezelWidth?: number;
+  refractiveIndex?: number;
+  surfaceType?: "convex_circle" | "convex_squircle" | "concave" | "lip";
+}
+
+const {
+  id = "liquid-glass-container",
+  glassWidth = 200,
+  glassHeight = 140,
+  glassRadius = 70,
+  glassThickness = 150,
+  bezelWidth = 30,
+  refractiveIndex = 1.5,
+  surfaceType = "convex_squircle",
+} = Astro.props;
+
+const filterId = `${id}-filter`;
+---
+
+<liquid-glass
+  id={id}
+  data-width={glassWidth}
+  data-height={glassHeight}
+  data-radius={glassRadius}
+  data-thickness={glassThickness}
+  data-bezel={bezelWidth}
+  data-refractive={refractiveIndex}
+  data-surface={surfaceType}
+  data-filter={filterId}
+  class="relative block overflow-hidden rounded-3xl"
+>
+  <SvgFilter filterId={filterId} />
+
+  <!-- Background Content (will be slotted) -->
+  <div class="glass-bg-content w-full h-full">
+    <slot />
+  </div>
+
+  <!-- The Interactive Glass Element -->
+  <div
+    class="glass-lens absolute cursor-grab active:cursor-grabbing will-change-transform shadow-[0_30px_60px_rgba(0,0,0,0.12),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-white/20"
+    style={`width: ${glassWidth}px; height: ${glassHeight}px; border-radius: ${glassRadius}px; top: 50%; left: 50%; transform: translate(-50%, -50%); backdrop-filter: none; z-index: 50;`}
+  >
+    <!-- Clone wrapper -->
+    <div class="glass-clone-wrapper absolute inset-0 overflow-hidden" style={`border-radius: ${glassRadius}px;`}>
+      <div class="glass-clone-inner absolute top-0 left-0 w-full h-full transform-gpu origin-top-left pointer-events-none">
+        <!-- JS will inject clone here -->
+      </div>
+    </div>
+  </div>
+</liquid-glass>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
+
+  class LiquidGlassElement extends HTMLElement {
+    private glassLens: HTMLElement;
+    private bgContent: HTMLElement;
+    private cloneInner: HTMLElement;
+    private cloneWrapper: HTMLElement;
+
+    private glassX = new Spring(0, 300, 20);
+    private glassY = new Spring(0, 300, 20);
+
+    private isDragging = false;
+    private dragStartX = 0;
+    private dragStartY = 0;
+    private initialGlassX = 0;
+    private initialGlassY = 0;
+
+    private config = {
+      width: 200,
+      height: 140,
+      radius: 70,
+      thickness: 150,
+      bezel: 30,
+      refractive: 1.5,
+      surface: "convex_squircle" as keyof typeof SurfaceEquations,
+      filter: "",
+    };
+
+    constructor() {
+      super();
+      this.glassLens = this.querySelector(".glass-lens") as HTMLElement;
+      this.bgContent = this.querySelector(".glass-bg-content") as HTMLElement;
+      this.cloneWrapper = this.querySelector(".glass-clone-wrapper") as HTMLElement;
+      this.cloneInner = this.querySelector(".glass-clone-inner") as HTMLElement;
+
+      this.config = {
+        width: Number(this.dataset.width),
+        height: Number(this.dataset.height),
+        radius: Number(this.dataset.radius),
+        thickness: Number(this.dataset.thickness),
+        bezel: Number(this.dataset.bezel),
+        refractive: Number(this.dataset.refractive),
+        surface: this.dataset.surface as keyof typeof SurfaceEquations,
+        filter: this.dataset.filter || "",
+      };
+    }
+
+    connectedCallback() {
+      // Clone background content
+      const clonedNode = this.bgContent.cloneNode(true) as HTMLElement;
+      clonedNode.classList.remove("glass-bg-content");
+      this.cloneInner.appendChild(clonedNode);
+
+      // Apply SVG filter to the clone wrapper
+      this.cloneWrapper.style.filter = `url(#${this.config.filter})`;
+
+      this.initFilter();
+      this.initEvents();
+      
+      // Initial positioning
+      const rect = this.getBoundingClientRect();
+      this.glassX.value = rect.width / 2;
+      this.glassY.value = rect.height / 2;
+      this.glassX.target = this.glassX.value;
+      this.glassY.target = this.glassY.value;
+
+      this.renderLoop();
+    }
+
+    private initFilter() {
+      const surfaceFn = SurfaceEquations[this.config.surface];
+      const precomputed = calculateDisplacementMap1D(
+        this.config.thickness,
+        this.config.bezel,
+        surfaceFn,
+        this.config.refractive
+      );
+      
+      const maximumDisplacement = Math.max(...precomputed.map(Math.abs));
+
+      const displacementData = calculateDisplacementMap2D(
+        this.config.width,
+        this.config.height,
+        this.config.width,
+        this.config.height,
+        this.config.radius,
+        this.config.bezel,
+        maximumDisplacement,
+        precomputed
+      );
+
+      const specularData = calculateSpecularHighlight(
+        this.config.width,
+        this.config.height,
+        this.config.radius,
+        this.config.bezel
+      );
+
+      const displacementUrl = imageDataToDataURL(displacementData);
+      const specularUrl = imageDataToDataURL(specularData);
+
+      document.getElementById(`${this.config.filter}-image`)?.setAttribute("href", displacementUrl);
+      document.getElementById(`${this.config.filter}-specular`)?.setAttribute("href", specularUrl);
+      document.getElementById(`${this.config.filter}-map`)?.setAttribute("scale", (maximumDisplacement * 0.4).toString()); // scale adjusted for visual balance
+    }
+
+    private initEvents() {
+      this.glassLens.addEventListener("pointerdown", this.onDragStart.bind(this));
+      window.addEventListener("pointermove", this.onDragMove.bind(this));
+      window.addEventListener("pointerup", this.onDragEnd.bind(this));
+      window.addEventListener("resize", this.onResize.bind(this));
+    }
+
+    private onResize() {
+       // Refresh clone inner size
+       const rect = this.getBoundingClientRect();
+       this.cloneInner.style.width = rect.width + "px";
+       this.cloneInner.style.height = rect.height + "px";
+    }
+
+    private onDragStart(e: PointerEvent) {
+      if (e.button !== 0) return;
+      this.isDragging = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
+      this.initialGlassX = this.glassX.value;
+      this.initialGlassY = this.glassY.value;
+      this.glassLens.setPointerCapture(e.pointerId);
+    }
+
+    private onDragMove(e: PointerEvent) {
+      if (!this.isDragging) return;
+      e.preventDefault();
+      const dx = e.clientX - this.dragStartX;
+      const dy = e.clientY - this.dragStartY;
+      
+      const rect = this.getBoundingClientRect();
+      
+      // Calculate new targets but keep within bounds roughly
+      let newX = this.initialGlassX + dx;
+      let newY = this.initialGlassY + dy;
+      
+      this.glassX.setTarget(newX);
+      this.glassY.setTarget(newY);
+    }
+
+    private onDragEnd(e: PointerEvent) {
+      this.isDragging = false;
+      this.glassLens.releasePointerCapture(e.pointerId);
+    }
+
+    private renderLoop = (timestamp = 0) => {
+      const dt = 1 / 60; // assume 60fps for simple spring
+
+      this.glassX.update(dt);
+      this.glassY.update(dt);
+
+      // Positioning glass
+      this.glassLens.style.left = `${this.glassX.value}px`;
+      this.glassLens.style.top = `${this.glassY.value}px`;
+      this.glassLens.style.transform = `translate(-50%, -50%)`;
+
+      // Update clone's transform inversely
+      const areaRect = this.getBoundingClientRect();
+      this.cloneInner.style.width = areaRect.width + "px";
+      this.cloneInner.style.height = areaRect.height + "px";
+      
+      // Calculate inverse translation for clone inner
+      const inverseX = -(this.glassX.value - this.config.width / 2);
+      const inverseY = -(this.glassY.value - this.config.height / 2);
+      
+      this.cloneInner.style.transform = `translate(${inverseX}px, ${inverseY}px)`;
+
+      requestAnimationFrame(this.renderLoop);
+    };
+  }
+
+  customElements.define("liquid-glass", LiquidGlassElement);
+</script>
