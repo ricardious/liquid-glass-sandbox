@@ -1,1 +1,93 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
+/* ==========================================================================
+   LIQUID GLASS ENGINE - Core Utility Styles
+   ========================================================================== */
+
+/* SVG filter containers */
+.glass-filter-svg {
+  width: 0;
+  height: 0;
+  position: absolute;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Glass clone wrapper - the refracted content layer */
+.glass-clone-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
+  will-change: filter;
+  contain: strict;
+}
+
+/* Glass clone inner - positioned full-size for inverse transform */
+.glass-clone-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+  transform-origin: top left;
+  contain: layout style paint;
+}
+
+/* Slider clone: draw track + fill inside the refracted area */
+.slider-clone-inner::before {
+  content: "";
+  position: absolute;
+  left: var(--track-left, 0);
+  top: var(--track-top, 0);
+  width: var(--track-width, 100%);
+  height: var(--track-height, 18px);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.slider-clone-inner::after {
+  content: "";
+  position: absolute;
+  left: var(--track-left, 0);
+  top: var(--track-top, 0);
+  width: calc(var(--track-width, 100%) * var(--fill-width, 50) / 100);
+  height: var(--track-height, 18px);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* Switch clone: draw track color inside the refracted area */
+.switch-clone-inner::before {
+  content: "";
+  position: absolute;
+  left: var(--track-left, 0);
+  top: var(--track-top, 0);
+  width: var(--track-width, 140px);
+  height: var(--track-height, 72px);
+  border-radius: 999px;
+  background-color: var(--switch-track-color, rgba(255, 255, 255, 0.05));
+}
+
+/* Glass inner overlay - the visible border/specular layer */
+.glass-inner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Rounded corners inheritance helper */
+.rounded-inherit {
+  border-radius: inherit;
+}
