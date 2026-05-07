@@ -101,6 +101,7 @@ const glassR = 43;
     private cloneWrapper: HTMLElement;
     private modal: HTMLElement | null;
     private modalPanel: HTMLElement | null;
+    private modalSurface: HTMLElement | null;
 
     private config = {
       w: 340,
@@ -149,6 +150,9 @@ const glassR = 43;
       this.modal = document.getElementById("button-controls-modal");
       this.modalPanel = this.modal?.querySelector(
         "[data-button-modal-panel]",
+      ) as HTMLElement | null;
+      this.modalSurface = this.modal?.querySelector(
+        "[data-modal-surface]",
       ) as HTMLElement | null;
 
       if (!this.btn) return;
@@ -243,6 +247,8 @@ const glassR = 43;
       this.modal.classList.toggle("pointer-events-none", !open);
       this.modal.classList.toggle("opacity-0", !open);
       this.modalPanel.classList.toggle(hiddenOffsetClass, !open);
+      this.modalSurface?.classList.toggle("pointer-events-auto", open);
+      this.modalSurface?.classList.toggle("pointer-events-none", !open);
     }
 
     private regenerate() {

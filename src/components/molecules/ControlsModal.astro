@@ -29,7 +29,6 @@ const {
   panelAlign = "end",
 } = Astro.props;
 
-// Build an object to spread so Astro adds these as boolean attributes if they exist
 const panelProps = panelDataAttr ? { [panelDataAttr]: true } : {};
 const closeProps = closeDataAttr ? { [closeDataAttr]: true } : {};
 const triggerProps = triggerDataAttr ? { [triggerDataAttr]: true } : {};
@@ -68,7 +67,7 @@ const panelOpenOffsetClass =
 
 <div
   class={cn(
-    "relative inline-flex",
+    "relative z-[9999] inline-flex",
     containerClassName,
   )}
 >
@@ -90,7 +89,7 @@ const panelOpenOffsetClass =
   <div
     id={id}
     class={cn(
-      "pointer-events-none absolute z-30 min-w-0 opacity-0 transition duration-200",
+      "pointer-events-none absolute z-[9999] min-w-0 opacity-0 transition duration-200",
       panelPositionClass,
       panelAlignClass,
       panelClassName,
@@ -106,10 +105,11 @@ const panelOpenOffsetClass =
     >
       <div
         class={cn(
-          "pointer-events-auto flex min-h-0 max-h-[min(32rem,calc(100vh-8rem))] flex-col rounded-[1.75rem] border border-white/30 bg-white/60 p-3",
+          "pointer-events-none flex min-h-0 max-h-[min(32rem,calc(100vh-8rem))] flex-col rounded-[1.75rem] border border-white/30 bg-white/60 p-3",
           "shadow-[0_24px_60px_rgba(0,0,0,0.22)]",
           "dark:border-white/15 dark:bg-[#0f1217]/60",
         )}
+        data-modal-surface
       >
         <div class="mb-2 flex shrink-0 items-center justify-between gap-4 px-1">
           <span
