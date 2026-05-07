@@ -1,6 +1,8 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import ExhibitCard from '../components/molecules/ExhibitCard.astro';
+import ControlsModal from '../components/molecules/ControlsModal.astro';
+import LiquidControls from '../components/molecules/LiquidControls.astro';
 import LensExhibit from '../components/organisms/LensExhibit.astro';
 import ButtonExhibit from '../components/organisms/ButtonExhibit.astro';
 import SwitchExhibit from '../components/organisms/SwitchExhibit.astro';
@@ -52,6 +54,74 @@ import ToastExhibit from '../components/organisms/ToastExhibit.astro';
           description="A hyper-tactile button with inner tension. Click and hold to feel the surface pull inward."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="button-controls-modal"
+            title="Button Parameters"
+            panelDataAttr="data-button-modal-panel"
+            closeDataAttr="data-close-button-controls"
+            triggerDataAttr="data-open-button-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Button Controls"
+              target="button-controls"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.4,
+                  max: 2.4,
+                  step: 0.01,
+                  value: 0.8,
+                },
+                {
+                  key: "hoverRefraction",
+                  label: "Hover Boost",
+                  min: 0.8,
+                  max: 2.2,
+                  step: 0.01,
+                  value: 1.2,
+                },
+                {
+                  key: "pressRefraction",
+                  label: "Press Boost",
+                  min: 0.8,
+                  max: 2.4,
+                  step: 0.01,
+                  value: 1.5,
+                },
+                {
+                  key: "scale",
+                  label: "Hover Scale",
+                  min: 1,
+                  max: 1.14,
+                  step: 0.01,
+                  value: 1.05,
+                },
+                {
+                  key: "pressScale",
+                  label: "Press Scale",
+                  min: 0.82,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.9,
+                },
+                {
+                  key: "shadowDepth",
+                  label: "Shadow",
+                  min: 4,
+                  max: 18,
+                  step: 0.1,
+                  value: 8,
+                },
+              ]}
+            />
+          </ControlsModal>
           <ButtonExhibit />
         </ExhibitCard>
 

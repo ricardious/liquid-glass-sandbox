@@ -1,0 +1,139 @@
+---
+import { cn } from "../../lib/utils";
+
+interface Props {
+  id: string;
+  title: string;
+  panelDataAttr?: string;
+  closeDataAttr?: string;
+  triggerDataAttr?: string;
+  triggerLabel?: string;
+  triggerClassName?: string;
+  containerClassName?: string;
+  panelClassName?: string;
+  panelSide?: "top" | "bottom" | "left" | "right";
+  panelAlign?: "start" | "center" | "end";
+}
+
+const {
+  id,
+  title,
+  panelDataAttr,
+  closeDataAttr,
+  triggerDataAttr,
+  triggerLabel,
+  triggerClassName = "",
+  containerClassName = "",
+  panelClassName = "",
+  panelSide = "bottom",
+  panelAlign = "end",
+} = Astro.props;
+
+// Build an object to spread so Astro adds these as boolean attributes if they exist
+const panelProps = panelDataAttr ? { [panelDataAttr]: true } : {};
+const closeProps = closeDataAttr ? { [closeDataAttr]: true } : {};
+const triggerProps = triggerDataAttr ? { [triggerDataAttr]: true } : {};
+
+const panelPositionClass =
+  panelSide === "top"
+    ? "bottom-full mb-3"
+    : panelSide === "left"
+      ? "right-full mr-3 top-0"
+      : panelSide === "right"
+        ? "left-full ml-3 top-0"
+        : "top-full mt-3";
+
+const panelAlignClass =
+  panelSide === "top" || panelSide === "bottom"
+    ? panelAlign === "start"
+      ? "left-0"
+      : panelAlign === "center"
+        ? "left-1/2 -translate-x-1/2"
+        : "right-0"
+    : panelAlign === "start"
+      ? "top-0"
+      : panelAlign === "center"
+        ? "top-1/2 -translate-y-1/2"
+        : "bottom-0";
+
+const panelOpenOffsetClass =
+  panelSide === "top"
+    ? "translate-y-[-0.75rem]"
+    : panelSide === "left"
+      ? "translate-x-[-0.75rem]"
+      : panelSide === "right"
+        ? "translate-x-[0.75rem]"
+        : "translate-y-[0.75rem]";
+---
+
+<div
+  class={cn(
+    "relative inline-flex",
+    containerClassName,
+  )}
+>
+  {
+    triggerLabel && (
+      <button
+        type="button"
+        class={cn(
+          "pointer-events-auto shrink-0 self-end rounded-full border border-gray-300 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10",
+          triggerClassName,
+        )}
+        {...triggerProps}
+      >
+        {triggerLabel}
+      </button>
+    )
+  }
+
+  <div
+    id={id}
+    class={cn(
+      "pointer-events-none absolute z-30 min-w-0 opacity-0 transition duration-200",
+      panelPositionClass,
+      panelAlignClass,
+      panelClassName,
+    )}
+  >
+    <div
+      class={cn(
+        "relative flex w-64 min-w-0 max-w-[min(20rem,calc(100vw-2rem))] flex-col transition duration-200",
+        panelOpenOffsetClass,
+      )}
+      data-modal-offset-class={panelOpenOffsetClass}
+      {...panelProps}
+    >
+      <div
+        class={cn(
+          "pointer-events-auto flex min-h-0 max-h-[min(32rem,calc(100vh-8rem))] flex-col rounded-[1.75rem] border border-white/30 bg-white/60 p-3",
+          "shadow-[0_24px_60px_rgba(0,0,0,0.22)]",
+          "dark:border-white/15 dark:bg-[#0f1217]/60",
+        )}
+      >
+        <div class="mb-2 flex shrink-0 items-center justify-between gap-4 px-1">
+          <span
+            class="text-[10px] uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400"
+          >
+            {title}
+          </span>
+          <button
+            type="button"
+            class={cn(
+              "rounded-full border border-black/10 px-2.5 py-1",
+              "text-[10px] uppercase tracking-[0.18em] text-zinc-500 transition hover:bg-black/5",
+              "dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/10",
+            )}
+            {...closeProps}
+          >
+            Close
+          </button>
+        </div>
+
+        <div class="min-h-0 overflow-y-auto pr-1">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
