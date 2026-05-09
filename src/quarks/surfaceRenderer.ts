@@ -3,7 +3,7 @@ export function calculateDisplacementMap1D(
   bezelWidth: number,
   surfaceFn: (x: number) => number,
   refractiveIndex: number,
-  samples = 128
+  samples = 128,
 ) {
   const eta = 1 / refractiveIndex;
 
@@ -12,10 +12,7 @@ export function calculateDisplacementMap1D(
     const k = 1 - eta * eta * (1 - dot * dot);
     if (k < 0) return null;
     const kSqrt = Math.sqrt(k);
-    return [
-      -(eta * dot + kSqrt) * normalX,
-      eta - (eta * dot + kSqrt) * normalY,
-    ];
+    return [-(eta * dot + kSqrt) * normalX, eta - (eta * dot + kSqrt) * normalY];
   }
 
   const result = [];
@@ -48,7 +45,7 @@ export function calculateDisplacementMap2D(
   radius: number,
   bezelWidth: number,
   maximumDisplacement: number,
-  precomputedMap: number[]
+  precomputedMap: number[],
 ) {
   const imageData = new ImageData(canvasWidth, canvasHeight);
 
@@ -61,10 +58,7 @@ export function calculateDisplacementMap2D(
 
   const radiusSquared = radius * radius;
   const radiusPlusOneSquared = (radius + 1) * (radius + 1);
-  const radiusMinusBezelSquared = Math.max(
-    0,
-    (radius - bezelWidth) * (radius - bezelWidth)
-  );
+  const radiusMinusBezelSquared = Math.max(0, (radius - bezelWidth) * (radius - bezelWidth));
   const widthBetweenRadiuses = objectWidth - radius * 2;
   const heightBetweenRadiuses = objectHeight - radius * 2;
   const objectX = (canvasWidth - objectWidth) / 2;
@@ -78,16 +72,12 @@ export function calculateDisplacementMap2D(
       const isOnTopSide = y1 < radius;
       const isOnBottomSide = y1 >= objectHeight - radius;
 
-      const x = isOnLeftSide
-        ? x1 - radius
-        : isOnRightSide
-        ? x1 - radius - widthBetweenRadiuses
-        : 0;
+      const x = isOnLeftSide ? x1 - radius : isOnRightSide ? x1 - radius - widthBetweenRadiuses : 0;
       const y = isOnTopSide
         ? y1 - radius
         : isOnBottomSide
-        ? y1 - radius - heightBetweenRadiuses
-        : 0;
+          ? y1 - radius - heightBetweenRadiuses
+          : 0;
 
       const distanceToCenterSquared = x * x + y * y;
       const isInBezel =
@@ -105,28 +95,15 @@ export function calculateDisplacementMap2D(
         const distanceFromSide = radius - distanceFromCenter;
         const cos = distanceFromCenter > 0 ? x / distanceFromCenter : 0;
         const sin = distanceFromCenter > 0 ? y / distanceFromCenter : 0;
-        const bezelRatio = Math.max(
-          0,
-          Math.min(1, distanceFromSide / bezelWidth)
-        );
+        const bezelRatio = Math.max(0, Math.min(1, distanceFromSide / bezelWidth));
         const bezelIndex = Math.floor(bezelRatio * precomputedMap.length);
         const distance =
-          precomputedMap[
-            Math.max(0, Math.min(bezelIndex, precomputedMap.length - 1))
-          ] || 0;
-        const dX =
-          maximumDisplacement > 0 ? (-cos * distance) / maximumDisplacement : 0;
-        const dY =
-          maximumDisplacement > 0 ? (-sin * distance) / maximumDisplacement : 0;
+          precomputedMap[Math.max(0, Math.min(bezelIndex, precomputedMap.length - 1))] || 0;
+        const dX = maximumDisplacement > 0 ? (-cos * distance) / maximumDisplacement : 0;
+        const dY = maximumDisplacement > 0 ? (-sin * distance) / maximumDisplacement : 0;
 
-        imageData.data[idx] = Math.max(
-          0,
-          Math.min(255, 128 + dX * 127 * opacity)
-        );
-        imageData.data[idx + 1] = Math.max(
-          0,
-          Math.min(255, 128 + dY * 127 * opacity)
-        );
+        imageData.data[idx] = Math.max(0, Math.min(255, 128 + dX * 127 * opacity));
+        imageData.data[idx + 1] = Math.max(0, Math.min(255, 128 + dY * 127 * opacity));
         imageData.data[idx + 2] = 0;
         imageData.data[idx + 3] = 255;
       }
@@ -140,7 +117,7 @@ export function calculateSpecularHighlight(
   objectHeight: number,
   radius: number,
   bezelWidth: number,
-  specularAngle = Math.PI / 3
+  specularAngle = Math.PI / 3,
 ) {
   const imageData = new ImageData(objectWidth, objectHeight);
   const specularVector = [Math.cos(specularAngle), Math.sin(specularAngle)];
@@ -149,7 +126,7 @@ export function calculateSpecularHighlight(
   const radiusPlusOneSquared = (radius + 1) * (radius + 1);
   const radiusMinusSpecularSquared = Math.max(
     0,
-    (radius - specularThickness) * (radius - specularThickness)
+    (radius - specularThickness) * (radius - specularThickness),
   );
   const widthBetweenRadiuses = objectWidth - radius * 2;
   const heightBetweenRadiuses = objectHeight - radius * 2;
@@ -162,16 +139,12 @@ export function calculateSpecularHighlight(
       const isOnTopSide = y1 < radius;
       const isOnBottomSide = y1 >= objectHeight - radius;
 
-      const x = isOnLeftSide
-        ? x1 - radius
-        : isOnRightSide
-        ? x1 - radius - widthBetweenRadiuses
-        : 0;
+      const x = isOnLeftSide ? x1 - radius : isOnRightSide ? x1 - radius - widthBetweenRadiuses : 0;
       const y = isOnTopSide
         ? y1 - radius
         : isOnBottomSide
-        ? y1 - radius - heightBetweenRadiuses
-        : 0;
+          ? y1 - radius - heightBetweenRadiuses
+          : 0;
 
       const distanceToCenterSquared = x * x + y * y;
       const isNearEdge =
@@ -189,13 +162,8 @@ export function calculateSpecularHighlight(
                 (Math.sqrt(radiusPlusOneSquared) - Math.sqrt(radiusSquared));
         const cos = distanceFromCenter > 0 ? x / distanceFromCenter : 0;
         const sin = distanceFromCenter > 0 ? -y / distanceFromCenter : 0;
-        const dotProduct = Math.abs(
-          cos * specularVector[0] + sin * specularVector[1]
-        );
-        const edgeRatio = Math.max(
-          0,
-          Math.min(1, distanceFromSide / specularThickness)
-        );
+        const dotProduct = Math.abs(cos * specularVector[0] + sin * specularVector[1]);
+        const edgeRatio = Math.max(0, Math.min(1, distanceFromSide / specularThickness));
         const sharpFalloff = Math.sqrt(1 - (1 - edgeRatio) * (1 - edgeRatio));
         const coefficient = dotProduct * sharpFalloff;
         const color = Math.min(255, 255 * coefficient);

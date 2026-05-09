@@ -27,9 +27,6 @@ export class Spring {
   }
 
   isSettled() {
-    return (
-      Math.abs(this.target - this.value) < 0.001 &&
-      Math.abs(this.velocity) < 0.001
-    );
+    return Math.abs(this.target - this.value) < 0.001 && Math.abs(this.velocity) < 0.001;
   }
 }
