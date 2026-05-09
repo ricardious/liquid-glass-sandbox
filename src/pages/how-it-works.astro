@@ -1,0 +1,275 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import TopNav from "../components/molecules/TopNav.astro";
+import { projectLinks } from "../lib/site";
+
+const pipeline = [
+  {
+    number: "01",
+    title: "Surface Equation",
+    body: "Each glass shape starts as a 1D surface profile. The curve defines how steep the edge is, which directly affects the way light bends across the bezel.",
+  },
+  {
+    number: "02",
+    title: "Refraction Sampling",
+    body: "The code samples the curve, computes normals, and approximates the refracted ray. That produces a horizontal displacement distance for every point on the edge.",
+  },
+  {
+    number: "03",
+    title: "2D Displacement Map",
+    body: "Those samples are expanded into an RG displacement texture. Red and green channels store directional offsets that the SVG filter later applies to blurred scene content.",
+  },
+  {
+    number: "04",
+    title: "Specular Highlight",
+    body: "A second raster pass generates the bright edge highlight. That layer is blended back into the displaced content to fake the polished rim of curved glass.",
+  },
+  {
+    number: "05",
+    title: "DOM Clone Strategy",
+    body: "Instead of true backdrop access, each exhibit clones the underlying DOM into a hidden layer, aligns it inversely, and filters that clone inside the glass bounds.",
+  },
+  {
+    number: "06",
+    title: "Interactive Tuning",
+    body: "Blur, saturation, specular alpha, refraction scale, geometry, and spring behavior are all exposed as controls so each component can feel materially different.",
+  },
+];
+---
+
+<MainLayout title="How It Works - Liquid Glass">
+  <div
+    class="min-h-screen bg-[#f4f1ea] text-gray-900 dark:bg-black dark:text-gray-100"
+  >
+    <TopNav currentPath="/how-it-works" />
+
+    <header
+      class="border-b border-gray-200 bg-white px-4 py-14 sm:px-6 md:px-8 md:py-20 dark:border-gray-800 dark:bg-[#0a0a0a]"
+    >
+      <div
+        class="mx-auto grid max-w-screen-2xl gap-8 md:gap-12 lg:grid-cols-[minmax(0,1.4fr)_22rem]"
+      >
+        <div>
+          <span
+            class="text-[10px] uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400"
+            >Documentation</span
+          >
+          <h1
+            class="mt-5 md:mt-10 font-display
+         text-[1.8rem] sm:text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] xl:text-5xl
+         leading-[3] tracking-[-0.02em]"
+          >
+            How The Glass Works
+          </h1>
+          <p
+            class="mt-5 max-w-3xl text-base leading-relaxed text-gray-600 dark:text-gray-400 sm:text-lg md:mt-6"
+          >
+            This project treats liquid glass as a rendering pipeline, not a
+            cosmetic blur. The effect is built from SVG displacement, specular
+            reconstruction, DOM cloning, and motion tuning.
+          </p>
+        </div>
+
+        <aside
+          class="self-start rounded-4xl border border-gray-200 bg-[#f7f2e9] p-6 dark:border-gray-800 dark:bg-[#101216]"
+        >
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Reference</span
+          >
+          <h2
+            class="mt-8 font-display text-[1.6rem] leading-loose tracking-[0.03em] sm:text-[1.9rem]"
+          >
+            Source Material
+          </h2>
+          <p class="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-400">
+            This implementation is explicitly inspired by the liquid glass
+            article credited in the original demo port. The page below should
+            stay visible as the conceptual source.
+          </p>
+          <div class="mt-6 space-y-3 text-sm">
+            <a
+              href={projectLinks.article.url}
+              target="_blank"
+              rel="noreferrer"
+              class="block rounded-2xl border border-gray-200 px-4 py-3 transition hover:bg-white dark:border-gray-700 dark:hover:bg-white/5"
+            >
+              Read the article by {projectLinks.article.credit}
+            </a>
+            <a
+              href={projectLinks.github.url}
+              target="_blank"
+              rel="noreferrer"
+              class="block rounded-2xl border border-gray-200 px-4 py-3 transition hover:bg-white dark:border-gray-700 dark:hover:bg-white/5"
+            >
+              Open this codebase on GitHub
+            </a>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-screen-2xl px-4 py-10 sm:px-6 md:px-8 md:py-16">
+      <section
+        class="grid gap-px overflow-hidden rounded-4xl border border-gray-200 bg-gray-200 md:grid-cols-2 xl:grid-cols-3 dark:border-gray-800 dark:bg-gray-800"
+      >
+        {
+          pipeline.map((step) => (
+            <article class="bg-white p-6 sm:p-8 dark:bg-[#0b0d11]">
+              <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">
+                {step.number}
+              </span>
+              <h2 class="mt-4 font-display text-[1.5rem] leading-[3] tracking-[0.03em] text-gray-900 sm:text-[1.9rem] dark:text-white">
+                {step.title}
+              </h2>
+              <p class="mt-4 max-w-md text-sm leading-7 text-gray-600 dark:text-gray-400">
+                {step.body}
+              </p>
+            </article>
+          ))
+        }
+      </section>
+
+      <section
+        class="mt-10 grid gap-6 md:mt-16 md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+      >
+        <article
+          class="rounded-4xl border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-[#0b0d11]"
+        >
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Generated Maps</span
+          >
+          <h2
+            class="mt-4 font-display text-[1.6rem] leading-[3] tracking-[0.03em] sm:text-[2.2rem]"
+          >
+            Generated Maps
+          </h2>
+          <div class="mt-5 space-y-5 text-sm leading-7 text-gray-600 dark:text-gray-400">
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">
+                Displacement Map
+              </h3>
+              <p class="mt-2">
+                The renderer generates an RG texture where each channel stores
+                directional offset. That map is what bends the cloned scene
+                through the SVG displacement filter.
+              </p>
+              <div class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#f7f4ee] p-4 dark:border-gray-700 dark:bg-[#0f1217]">
+                <div class="mx-auto w-full max-w-[22rem]">
+                  <img
+                    id="how-displacement-map"
+                    alt="Generated displacement map preview"
+                    class="block aspect-[14/9] w-full rounded-2xl object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">
+                Specular Highlight
+              </h3>
+              <p class="mt-2">
+                A second generated pass builds the bright rim and glossy edge
+                response. Blending it back on top is what makes the glass read
+                as polished instead of just distorted.
+              </p>
+              <div class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#13161b] p-4 dark:border-gray-700 dark:bg-[#090b0f]">
+                <div class="mx-auto w-full max-w-[22rem]">
+                  <img
+                    id="how-specular-map"
+                    alt="Generated specular highlight preview"
+                    class="block aspect-[14/9] w-full rounded-2xl object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="rounded-4xl border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-[#0b0d11]"
+        >
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Implementation Notes</span
+          >
+          <h2
+            class="mt-4 font-display text-[1.6rem] leading-[3] tracking-[0.03em] sm:text-[2.2rem]"
+          >
+            Reading The Surface
+          </h2>
+          <p class="mt-5 text-sm leading-7 text-gray-600 dark:text-gray-400">
+            Liquid glass only works when distortion and highlight stay in
+            balance. Too much displacement turns the surface muddy. Too little
+            specular response makes it read like blurred plastic instead of
+            polished glass.
+          </p>
+          <p class="mt-4 text-sm leading-7 text-gray-600 dark:text-gray-400">
+            These generated maps are the technical layer behind that balance.
+            One controls how the background bends through the surface, and the
+            other restores edge light so the material keeps its sharp, wet
+            finish.
+          </p>
+        </article>
+
+      </section>
+    </main>
+  </div>
+</MainLayout>
+
+<script>
+  import { SurfaceEquations } from "../quarks/surfaceEquations";
+  import {
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../quarks/surfaceRenderer";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const displacementImg = document.getElementById(
+      "how-displacement-map",
+    ) as HTMLImageElement | null;
+    const specularImg = document.getElementById(
+      "how-specular-map",
+    ) as HTMLImageElement | null;
+
+    if (!displacementImg || !specularImg) return;
+
+    const width = 280;
+    const height = 180;
+    const radius = 36;
+    const bezelWidth = 24;
+    const glassThickness = 120;
+    const refractiveIndex = 1.45;
+
+    const precomputed = calculateDisplacementMap1D(
+      glassThickness,
+      bezelWidth,
+      SurfaceEquations.convex_squircle,
+      refractiveIndex,
+    );
+    const maximumDisplacement = Math.max(...precomputed.map(Math.abs));
+
+    const displacementData = calculateDisplacementMap2D(
+      width,
+      height,
+      width,
+      height,
+      radius,
+      bezelWidth,
+      maximumDisplacement || 1,
+      precomputed,
+    );
+    const specularData = calculateSpecularHighlight(
+      width,
+      height,
+      radius,
+      bezelWidth,
+    );
+
+    displacementImg.src = imageDataToDataURL(displacementData);
+    specularImg.src = imageDataToDataURL(specularData);
+  });
+</script>
