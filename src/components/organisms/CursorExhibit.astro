@@ -13,8 +13,8 @@ const cursorR = 45;
 >
   <div
     id="cursor-real-world"
-    class="absolute inset-4 flex items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-center bg-no-repeat pointer-events-none sm:inset-8"
-    style={`background-image: url(${flowers.src}); background-size: 118%;`}
+    class="cursor-real-world absolute inset-4 flex items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-center bg-no-repeat pointer-events-none sm:inset-8"
+    style={`background-image: url(${flowers.src});`}
   >
     <h3
       class="absolute z-5 font-display text-2xl leading-[3] tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-4xl"
@@ -308,3 +308,15 @@ const cursorR = 45;
     new CursorExhibit();
   });
 </script>
+
+<style>
+  .cursor-real-world {
+    background-size: 168%;
+  }
+
+  @media (min-width: 640px) {
+    .cursor-real-world {
+      background-size: 118%;
+    }
+  }
+</style>

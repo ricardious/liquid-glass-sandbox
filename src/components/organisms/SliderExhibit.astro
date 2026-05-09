@@ -4,14 +4,12 @@ import SvgFilter from "@components/atoms/SvgFilter.astro";
 import LiquidControls from "@components/molecules/LiquidControls.astro";
 
 const filterId = "slider-glass-filter";
-const trackW = 330;
 const trackH = 14;
-const thumbW = 90;
-const thumbH = 60;
-const thumbR = 30;
+const desktopThumbW = 90;
+const desktopThumbH = 60;
 ---
 
-<div class="flex w-full flex-col">
+<div class="slider-demo-root flex w-full flex-col">
   <div
     class="grid w-full items-stretch gap-5 p-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-6 lg:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]"
     id="slider-demo-shell"
@@ -29,25 +27,30 @@ const thumbR = 30;
         </div>
       </div>
 
-      <div class="relative z-10 flex h-full flex-col items-center justify-center gap-12 px-6">
-        <div id="slider-value-display" class="font-mono text-5xl font-bold tracking-tighter text-white drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]">10%</div>
+      <div class="relative z-10 flex h-full flex-col items-center justify-center gap-10 px-4 sm:gap-12 sm:px-6">
+        <div id="slider-value-display" class="font-mono text-4xl font-bold tracking-tighter text-white drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)] sm:text-5xl">10%</div>
 
-        <div id="liquid-slider-container" data-controls="slider-controls" class="relative z-10" style={`width: ${trackW}px; height: 60px;`}>
+        <div
+          id="liquid-slider-container"
+          data-controls="slider-controls"
+          class="relative z-10"
+          style="width: var(--slider-track-width); height: var(--slider-thumb-height);"
+        >
           <div
             id="liquid-slider-track"
             class="absolute left-0 top-[23px] cursor-pointer rounded-full bg-[rgba(137,137,143,0.4)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
-            style={`width: ${trackW}px; height: ${trackH}px;`}
+            style={`top: calc((var(--slider-thumb-height) - ${trackH}px) / 2); width: var(--slider-track-width); height: ${trackH}px;`}
           ></div>
           <div
             id="liquid-slider-active-track"
             class="pointer-events-none absolute left-0 top-[23px] rounded-full bg-[#0377f7] shadow-[0_0_10px_rgba(3,119,247,0.5)]"
-            style={`width: 10%; height: ${trackH}px;`}
+            style={`top: calc((var(--slider-thumb-height) - ${trackH}px) / 2); width: 10%; height: ${trackH}px;`}
           ></div>
 
           <div
             id="liquid-slider-thumb"
             class="absolute left-0 top-0 z-10 cursor-grab touch-none will-change-transform active:cursor-grabbing"
-            style={`width: ${thumbW}px; height: ${thumbH}px; border-radius: ${thumbR}px; transform-origin: center center;`}
+            style="width: var(--slider-thumb-width); height: var(--slider-thumb-height); border-radius: calc(var(--slider-thumb-height) / 2); transform-origin: center center;"
           >
             <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
               <div id="slider-content-clone" class="glass-clone-wrap absolute inset-0 rounded-[inherit] opacity-0">
@@ -57,8 +60,8 @@ const thumbR = 30;
 
             <SvgFilter
               filterId={filterId}
-              width={thumbW}
-              height={thumbH}
+              width={desktopThumbW}
+              height={desktopThumbH}
               blurStdDev={0}
               saturation={7}
               specularAlpha={0.4}
@@ -99,6 +102,7 @@ const thumbR = 30;
   } from "@quarks/liquidGlassEngine";
 
   class SliderExhibit {
+    private static readonly MOBILE_BREAKPOINT = 640;
     private track: HTMLElement;
     private activeTrack: HTMLElement;
     private thumb: HTMLElement;
@@ -110,11 +114,11 @@ const thumbR = 30;
     private container: HTMLElement;
 
     private readonly config = {
-      trackW: 330,
+      trackW: 0,
       trackH: 14,
-      thumbW: 90,
-      thumbH: 60,
-      thumbR: 30,
+      thumbW: 0,
+      thumbH: 0,
+      thumbR: 0,
       bezelWidth: 16,
       glassThickness: 80,
       refractiveIndex: 1.45,
@@ -162,17 +166,8 @@ const thumbR = 30;
     private init() {
       syncCloneContent(this.cloneInner, this.realWorld);
       this.cloneWrapper.style.filter = "url(#slider-glass-filter)";
-
-      const assets = createLiquidAssets({
-        width: this.config.thumbW,
-        height: this.config.thumbH,
-        radius: this.config.thumbR,
-        bezelWidth: this.config.bezelWidth,
-        glassThickness: this.config.glassThickness,
-        refractiveIndex: this.config.refractiveIndex,
-      });
-      this.state.maxDisp = assets.maximumDisplacement;
-      applyLiquidAssets("slider-glass-filter", assets);
+      this.applyResponsiveConfig();
+      this.regenerate();
       this.syncFilterTuning();
       this.bindControls();
 
@@ -183,11 +178,97 @@ const thumbR = 30;
       });
       window.addEventListener("pointermove", this.onPointerMove.bind(this));
       window.addEventListener("pointerup", this.onPointerUp.bind(this));
-      window.addEventListener("resize", this.updateSliderUI.bind(this));
+      window.addEventListener("resize", this.handleResize);
 
       this.updateSliderUI();
       this.startLoop();
     }
+
+    private getResponsiveConfig() {
+      if (window.innerWidth < SliderExhibit.MOBILE_BREAKPOINT) {
+        return {
+          trackW: 260,
+          thumbW: 76,
+          thumbH: 52,
+          thumbR: 26,
+        };
+      }
+
+      return {
+        trackW: 330,
+        thumbW: 90,
+        thumbH: 60,
+        thumbR: 30,
+      };
+    }
+
+    private applyResponsiveConfig() {
+      const nextConfig = this.getResponsiveConfig();
+
+      if (
+        this.config.trackW === nextConfig.trackW &&
+        this.config.thumbW === nextConfig.thumbW &&
+        this.config.thumbH === nextConfig.thumbH &&
+        this.config.thumbR === nextConfig.thumbR
+      ) {
+        return;
+      }
+
+      Object.assign(this.config, nextConfig);
+      this.container.style.width = `${this.config.trackW}px`;
+      this.container.style.height = `${this.config.thumbH}px`;
+      this.track.style.width = `${this.config.trackW}px`;
+      this.activeTrack.style.height = `${this.config.trackH}px`;
+      this.track.style.height = `${this.config.trackH}px`;
+      this.track.style.top = `${(this.config.thumbH - this.config.trackH) / 2}px`;
+      this.activeTrack.style.top = `${(this.config.thumbH - this.config.trackH) / 2}px`;
+      this.thumb.style.width = `${this.config.thumbW}px`;
+      this.thumb.style.height = `${this.config.thumbH}px`;
+      this.thumb.style.borderRadius = `${this.config.thumbR}px`;
+
+      const image = document.getElementById("slider-glass-filter-image");
+      const specular = document.getElementById("slider-glass-filter-specular");
+      image?.setAttribute("width", String(this.config.thumbW));
+      image?.setAttribute("height", String(this.config.thumbH));
+      specular?.setAttribute("width", String(this.config.thumbW));
+      specular?.setAttribute("height", String(this.config.thumbH));
+    }
+
+    private regenerate() {
+      const assets = createLiquidAssets({
+        width: this.config.thumbW,
+        height: this.config.thumbH,
+        radius: this.config.thumbR,
+        bezelWidth: this.config.bezelWidth,
+        glassThickness: this.config.glassThickness,
+        refractiveIndex: this.config.refractiveIndex,
+      });
+      this.state.maxDisp = assets.maximumDisplacement;
+      applyLiquidAssets("slider-glass-filter", assets);
+    }
+
+    private handleResize = () => {
+      const previous = {
+        trackW: this.config.trackW,
+        thumbW: this.config.thumbW,
+        thumbH: this.config.thumbH,
+        thumbR: this.config.thumbR,
+      };
+
+      this.applyResponsiveConfig();
+
+      if (
+        previous.trackW !== this.config.trackW ||
+        previous.thumbW !== this.config.thumbW ||
+        previous.thumbH !== this.config.thumbH ||
+        previous.thumbR !== this.config.thumbR
+      ) {
+        this.regenerate();
+      }
+
+      this.updateSliderUI();
+      this.startLoop();
+    };
 
     private bindControls() {
       bindLiquidControls(
@@ -309,6 +390,20 @@ const thumbR = 30;
 </script>
 
 <style>
+  .slider-demo-root {
+    --slider-track-width: 260px;
+    --slider-thumb-width: 76px;
+    --slider-thumb-height: 52px;
+  }
+
+  @media (min-width: 640px) {
+    .slider-demo-root {
+      --slider-track-width: 330px;
+      --slider-thumb-width: 90px;
+      --slider-thumb-height: 60px;
+    }
+  }
+
   .slider-background-motion {
     transform-origin: center;
     animation: sliderBackgroundOrbit 20s ease-in-out infinite;

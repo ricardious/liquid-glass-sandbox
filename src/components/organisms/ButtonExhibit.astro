@@ -2,13 +2,12 @@
 import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "button-glass-filter";
-const glassW = 340;
-const glassH = 86;
-const glassR = 43;
+const desktopGlassW = 340;
+const desktopGlassH = 86;
 ---
 
 <div
-  class="relative w-full h-full flex items-center justify-center p-4 sm:p-8 bg-gray-50 dark:bg-[#0f0f0f]"
+  class="button-demo-shell relative flex h-full w-full items-center justify-center bg-gray-50 p-4 dark:bg-[#0f0f0f] sm:p-8"
   id="button-demo-shell"
 >
   <div
@@ -30,32 +29,36 @@ const glassR = 43;
         class="relative z-10 flex shrink-0 cursor-pointer touch-none select-none items-center justify-center will-change-transform"
         id="liquid-button"
         data-controls="button-controls"
-        style={`width: ${glassW}px; height: ${glassH}px; border-radius: ${glassR}px;`}
+        style={`width: var(--button-glass-width); height: var(--button-glass-height); border-radius: var(--button-glass-radius);`}
       >
         <div
           class="absolute inset-0 pointer-events-none overflow-hidden"
-          style={`border-radius: ${glassR}px;`}
+          style="border-radius: var(--button-glass-radius);"
         >
           <div
             id="liquid-button-clone"
             class="glass-clone-wrap absolute inset-0"
-            style={`border-radius: ${glassR}px;`}
+            style="border-radius: var(--button-glass-radius);"
           >
             <div id="liquid-button-clone-world" class="glass-clone-inner"></div>
           </div>
         </div>
 
-        <SvgFilter filterId={filterId} width={glassW} height={glassH} />
+        <SvgFilter
+          filterId={filterId}
+          width={desktopGlassW}
+          height={desktopGlassH}
+        />
 
         <div
           id="liquid-button-inner"
           class="glass-inner-overlay"
-          style={`border-radius: ${glassR}px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.1);`}
+          style="border-radius: var(--button-glass-radius); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.1);"
         >
         </div>
 
         <span
-          class="relative z-5 text-sm font-bold uppercase tracking-widest text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]"
+          class="relative z-5 text-xs font-bold uppercase tracking-[0.24em] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] sm:text-sm sm:tracking-widest"
         >
           Deploy
         </span>
@@ -66,6 +69,20 @@ const glassR = 43;
 </div>
 
 <style>
+  .button-demo-shell {
+    --button-glass-width: 240px;
+    --button-glass-height: 68px;
+    --button-glass-radius: 34px;
+  }
+
+  @media (min-width: 640px) {
+    .button-demo-shell {
+      --button-glass-width: 340px;
+      --button-glass-height: 86px;
+      --button-glass-radius: 43px;
+    }
+  }
+
   .button-background {
     transform: scale(1.08);
     animation: buttonBgFloat 22s ease-in-out infinite alternate;
@@ -93,6 +110,7 @@ const glassR = 43;
   } from "@quarks/liquidGlassEngine";
 
   class ButtonExhibit {
+    private static readonly MOBILE_BREAKPOINT = 640;
     private btn: HTMLElement;
     private inner: HTMLElement;
     private cloneWorld: HTMLElement;
@@ -104,9 +122,9 @@ const glassR = 43;
     private modalSurface: HTMLElement | null;
 
     private config = {
-      w: 340,
-      h: 86,
-      r: 43,
+      w: 0,
+      h: 0,
+      r: 0,
       bw: 26,
       gt: 120,
       ri: 2.0,
@@ -162,6 +180,7 @@ const glassR = 43;
     private init() {
       syncCloneContent(this.cloneWorld, this.realWorld);
       this.cloneWrapper.style.filter = `url(#button-glass-filter)`;
+      this.applyResponsiveConfig();
       this.regenerate();
       this.bindControls();
       this.bindModal();
@@ -198,9 +217,71 @@ const glassR = 43;
         this.startLoop();
       });
 
-      window.addEventListener("resize", this.startLoop.bind(this));
+      window.addEventListener("resize", this.handleResize);
       this.startLoop();
     }
+
+    private getResponsiveConfig() {
+      if (window.innerWidth < ButtonExhibit.MOBILE_BREAKPOINT) {
+        return {
+          w: 240,
+          h: 68,
+          r: 34,
+        };
+      }
+
+      return {
+        w: 340,
+        h: 86,
+        r: 43,
+      };
+    }
+
+    private applyResponsiveConfig() {
+      const nextConfig = this.getResponsiveConfig();
+
+      if (
+        this.config.w === nextConfig.w &&
+        this.config.h === nextConfig.h &&
+        this.config.r === nextConfig.r
+      ) {
+        return;
+      }
+
+      Object.assign(this.config, nextConfig);
+      this.btn.style.width = `${this.config.w}px`;
+      this.btn.style.height = `${this.config.h}px`;
+      this.btn.style.borderRadius = `${this.config.r}px`;
+      this.inner.style.borderRadius = `${this.config.r}px`;
+      this.cloneWrapper.style.borderRadius = `${this.config.r}px`;
+
+      const image = document.getElementById("button-glass-filter-image");
+      const specular = document.getElementById("button-glass-filter-specular");
+      image?.setAttribute("width", String(this.config.w));
+      image?.setAttribute("height", String(this.config.h));
+      specular?.setAttribute("width", String(this.config.w));
+      specular?.setAttribute("height", String(this.config.h));
+    }
+
+    private handleResize = () => {
+      const previous = {
+        w: this.config.w,
+        h: this.config.h,
+        r: this.config.r,
+      };
+
+      this.applyResponsiveConfig();
+
+      if (
+        previous.w !== this.config.w ||
+        previous.h !== this.config.h ||
+        previous.r !== this.config.r
+      ) {
+        this.regenerate();
+      }
+
+      this.startLoop();
+    };
 
     private bindControls() {
       bindLiquidControls(

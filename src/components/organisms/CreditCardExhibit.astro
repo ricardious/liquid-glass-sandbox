@@ -3,12 +3,43 @@ import flowers from "@assets/botanical-bloom-pattern-teal.webp";
 import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "card-glass-filter";
-const cardW = 388;
-const cardH = 236;
-const cardR = 20;
+const desktopCardW = 388;
+const desktopCardH = 236;
 ---
 
 <style>
+  .card-demo-root {
+    --card-width: 288px;
+    --card-height: 186px;
+    --card-radius: 16px;
+    --card-padding: 0.95rem;
+    --card-logo-size: 30px;
+    --card-heading-indent: 0.75rem;
+    --card-label-size: 11px;
+    --card-number-size: 18px;
+    --card-field-size: 12px;
+    --card-field-gap: 0.75rem;
+    --card-exp-width: 64px;
+    --card-ccv-width: 48px;
+  }
+
+  @media (min-width: 640px) {
+    .card-demo-root {
+      --card-width: 388px;
+      --card-height: 236px;
+      --card-radius: 20px;
+      --card-padding: 1.5rem;
+      --card-logo-size: 42px;
+      --card-heading-indent: 1.5rem;
+      --card-label-size: 12px;
+      --card-number-size: 26px;
+      --card-field-size: 16px;
+      --card-field-gap: 1.5rem;
+      --card-exp-width: 80px;
+      --card-ccv-width: 60px;
+    }
+  }
+
   .cc-input {
     transition:
       border-color 0.2s ease,
@@ -26,7 +57,7 @@ const cardR = 20;
 </style>
 
 <div
-  class="relative flex min-h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl p-4 sm:p-8"
+  class="card-demo-root relative flex min-h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl p-4 sm:p-8"
   id="card-demo-area"
 >
   <div
@@ -45,9 +76,9 @@ const cardR = 20;
     </div>
   </div>
 
-  <div class="z-10 flex w-[388px] max-w-full flex-col px-2 sm:px-4">
+  <div class="z-10 flex w-(--card-width) max-w-full flex-col px-1 sm:px-4">
     <h1
-      class="mb-4 pl-6 font-body text-[18px] font-normal leading-[1.45] text-white sm:text-[20px]"
+      class="mb-3 pl-(--card-heading-indent) font-body text-[15px] font-normal leading-[1.4] text-white sm:mb-4 sm:text-[20px]"
     >
       Please enter your credit card <br />details below
     </h1>
@@ -55,28 +86,28 @@ const cardR = 20;
     <div
       class="relative cursor-pointer will-change-transform"
       id="liquid-card-container"
-      style={`width: ${cardW}px; height: ${cardH}px; border-radius: ${cardR}px;`}
+      style="width: var(--card-width); height: var(--card-height); border-radius: var(--card-radius);"
     >
       <div
-        class="pointer-events-none absolute inset-0 overflow-hidden rounded-[20px]"
+        class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
       >
         <div
           id="card-content-clone"
-          class="glass-clone-wrap absolute inset-0 rounded-[20px]"
+          class="glass-clone-wrap absolute inset-0 rounded-[inherit]"
         >
           <div id="card-clone-inner" class="glass-clone-inner absolute inset-0">
           </div>
         </div>
       </div>
 
-      <SvgFilter filterId={filterId} width={cardW} height={cardH} />
+      <SvgFilter filterId={filterId} width={desktopCardW} height={desktopCardH} />
 
       <div
         id="card-thumb-inner"
-        class="glass-inner-overlay absolute inset-0 flex flex-col justify-between rounded-[20px] border-2 border-white/10 bg-white/10 p-6 shadow-[0_0_80px_rgba(0,0,0,0.25)]"
+        class="glass-inner-overlay absolute inset-0 flex flex-col justify-between rounded-[inherit] border-2 border-white/10 bg-white/10 p-(--card-padding) shadow-[0_0_80px_rgba(0,0,0,0.25)]"
       >
         <div class="mb-3 opacity-90">
-          <svg width="42" height="42" viewBox="0 0 64 64" aria-hidden="true">
+          <svg width="var(--card-logo-size)" height="var(--card-logo-size)" viewBox="0 0 64 64" aria-hidden="true">
             <g fill="#FFFFFF">
               <circle cx="16" cy="16" r="16"></circle>
               <circle cx="16" cy="48" r="16"></circle>
@@ -87,13 +118,13 @@ const cardR = 20;
         </div>
 
         <form class="relative z-20 w-full">
-          <div class="mb-6">
-            <label class="mb-1 block font-body text-[12px] text-white"
+          <div class="mb-3 sm:mb-6">
+            <label class="mb-1 block font-body text-(length:--card-label-size) text-white"
               >Card Number</label
             >
             <input
               id="card-number"
-              class="cc-input h-11 w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[26px] tracking-widest text-white outline-none"
+              class="cc-input h-9 w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-(length:--card-number-size) tracking-[0.14em] text-white outline-none sm:h-11 sm:tracking-widest"
               placeholder="1234 1234 1234 1234"
               type="text"
               required
@@ -101,39 +132,39 @@ const cardR = 20;
             />
           </div>
 
-          <div class="flex gap-6">
+          <div class="flex gap-(--card-field-gap)">
             <div class="min-w-0 flex-1">
-              <label class="mb-1 block font-body text-[12px] text-white"
+              <label class="mb-1 block font-body text-(length:--card-label-size) text-white"
                 >Card Holder</label
               >
               <input
                 id="card-name"
-                class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
+                class="cc-input h-[26px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-(length:--card-field-size) tracking-[0.06em] text-white outline-none sm:h-[30px]"
                 placeholder="RICARDIOUS"
                 type="text"
                 required
               />
             </div>
-            <div class="w-[80px]">
-              <label class="mb-1 block font-body text-[12px] text-white"
+            <div class="w-(--card-exp-width)">
+              <label class="mb-1 block font-body text-(length:--card-label-size) text-white"
                 >Exp. Date</label
               >
               <input
                 id="card-exp"
-                class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
+                class="cc-input h-[26px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-(length:--card-field-size) tracking-[0.06em] text-white outline-none sm:h-[30px]"
                 placeholder="24/26"
                 type="text"
                 maxlength="5"
                 required
               />
             </div>
-            <div class="w-[60px]">
-              <label class="mb-1 block font-body text-[12px] text-white"
+            <div class="w-(--card-ccv-width)">
+              <label class="mb-1 block font-body text-(length:--card-label-size) text-white"
                 >CCV</label
               >
               <input
                 id="card-ccv"
-                class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
+                class="cc-input h-[26px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-(length:--card-field-size) tracking-[0.06em] text-white outline-none sm:h-[30px]"
                 placeholder="123"
                 type="text"
                 maxlength="3"
@@ -158,6 +189,7 @@ const cardR = 20;
   } from "@quarks/liquidGlassEngine";
 
   class CreditCardExhibit {
+    private static readonly MOBILE_BREAKPOINT = 640;
     private container: HTMLElement;
     private cloneInner: HTMLElement;
     private demoArea: HTMLElement;
@@ -170,11 +202,11 @@ const cardR = 20;
     private modalSurface: HTMLElement | null;
 
     private config = {
-      w: 388,
-      h: 236,
+      w: 0,
+      h: 0,
       bw: 30,
       gt: 80,
-      r: 20,
+      r: 0,
       ri: 1.45,
       maxDisp: 0,
     };
@@ -231,18 +263,8 @@ const cardR = 20;
         "[data-card-bg-layer]",
       ) as HTMLElement | null;
       this.cloneWrapper.style.filter = "url(#card-glass-filter)";
-
-      const assets = createLiquidAssets({
-        width: this.config.w,
-        height: this.config.h,
-        radius: this.config.r,
-        bezelWidth: this.config.bw,
-        glassThickness: this.config.gt,
-        refractiveIndex: this.config.ri,
-      });
-
-      this.config.maxDisp = assets.maximumDisplacement;
-      applyLiquidAssets("card-glass-filter", assets);
+      this.applyResponsiveConfig();
+      this.regenerate();
       this.syncFilterTuning();
       this.bindControls();
       this.bindModal();
@@ -274,7 +296,7 @@ const cardR = 20;
         this.startLoop();
       });
 
-      window.addEventListener("resize", this.updateClone.bind(this));
+      window.addEventListener("resize", this.handleResize);
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") this.setModal(false);
       });
@@ -282,6 +304,81 @@ const cardR = 20;
       this.updateClone();
       this.startLoop();
     }
+
+    private getResponsiveConfig() {
+      if (window.innerWidth < CreditCardExhibit.MOBILE_BREAKPOINT) {
+        return {
+          w: 288,
+          h: 186,
+          r: 16,
+        };
+      }
+
+      return {
+        w: 388,
+        h: 236,
+        r: 20,
+      };
+    }
+
+    private applyResponsiveConfig() {
+      const nextConfig = this.getResponsiveConfig();
+
+      if (
+        this.config.w === nextConfig.w &&
+        this.config.h === nextConfig.h &&
+        this.config.r === nextConfig.r
+      ) {
+        return;
+      }
+
+      Object.assign(this.config, nextConfig);
+      this.container.style.width = `${this.config.w}px`;
+      this.container.style.height = `${this.config.h}px`;
+      this.container.style.borderRadius = `${this.config.r}px`;
+
+      const image = document.getElementById("card-glass-filter-image");
+      const specular = document.getElementById("card-glass-filter-specular");
+      image?.setAttribute("width", String(this.config.w));
+      image?.setAttribute("height", String(this.config.h));
+      specular?.setAttribute("width", String(this.config.w));
+      specular?.setAttribute("height", String(this.config.h));
+    }
+
+    private regenerate() {
+      const assets = createLiquidAssets({
+        width: this.config.w,
+        height: this.config.h,
+        radius: this.config.r,
+        bezelWidth: this.config.bw,
+        glassThickness: this.config.gt,
+        refractiveIndex: this.config.ri,
+      });
+
+      this.config.maxDisp = assets.maximumDisplacement;
+      applyLiquidAssets("card-glass-filter", assets);
+    }
+
+    private handleResize = () => {
+      const previous = {
+        w: this.config.w,
+        h: this.config.h,
+        r: this.config.r,
+      };
+
+      this.applyResponsiveConfig();
+
+      if (
+        previous.w !== this.config.w ||
+        previous.h !== this.config.h ||
+        previous.r !== this.config.r
+      ) {
+        this.regenerate();
+      }
+
+      this.updateClone();
+      this.startLoop();
+    };
 
     private bindControls() {
       bindLiquidControls(
