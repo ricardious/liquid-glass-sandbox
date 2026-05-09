@@ -1,16 +1,14 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import ExhibitCard from "../components/molecules/ExhibitCard.astro";
+import ControlsModal from "../components/molecules/ControlsModal.astro";
+import LiquidControls from "../components/molecules/LiquidControls.astro";
 import LensExhibit from "../components/organisms/LensExhibit.astro";
 import ButtonExhibit from "../components/organisms/ButtonExhibit.astro";
 import SwitchExhibit from "../components/organisms/SwitchExhibit.astro";
 import SliderExhibit from "../components/organisms/SliderExhibit.astro";
-import DockExhibit from "../components/organisms/DockExhibit.astro";
 import CursorExhibit from "../components/organisms/CursorExhibit.astro";
 import InputExhibit from "../components/organisms/InputExhibit.astro";
-import TabsExhibit from "../components/organisms/TabsExhibit.astro";
-import CheckboxExhibit from "../components/organisms/CheckboxExhibit.astro";
-import ProgressExhibit from "../components/organisms/ProgressExhibit.astro";
 
 import ClockExhibit from "../components/organisms/ClockExhibit.astro";
 import CreditCardExhibit from "../components/organisms/CreditCardExhibit.astro";
@@ -30,7 +28,7 @@ import { projectLinks } from "../lib/site";
     >
       <div class="max-w-screen-2xl mx-auto">
         <h1
-          class="font-display text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-10"
+          class="font-display text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-12"
         >
           Liquid Glass
         </h1>
@@ -65,26 +63,46 @@ import { projectLinks } from "../lib/site";
       </div>
     </header>
 
-    <section class="border-b border-gray-200 bg-[#f6f3ec] dark:border-gray-800 dark:bg-[#0b0d11]">
-      <div class="mx-auto grid max-w-screen-2xl gap-px border-l border-gray-200 bg-gray-200 md:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+    <section
+      class="border-b border-gray-200 bg-[#f6f3ec] dark:border-gray-800 dark:bg-[#0b0d11]"
+    >
+      <div
+        class="mx-auto grid max-w-screen-2xl gap-px border-l border-gray-200 bg-gray-200 md:grid-cols-3 dark:border-gray-800 dark:bg-gray-800"
+      >
         <a
           href="/how-it-works"
           class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
         >
-          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Explain</span>
-          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">How It Works</h2>
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Explain</span
+          >
+          <h2
+            class="mt-4 font-display text-[1.6rem] leading-[3] tracking-[0.03em] text-gray-900 dark:text-white sm:text-[1.85rem]"
+          >
+            How It Works
+          </h2>
           <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
-            Breakdown of the math, the SVG pipeline, and the implementation choices behind the refraction effect.
+            Breakdown of the math, the SVG pipeline, and the implementation
+            choices behind the refraction effect.
           </p>
         </a>
         <a
           href="/svg-generator"
           class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
         >
-          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Tool</span>
-          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">SVG Generator</h2>
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Tool</span
+          >
+          <h2
+            class="mt-4 font-display text-[1.6rem] leading-[3] tracking-[0.03em] text-gray-900 dark:text-white sm:text-[1.85rem]"
+          >
+            SVG Generator
+          </h2>
           <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
-            Tune the liquid glass parameters and copy a self-contained SVG filter snippet for your own site.
+            Tune the liquid glass parameters and copy a self-contained SVG
+            filter snippet for your own site.
           </p>
         </a>
         <a
@@ -93,10 +111,18 @@ import { projectLinks } from "../lib/site";
           rel="noreferrer"
           class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
         >
-          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Reference</span>
-          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">Article Base</h2>
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Reference</span
+          >
+          <h2
+            class="mt-4 font-display text-[1.6rem] leading-[3] tracking-[0.03em] text-gray-900 dark:text-white sm:text-[1.85rem]"
+          >
+            Article Base
+          </h2>
           <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
-            Credit to the original article that sparked the effect and guided the refraction-first approach.
+            Credit to the original article that sparked the effect and guided
+            the refraction-first approach.
           </p>
         </a>
       </div>
@@ -122,6 +148,74 @@ import { projectLinks } from "../lib/site";
           description="A hyper-tactile button with inner tension. Click and hold to feel the surface pull inward."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="button-controls-modal"
+            title="Button Parameters"
+            panelDataAttr="data-button-modal-panel"
+            closeDataAttr="data-close-button-controls"
+            triggerDataAttr="data-open-button-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Button Controls"
+              target="button-controls"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.4,
+                  max: 2.4,
+                  step: 0.01,
+                  value: 0.8,
+                },
+                {
+                  key: "hoverRefraction",
+                  label: "Hover Boost",
+                  min: 0.8,
+                  max: 2.2,
+                  step: 0.01,
+                  value: 1.2,
+                },
+                {
+                  key: "pressRefraction",
+                  label: "Press Boost",
+                  min: 0.8,
+                  max: 2.4,
+                  step: 0.01,
+                  value: 1.5,
+                },
+                {
+                  key: "scale",
+                  label: "Hover Scale",
+                  min: 1,
+                  max: 1.14,
+                  step: 0.01,
+                  value: 1.05,
+                },
+                {
+                  key: "pressScale",
+                  label: "Press Scale",
+                  min: 0.82,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.9,
+                },
+                {
+                  key: "shadowDepth",
+                  label: "Shadow",
+                  min: 4,
+                  max: 18,
+                  step: 0.1,
+                  value: 8,
+                },
+              ]}
+            />
+          </ControlsModal>
           <ButtonExhibit />
         </ExhibitCard>
 
@@ -131,6 +225,31 @@ import { projectLinks } from "../lib/site";
           description="A toggle switch with physical mass. Drag or click to snap. Refraction intensity increases when pressed."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="switch-controls-modal"
+            title="Switch Parameters"
+            panelDataAttr="data-switch-modal-panel"
+            closeDataAttr="data-close-switch-controls"
+            triggerDataAttr="data-open-switch-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Switch Controls"
+              target="switch-controls"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                { key: "forceActive", label: "Force Active", type: "toggle", value: false },
+                { key: "refraction", label: "Refraction", min: 0, max: 1.4, step: 0.01, value: 1 },
+                { key: "blur", label: "Blur", min: 0, max: 3, step: 0.01, value: 0.2 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.5 },
+                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 6 },
+              ]}
+            />
+          </ControlsModal>
           <SwitchExhibit />
         </ExhibitCard>
 
@@ -145,73 +264,142 @@ import { projectLinks } from "../lib/site";
 
         <ExhibitCard
           number="05"
-          title="The Dock"
-          description="A row of reactive lenses. Each item magnifies, bringing its own dynamic displacement map into focus."
-          span="col-span-12 md:col-span-6"
-        >
-          <DockExhibit />
-        </ExhibitCard>
-
-        <ExhibitCard
-          number="06"
           title="The Cursor"
           description="A custom glass pointer with spring physics, stretching and refracting based on velocity."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="cursor-controls-modal"
+            title="Cursor Parameters"
+            panelDataAttr="data-cursor-modal-panel"
+            closeDataAttr="data-close-cursor-controls"
+            triggerDataAttr="data-open-cursor-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Cursor Controls"
+              target="liquid-cursor"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                { key: "idleScale", label: "Idle Scale", min: 0.8, max: 1.4, step: 0.01, value: 1 },
+                { key: "hoverScale", label: "Hover Scale", min: 1, max: 2.2, step: 0.01, value: 1.6 },
+                { key: "pressScale", label: "Press Scale", min: 0.5, max: 1.1, step: 0.01, value: 0.7 },
+                { key: "refraction", label: "Refraction", min: 0.4, max: 2.2, step: 0.01, value: 1.5 },
+                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
+                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 7 },
+              ]}
+            />
+          </ControlsModal>
           <CursorExhibit />
         </ExhibitCard>
 
         <ExhibitCard
-          number="07"
+          number="06"
           title="Liquid Input"
           description="A glass input field that reacts to typing with microscopic physical tremors and refraction bursts."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="input-controls-modal"
+            title="Input Parameters"
+            panelDataAttr="data-input-modal-panel"
+            closeDataAttr="data-close-input-controls"
+            triggerDataAttr="data-open-input-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Input Controls"
+              target="input-controls"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                { key: "focusScale", label: "Focus Scale", min: 1, max: 1.2, step: 0.01, value: 1.05 },
+                { key: "refraction", label: "Refraction", min: 0.4, max: 2, step: 0.01, value: 1 },
+                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
+                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 6 },
+                { key: "pulseX", label: "Type Pulse X", min: 0, max: 3, step: 0.1, value: 1.5 },
+                { key: "pulseY", label: "Type Pulse Y", min: -3, max: 0, step: 0.1, value: -1 },
+              ]}
+            />
+          </ControlsModal>
           <InputExhibit />
         </ExhibitCard>
 
         <ExhibitCard
-          number="08"
-          title="Liquid Tabs"
-          description="Sliding glass navigation. The active indicator stretches and refracts based on velocity."
-          span="col-span-12 md:col-span-6"
-        >
-          <TabsExhibit />
-        </ExhibitCard>
-
-        <ExhibitCard
-          number="09"
-          title="Liquid Checkbox"
-          description="A tactile checkbox with elastic bounce and ink-fill physics."
-          span="col-span-12 md:col-span-6"
-        >
-          <CheckboxExhibit />
-        </ExhibitCard>
-
-        <ExhibitCard
-          number="10"
-          title="Liquid Progress"
-          description="A progress bar with dynamic refraction tracking the leading edge."
-          span="col-span-12 md:col-span-6"
-        >
-          <ProgressExhibit />
-        </ExhibitCard>
-
-        <ExhibitCard
-          number="14"
+          number="07"
           title="Glass Clock"
           description="An analog clock with liquid glass effect replacing backdrop blur."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="clock-controls-modal"
+            title="Clock Parameters"
+            panelDataAttr="data-clock-modal-panel"
+            closeDataAttr="data-close-clock-controls"
+            triggerDataAttr="data-open-clock-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Clock Controls"
+              target="clock-controls"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                { key: "hoverScale", label: "Hover Scale", min: 1, max: 1.12, step: 0.01, value: 1.03 },
+                { key: "refraction", label: "Refraction", min: 0.2, max: 1.4, step: 0.01, value: 0.55 },
+                { key: "blur", label: "Blur", min: 0, max: 1.5, step: 0.01, value: 0.1 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.55 },
+                { key: "saturation", label: "Saturation", min: 0.5, max: 4, step: 0.01, value: 1.2 },
+              ]}
+            />
+          </ControlsModal>
           <ClockExhibit />
         </ExhibitCard>
 
         <ExhibitCard
-          number="15"
+          number="08"
           title="Liquid Credit Card"
           description="An interactive, 3D parallax credit card floating over animated circles."
           span="col-span-12 md:col-span-6"
         >
+          <ControlsModal
+            slot="actions"
+            id="card-controls-modal"
+            title="Card Parameters"
+            panelDataAttr="data-card-modal-panel"
+            closeDataAttr="data-close-card-controls"
+            triggerDataAttr="data-open-card-controls"
+            triggerLabel="Parameters"
+            panelSide="bottom"
+            panelAlign="end"
+          >
+            <LiquidControls
+              title="Card Controls"
+              target="liquid-card-container"
+              compact={true}
+              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
+              controls={[
+                { key: "hoverScale", label: "Hover Scale", min: 1, max: 1.08, step: 0.01, value: 1.02 },
+                { key: "refraction", label: "Refraction", min: 0.2, max: 1.2, step: 0.01, value: 0.5 },
+                { key: "tilt", label: "Tilt", min: 0.01, max: 0.08, step: 0.005, value: 0.05 },
+                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.6 },
+                { key: "saturation", label: "Saturation", min: 0.5, max: 4, step: 0.01, value: 1.2 },
+              ]}
+            />
+          </ControlsModal>
           <CreditCardExhibit />
         </ExhibitCard>
       </div>
