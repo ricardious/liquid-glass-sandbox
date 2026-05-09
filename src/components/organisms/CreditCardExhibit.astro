@@ -34,11 +34,16 @@ const cardR = 20;
     class="absolute inset-4 pointer-events-none overflow-hidden rounded-3xl bg-[#071015] bg-cover bg-center sm:inset-8"
     style={`background-image: url(${flowers.src});`}
   >
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,14,0.48),rgba(0,0,0,0.74))]"></div>
+    <div
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,14,0.48),rgba(0,0,0,0.74))]"
+    >
+    </div>
   </div>
 
   <div class="z-10 flex w-[388px] max-w-full flex-col px-2 sm:px-4">
-    <h1 class="mb-4 pl-6 font-body text-[18px] font-normal leading-[1.45] text-white sm:text-[20px]">
+    <h1
+      class="mb-4 pl-6 font-body text-[18px] font-normal leading-[1.45] text-white sm:text-[20px]"
+    >
       Please enter your credit card <br />details below
     </h1>
 
@@ -47,12 +52,15 @@ const cardR = 20;
       id="liquid-card-container"
       style={`width: ${cardW}px; height: ${cardH}px; border-radius: ${cardR}px;`}
     >
-      <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[20px]">
+      <div
+        class="pointer-events-none absolute inset-0 overflow-hidden rounded-[20px]"
+      >
         <div
           id="card-content-clone"
           class="glass-clone-wrap absolute inset-0 rounded-[20px]"
         >
-          <div id="card-clone-inner" class="glass-clone-inner absolute inset-0"></div>
+          <div id="card-clone-inner" class="glass-clone-inner absolute inset-0">
+          </div>
         </div>
       </div>
 
@@ -75,10 +83,12 @@ const cardR = 20;
 
         <form class="relative z-20 w-full">
           <div class="mb-6">
-            <label class="mb-1 block font-body text-[12px] text-white">Card Number</label>
+            <label class="mb-1 block font-body text-[12px] text-white"
+              >Card Number</label
+            >
             <input
               id="card-number"
-              class="cc-input h-11 w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[26px] tracking-[0.1em] text-white outline-none"
+              class="cc-input h-11 w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[26px] tracking-widest text-white outline-none"
               placeholder="1234 1234 1234 1234"
               type="text"
               required
@@ -88,7 +98,9 @@ const cardR = 20;
 
           <div class="flex gap-6">
             <div class="min-w-0 flex-1">
-              <label class="mb-1 block font-body text-[12px] text-white">Card Holder</label>
+              <label class="mb-1 block font-body text-[12px] text-white"
+                >Card Holder</label
+              >
               <input
                 id="card-name"
                 class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
@@ -98,7 +110,9 @@ const cardR = 20;
               />
             </div>
             <div class="w-[80px]">
-              <label class="mb-1 block font-body text-[12px] text-white">Exp. Date</label>
+              <label class="mb-1 block font-body text-[12px] text-white"
+                >Exp. Date</label
+              >
               <input
                 id="card-exp"
                 class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
@@ -109,7 +123,9 @@ const cardR = 20;
               />
             </div>
             <div class="w-[60px]">
-              <label class="mb-1 block font-body text-[12px] text-white">CCV</label>
+              <label class="mb-1 block font-body text-[12px] text-white"
+                >CCV</label
+              >
               <input
                 id="card-ccv"
                 class="cc-input h-[30px] w-full border-0 border-b-2 border-white/15 bg-transparent px-0 font-body text-[16px] tracking-[0.08em] text-white outline-none"
@@ -146,7 +162,15 @@ const cardR = 20;
     private modalPanel: HTMLElement | null;
     private modalSurface: HTMLElement | null;
 
-    private config = { w: 388, h: 236, bw: 30, gt: 80, r: 20, ri: 1.45, maxDisp: 0 };
+    private config = {
+      w: 388,
+      h: 236,
+      bw: 30,
+      gt: 80,
+      r: 20,
+      ri: 1.45,
+      maxDisp: 0,
+    };
     private controls = {
       hoverScale: 1.02,
       refraction: 0.5,
@@ -162,11 +186,19 @@ const cardR = 20;
     private rotYSpring = new Spring(0, 150, 15);
 
     constructor() {
-      this.container = document.getElementById("liquid-card-container") as HTMLElement;
-      this.cloneInner = document.getElementById("card-clone-inner") as HTMLElement;
+      this.container = document.getElementById(
+        "liquid-card-container",
+      ) as HTMLElement;
+      this.cloneInner = document.getElementById(
+        "card-clone-inner",
+      ) as HTMLElement;
       this.demoArea = document.getElementById("card-demo-area") as HTMLElement;
-      this.realWorld = document.getElementById("card-real-world") as HTMLElement;
-      this.cloneWrapper = document.getElementById("card-content-clone") as HTMLElement;
+      this.realWorld = document.getElementById(
+        "card-real-world",
+      ) as HTMLElement;
+      this.cloneWrapper = document.getElementById(
+        "card-content-clone",
+      ) as HTMLElement;
       this.modal = document.getElementById("card-controls-modal");
       this.modalPanel = this.modal?.querySelector(
         "[data-card-modal-panel]",
@@ -286,13 +318,18 @@ const cardR = 20;
     }
 
     private initInputs() {
-      const cardNumber = document.getElementById("card-number") as HTMLInputElement;
+      const cardNumber = document.getElementById(
+        "card-number",
+      ) as HTMLInputElement;
       const cardExp = document.getElementById("card-exp") as HTMLInputElement;
 
       if (cardNumber) {
         cardNumber.addEventListener("input", (e) => {
           let val = (e.target as HTMLInputElement).value;
-          val = val.replace(/[^a-z0-9]+/gi, "").replace(/(.{4})/g, "$1 ").trim();
+          val = val
+            .replace(/[^a-z0-9]+/gi, "")
+            .replace(/(.{4})/g, "$1 ")
+            .trim();
           (e.target as HTMLInputElement).value = val;
         });
       }
