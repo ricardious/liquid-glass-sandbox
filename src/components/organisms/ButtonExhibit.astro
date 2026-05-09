@@ -2,95 +2,40 @@
 import SvgFilter from "../atoms/SvgFilter.astro";
 
 const filterId = "button-glass-filter";
-const glassW = 340;
-const glassH = 86;
-const glassR = 43;
 ---
 
-<div
-  class="relative w-full h-full flex items-center justify-center p-4 sm:p-8 bg-gray-50 dark:bg-[#0f0f0f]"
-  id="button-demo-shell"
->
-  <div
-    class="relative w-full max-w-5xl aspect-video sm:aspect-21/9 min-h-[320px] overflow-hidden rounded-3xl shadow-2xl border border-black/5 dark:border-white/10"
-    id="button-demo-area"
-  >
-    <div
-      id="button-real-world"
-      class="button-background absolute inset-0 pointer-events-none overflow-hidden bg-[#0b1016] bg-[url('/src/assets/button-botanical.webp')] bg-cover bg-center"
-    >
-      <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.16),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.12),transparent_22%),linear-gradient(180deg,rgba(7,12,18,0.08),rgba(8,12,16,0.52))]"
-      >
+<div class="relative w-full h-full" id="button-demo-area">
+  <!-- Real World Background (ambient orbs) -->
+  <div id="button-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-gray-50 dark:bg-[#0f0f0f]">
+    <div class="absolute w-40 h-40 bg-blue-500/20 dark:bg-blue-600/30 rounded-full mix-blend-multiply blur-3xl -top-10 -left-10"></div>
+    <div class="absolute w-40 h-40 bg-teal-400/20 dark:bg-teal-500/30 rounded-full mix-blend-multiply blur-3xl -bottom-10 -right-10"></div>
+  </div>
+
+  <div class="absolute inset-0 flex items-center justify-center">
+    <div class="relative w-[220px] h-[64px] rounded-none cursor-pointer select-none touch-none z-10 will-change-transform" id="liquid-button">
+      <div id="liquid-button-clone" class="absolute inset-0 overflow-hidden rounded-none z-[1] will-change-filter">
+        <div id="liquid-button-clone-world" class="absolute top-0 left-0 pointer-events-none will-change-transform origin-top-left bg-gray-50 dark:bg-[#0f0f0f]">
+          <!-- JS injects real world here -->
+        </div>
       </div>
-    </div>
-
-    <div class="relative flex h-full w-full items-center justify-center">
-      <div
-        class="relative z-10 flex shrink-0 cursor-pointer touch-none select-none items-center justify-center will-change-transform"
-        id="liquid-button"
-        data-controls="button-controls"
-        style={`width: ${glassW}px; height: ${glassH}px; border-radius: ${glassR}px;`}
-      >
-        <div
-          class="absolute inset-0 pointer-events-none overflow-hidden"
-          style={`border-radius: ${glassR}px;`}
-        >
-          <div
-            id="liquid-button-clone"
-            class="glass-clone-wrap absolute inset-0"
-            style={`border-radius: ${glassR}px;`}
-          >
-            <div id="liquid-button-clone-world" class="glass-clone-inner"></div>
-          </div>
-        </div>
-
-        <SvgFilter filterId={filterId} width={glassW} height={glassH} />
-
-        <div
-          id="liquid-button-inner"
-          class="glass-inner-overlay"
-          style={`border-radius: ${glassR}px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.1);`}
-        >
-        </div>
-
-        <span
-          class="relative z-5 text-sm font-bold uppercase tracking-widest text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]"
-        >
-          Deploy
-        </span>
+      <SvgFilter filterId={filterId} />
+      <div id="liquid-button-inner" class="absolute inset-0 rounded-none z-[3] bg-white/5 dark:bg-white/10 border border-gray-200 dark:border-white/20 pointer-events-none will-change-[box-shadow]"></div>
+      <div class="absolute inset-0 z-[5] flex items-center justify-center font-mono font-bold tracking-widest text-sm text-gray-900 dark:text-white uppercase drop-shadow-md">
+        Deploy
       </div>
     </div>
   </div>
-
 </div>
-
-<style>
-  .button-background {
-    transform: scale(1.08);
-    animation: buttonBgFloat 22s ease-in-out infinite alternate;
-  }
-
-  @keyframes buttonBgFloat {
-    from {
-      transform: scale(1.08) translate3d(-2%, -1%, 0);
-    }
-
-    to {
-      transform: scale(1.14) translate3d(2%, 2%, 0);
-    }
-  }
-</style>
 
 <script>
   import { Spring } from "../../quarks/spring";
+  import { SurfaceEquations } from "../../quarks/surfaceEquations";
   import {
-    applyLiquidAssets,
-    bindLiquidControls,
-    createLiquidAssets,
-    syncCloneContent,
-    updateLiquidFilter,
-  } from "../../quarks/liquidGlassEngine";
+    calculateDisplacementMap1D,
+    calculateDisplacementMap2D,
+    calculateSpecularHighlight,
+    imageDataToDataURL,
+  } from "../../quarks/surfaceRenderer";
 
   class ButtonExhibit {
     private btn: HTMLElement;
@@ -99,207 +44,83 @@ const glassR = 43;
     private demoArea: HTMLElement;
     private realWorld: HTMLElement;
     private cloneWrapper: HTMLElement;
-    private modal: HTMLElement | null;
-    private modalPanel: HTMLElement | null;
-    private modalSurface: HTMLElement | null;
-
-    private config = {
-      w: 340,
-      h: 86,
-      r: 43,
-      bw: 26,
-      gt: 120,
-      ri: 2.0,
-      maxDisp: 0,
-    };
-
-    private controls = {
-      refraction: 0.8,
-      hoverRefraction: 1.2,
-      pressRefraction: 1.5,
-      scale: 1.05,
-      pressScale: 0.9,
-      shadowDepth: 8,
-    };
-
-    private state = { ih: false, ip: false, modalOpen: false };
+    
+    private config = { w: 220, h: 64, r: 0, bw: 10, gt: 80, ri: 1.8, maxDisp: 0 };
+    private state = { ih: false, ip: false };
     private springs = {
       sc: new Spring(1, 400, 20),
       sd: new Spring(8, 400, 20),
-      rs: new Spring(0.8, 300, 20),
+      rs: new Spring(0.8, 300, 20)
     };
     private af: number | null = null;
 
     constructor() {
-      this.btn = document.getElementById("liquid-button") as HTMLElement;
-      this.inner = document.getElementById(
-        "liquid-button-inner",
-      ) as HTMLElement;
-      this.cloneWorld = document.getElementById(
-        "liquid-button-clone-world",
-      ) as HTMLElement;
-      this.demoArea = document.getElementById(
-        "button-demo-area",
-      ) as HTMLElement;
-      this.realWorld = document.getElementById(
-        "button-real-world",
-      ) as HTMLElement;
-      this.cloneWrapper = document.getElementById(
-        "liquid-button-clone",
-      ) as HTMLElement;
-      this.modal = document.getElementById("button-controls-modal");
-      this.modalPanel = this.modal?.querySelector(
-        "[data-button-modal-panel]",
-      ) as HTMLElement | null;
-      this.modalSurface = this.modal?.querySelector(
-        "[data-modal-surface]",
-      ) as HTMLElement | null;
+      this.btn = document.getElementById('liquid-button') as HTMLElement;
+      this.inner = document.getElementById('liquid-button-inner') as HTMLElement;
+      this.cloneWorld = document.getElementById('liquid-button-clone-world') as HTMLElement;
+      this.demoArea = document.getElementById('button-demo-area') as HTMLElement;
+      this.realWorld = document.getElementById('button-real-world') as HTMLElement;
+      this.cloneWrapper = document.getElementById('liquid-button-clone') as HTMLElement;
 
       if (!this.btn) return;
       this.init();
     }
 
     private init() {
-      syncCloneContent(this.cloneWorld, this.realWorld);
-      this.cloneWrapper.style.filter = `url(#button-glass-filter)`;
-      this.regenerate();
-      this.bindControls();
-      this.bindModal();
+      this.cloneWorld.innerHTML = this.realWorld.outerHTML;
+      this.cloneWrapper.style.filter = "url(#button-glass-filter)";
 
-      this.btn.addEventListener("mouseenter", () => {
-        this.state.ih = true;
-        this.startLoop();
-      });
-      this.btn.addEventListener("mouseleave", () => {
-        this.state.ih = false;
-        this.state.ip = false;
-        this.startLoop();
-      });
-      this.btn.addEventListener("mousedown", () => {
-        this.state.ip = true;
-        this.startLoop();
-      });
-      this.btn.addEventListener("mouseup", () => {
-        this.state.ip = false;
-        this.startLoop();
-      });
-      this.btn.addEventListener(
-        "touchstart",
-        (e) => {
-          e.preventDefault();
-          this.state.ip = true;
-          this.startLoop();
-        },
-        { passive: false },
-      );
-      this.btn.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        this.state.ip = false;
-        this.startLoop();
-      });
+      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
+      this.config.maxDisp = Math.max(...pc.map(Math.abs));
 
-      window.addEventListener("resize", this.startLoop.bind(this));
+      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+
+      document.getElementById("button-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
+      document.getElementById("button-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+
+      this.btn.addEventListener('mouseenter', () => { this.state.ih = true; this.startLoop(); });
+      this.btn.addEventListener('mouseleave', () => { this.state.ih = false; this.state.ip = false; this.startLoop(); });
+      this.btn.addEventListener('mousedown', () => { this.state.ip = true; this.startLoop(); });
+      this.btn.addEventListener('mouseup', () => { this.state.ip = false; this.startLoop(); });
+
+      window.addEventListener('resize', this.startLoop.bind(this));
+      
       this.startLoop();
-    }
-
-    private bindControls() {
-      bindLiquidControls(
-        this.btn,
-        this.controls,
-        () => {
-          this.startLoop();
-        },
-        () => {
-          Object.assign(this.controls, {
-            refraction: 0.8,
-            hoverRefraction: 1.2,
-            pressRefraction: 1.5,
-            scale: 1.05,
-            pressScale: 0.9,
-            shadowDepth: 8,
-          });
-          this.startLoop();
-        },
-      );
-    }
-
-    private bindModal() {
-      document
-        .querySelector("[data-open-button-controls]")
-        ?.addEventListener("click", () => {
-          this.setModal(true);
-        });
-      this.modal
-        ?.querySelector("[data-close-button-controls]")
-        ?.addEventListener("click", () => {
-          this.setModal(false);
-        });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") this.setModal(false);
-      });
-    }
-
-    private setModal(open: boolean) {
-      this.state.modalOpen = open;
-      if (!this.modal || !this.modalPanel) return;
-      const hiddenOffsetClass =
-        this.modalPanel.dataset.modalOffsetClass ?? "translate-y-[0.75rem]";
-      this.modal.classList.toggle("pointer-events-none", !open);
-      this.modal.classList.toggle("opacity-0", !open);
-      this.modalPanel.classList.toggle(hiddenOffsetClass, !open);
-      this.modalSurface?.classList.toggle("pointer-events-auto", open);
-      this.modalSurface?.classList.toggle("pointer-events-none", !open);
-    }
-
-    private regenerate() {
-      const assets = createLiquidAssets({
-        width: this.config.w,
-        height: this.config.h,
-        radius: this.config.r,
-        bezelWidth: this.config.bw,
-        glassThickness: this.config.gt,
-        refractiveIndex: this.config.ri,
-      });
-      this.config.maxDisp = assets.maximumDisplacement;
-      applyLiquidAssets("button-glass-filter", assets);
     }
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
-
-      if (this.state.ip) {
-        this.springs.sc.setTarget(this.controls.pressScale);
-        this.springs.sd.setTarget(Math.max(2, this.controls.shadowDepth * 0.4));
-        this.springs.rs.setTarget(this.controls.pressRefraction);
-      } else if (this.state.ih) {
-        this.springs.sc.setTarget(this.controls.scale);
-        this.springs.sd.setTarget(this.controls.shadowDepth * 2);
-        this.springs.rs.setTarget(this.controls.hoverRefraction);
-      } else {
-        this.springs.sc.setTarget(1);
-        this.springs.sd.setTarget(this.controls.shadowDepth);
-        this.springs.rs.setTarget(this.controls.refraction);
+      
+      if (this.state.ip) { 
+        this.springs.sc.setTarget(0.95); 
+        this.springs.sd.setTarget(2); 
+        this.springs.rs.setTarget(1.5); 
+      } else if (this.state.ih) { 
+        this.springs.sc.setTarget(1.02); 
+        this.springs.sd.setTarget(12); 
+        this.springs.rs.setTarget(1.2); 
+      } else { 
+        this.springs.sc.setTarget(1); 
+        this.springs.sd.setTarget(6); 
+        this.springs.rs.setTarget(0.8); 
       }
 
-      const sc = this.springs.sc.update(dt),
-        sd = this.springs.sd.update(dt),
-        rs = this.springs.rs.update(dt);
-
+      const sc = this.springs.sc.update(dt), sd = this.springs.sd.update(dt), rs = this.springs.rs.update(dt);
+      
       this.btn.style.transform = `scale(${sc})`;
-      this.inner.style.boxShadow = `0 ${sd}px ${sd * 3}px rgba(0,0,0,0.15), inset 0 2px 8px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.15), inset 0 0 12px rgba(255,255,255,0.1)`;
-      updateLiquidFilter("button-glass-filter", {
-        scale: this.config.maxDisp * rs,
-      });
+      this.inner.style.boxShadow = `0 ${sd}px ${sd * 2}px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.1)`;
+      document.getElementById("button-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * rs).toString());
 
-      const areaRect = this.demoArea.getBoundingClientRect();
-      this.cloneWorld.style.width = areaRect.width + "px";
-      this.cloneWorld.style.height = areaRect.height + "px";
+      const aR = this.demoArea.getBoundingClientRect();
+      this.cloneWorld.style.width = aR.width + "px";
+      this.cloneWorld.style.height = aR.height + "px";
+      
+      const ol = (aR.width - this.config.w) / 2;
+      const ot = (aR.height - this.config.h) / 2;
+      this.cloneWorld.style.transform = `scale(${1 / sc}) translate(${-ol}px, ${-ot}px)`;
 
-      const offsetLeft = (areaRect.width - this.config.w) / 2;
-      const offsetTop = (areaRect.height - this.config.h) / 2;
-      this.cloneWorld.style.transform = `translate(${-offsetLeft}px, ${-offsetTop}px) scale(${1 / sc})`;
-
-      if (!Object.values(this.springs).every((spring) => spring.isSettled())) {
+      if (!Object.values(this.springs).every(x => x.isSettled())) {
         this.af = requestAnimationFrame(this.loop);
       } else {
         this.af = null;
@@ -311,7 +132,7 @@ const glassR = 43;
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener('DOMContentLoaded', () => {
     new ButtonExhibit();
   });
 </script>

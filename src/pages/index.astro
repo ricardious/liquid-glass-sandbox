@@ -1,232 +1,220 @@
 ---
-import MainLayout from '../layouts/MainLayout.astro';
-import ExhibitCard from '../components/molecules/ExhibitCard.astro';
-import ControlsModal from '../components/molecules/ControlsModal.astro';
-import LiquidControls from '../components/molecules/LiquidControls.astro';
-import LensExhibit from '../components/organisms/LensExhibit.astro';
-import ButtonExhibit from '../components/organisms/ButtonExhibit.astro';
-import SwitchExhibit from '../components/organisms/SwitchExhibit.astro';
-import SliderExhibit from '../components/organisms/SliderExhibit.astro';
-import DockExhibit from '../components/organisms/DockExhibit.astro';
-import CursorExhibit from '../components/organisms/CursorExhibit.astro';
-import InputExhibit from '../components/organisms/InputExhibit.astro';
-import TabsExhibit from '../components/organisms/TabsExhibit.astro';
-import CheckboxExhibit from '../components/organisms/CheckboxExhibit.astro';
-import ProgressExhibit from '../components/organisms/ProgressExhibit.astro';
-import TooltipExhibit from '../components/organisms/TooltipExhibit.astro';
-import RadioExhibit from '../components/organisms/RadioExhibit.astro';
-import ToastExhibit from '../components/organisms/ToastExhibit.astro';
+import MainLayout from "../layouts/MainLayout.astro";
+import ExhibitCard from "../components/molecules/ExhibitCard.astro";
+import LensExhibit from "../components/organisms/LensExhibit.astro";
+import ButtonExhibit from "../components/organisms/ButtonExhibit.astro";
+import SwitchExhibit from "../components/organisms/SwitchExhibit.astro";
+import SliderExhibit from "../components/organisms/SliderExhibit.astro";
+import DockExhibit from "../components/organisms/DockExhibit.astro";
+import CursorExhibit from "../components/organisms/CursorExhibit.astro";
+import InputExhibit from "../components/organisms/InputExhibit.astro";
+import TabsExhibit from "../components/organisms/TabsExhibit.astro";
+import CheckboxExhibit from "../components/organisms/CheckboxExhibit.astro";
+import ProgressExhibit from "../components/organisms/ProgressExhibit.astro";
+
+import ClockExhibit from "../components/organisms/ClockExhibit.astro";
+import CreditCardExhibit from "../components/organisms/CreditCardExhibit.astro";
+import TopNav from "../components/molecules/TopNav.astro";
+import { projectLinks } from "../lib/site";
 ---
 
 <MainLayout title="Liquid Glass - Interactive Gallery">
-  
-  <div class="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
-    
+  <div
+    class="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black"
+  >
+    <TopNav currentPath="/" />
+
     <!-- Hero Header -->
-    <header class="w-full px-8 py-24 md:py-32 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+    <header
+      class="w-full px-8 py-24 md:py-32 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
+    >
       <div class="max-w-screen-2xl mx-auto">
-        <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-6">
-          Liquid<br/>Glass
+        <h1
+          class="font-display text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-10"
+        >
+          Liquid Glass
         </h1>
-        <p class="text-xl md:text-2xl font-light text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
-          A study of refraction, optics, and surface tension on the web. 
-          Built with pure mathematics, SVG displacement maps, and Astro.
+        <p
+          class="text-xl md:text-2xl font-light text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed"
+        >
+          A study of refraction, optics, and surface tension on the web. Built
+          with pure mathematics, SVG displacement maps, and Astro.
         </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a
+            href="/how-it-works"
+            class="rounded-full bg-gray-900 px-5 py-2.5 text-xs uppercase tracking-[0.22em] text-white transition hover:bg-gray-700 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          >
+            How It Works
+          </a>
+          <a
+            href="/svg-generator"
+            class="rounded-full border border-gray-300 px-5 py-2.5 text-xs uppercase tracking-[0.22em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+          >
+            SVG Generator
+          </a>
+          <a
+            href={projectLinks.github.url}
+            target="_blank"
+            rel="noreferrer"
+            class="rounded-full border border-gray-300 px-5 py-2.5 text-xs uppercase tracking-[0.22em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+          >
+            View Code
+          </a>
+        </div>
       </div>
     </header>
 
+    <section class="border-b border-gray-200 bg-[#f6f3ec] dark:border-gray-800 dark:bg-[#0b0d11]">
+      <div class="mx-auto grid max-w-screen-2xl gap-px border-l border-gray-200 bg-gray-200 md:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+        <a
+          href="/how-it-works"
+          class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
+        >
+          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Explain</span>
+          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">How It Works</h2>
+          <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
+            Breakdown of the math, the SVG pipeline, and the implementation choices behind the refraction effect.
+          </p>
+        </a>
+        <a
+          href="/svg-generator"
+          class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
+        >
+          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Tool</span>
+          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">SVG Generator</h2>
+          <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
+            Tune the liquid glass parameters and copy a self-contained SVG filter snippet for your own site.
+          </p>
+        </a>
+        <a
+          href={projectLinks.article.url}
+          target="_blank"
+          rel="noreferrer"
+          class="bg-white p-6 transition hover:bg-[#f8f4ee] dark:bg-[#0a0a0a] dark:hover:bg-[#111318]"
+        >
+          <span class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400">Reference</span>
+          <h2 class="mt-4 font-display text-3xl text-gray-900 dark:text-white">Article Base</h2>
+          <p class="mt-3 max-w-sm text-sm text-gray-600 dark:text-gray-400">
+            Credit to the original article that sparked the effect and guided the refraction-first approach.
+          </p>
+        </a>
+      </div>
+    </section>
+
     <!-- Gallery Grid -->
-    <main class="w-full max-w-screen-2xl mx-auto border-l border-gray-200 dark:border-gray-800">
+    <main
+      class="w-full max-w-screen-2xl mx-auto border-l border-gray-200 dark:border-gray-800"
+    >
       <div class="grid grid-cols-1 md:grid-cols-12">
-        
-        <ExhibitCard 
-          number="01" 
-          title="The Lens" 
+        <ExhibitCard
+          number="01"
+          title="The Lens"
           description="A free-floating magnifying glass demonstrating real-time backdrop refraction and chromatic aberration over complex DOM elements."
           span="col-span-12"
         >
           <LensExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="02" 
-          title="Action Button" 
+        <ExhibitCard
+          number="02"
+          title="Action Button"
           description="A hyper-tactile button with inner tension. Click and hold to feel the surface pull inward."
           span="col-span-12 md:col-span-6"
         >
-          <ControlsModal
-            slot="actions"
-            id="button-controls-modal"
-            title="Button Parameters"
-            panelDataAttr="data-button-modal-panel"
-            closeDataAttr="data-close-button-controls"
-            triggerDataAttr="data-open-button-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
-          >
-            <LiquidControls
-              title="Button Controls"
-              target="button-controls"
-              compact={true}
-              className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.4,
-                  max: 2.4,
-                  step: 0.01,
-                  value: 0.8,
-                },
-                {
-                  key: "hoverRefraction",
-                  label: "Hover Boost",
-                  min: 0.8,
-                  max: 2.2,
-                  step: 0.01,
-                  value: 1.2,
-                },
-                {
-                  key: "pressRefraction",
-                  label: "Press Boost",
-                  min: 0.8,
-                  max: 2.4,
-                  step: 0.01,
-                  value: 1.5,
-                },
-                {
-                  key: "scale",
-                  label: "Hover Scale",
-                  min: 1,
-                  max: 1.14,
-                  step: 0.01,
-                  value: 1.05,
-                },
-                {
-                  key: "pressScale",
-                  label: "Press Scale",
-                  min: 0.82,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.9,
-                },
-                {
-                  key: "shadowDepth",
-                  label: "Shadow",
-                  min: 4,
-                  max: 18,
-                  step: 0.1,
-                  value: 8,
-                },
-              ]}
-            />
-          </ControlsModal>
           <ButtonExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="03" 
-          title="The Switch" 
+        <ExhibitCard
+          number="03"
+          title="The Switch"
           description="A toggle switch with physical mass. Drag or click to snap. Refraction intensity increases when pressed."
           span="col-span-12 md:col-span-6"
         >
           <SwitchExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="04" 
-          title="The Slider" 
+        <ExhibitCard
+          number="04"
+          title="The Slider"
           description="A liquid slider track. The glass thumb stretches and distorts based on dragging velocity."
           span="col-span-12"
         >
           <SliderExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="05" 
-          title="The Dock" 
+        <ExhibitCard
+          number="05"
+          title="The Dock"
           description="A row of reactive lenses. Each item magnifies, bringing its own dynamic displacement map into focus."
           span="col-span-12 md:col-span-6"
         >
           <DockExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="06" 
-          title="The Cursor" 
+        <ExhibitCard
+          number="06"
+          title="The Cursor"
           description="A custom glass pointer with spring physics, stretching and refracting based on velocity."
           span="col-span-12 md:col-span-6"
         >
           <CursorExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="07" 
-          title="Liquid Input" 
+        <ExhibitCard
+          number="07"
+          title="Liquid Input"
           description="A glass input field that reacts to typing with microscopic physical tremors and refraction bursts."
           span="col-span-12 md:col-span-6"
         >
           <InputExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="08" 
-          title="Liquid Tabs" 
+        <ExhibitCard
+          number="08"
+          title="Liquid Tabs"
           description="Sliding glass navigation. The active indicator stretches and refracts based on velocity."
           span="col-span-12 md:col-span-6"
         >
           <TabsExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="09" 
-          title="Liquid Checkbox" 
+        <ExhibitCard
+          number="09"
+          title="Liquid Checkbox"
           description="A tactile checkbox with elastic bounce and ink-fill physics."
           span="col-span-12 md:col-span-6"
         >
           <CheckboxExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="10" 
-          title="Liquid Progress" 
+        <ExhibitCard
+          number="10"
+          title="Liquid Progress"
           description="A progress bar with dynamic refraction tracking the leading edge."
           span="col-span-12 md:col-span-6"
         >
           <ProgressExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="11" 
-          title="Liquid Tooltip" 
-          description="A glass tooltip that appears with springy entrance."
-          span="col-span-12 md:col-span-4"
+        <ExhibitCard
+          number="14"
+          title="Glass Clock"
+          description="An analog clock with liquid glass effect replacing backdrop blur."
+          span="col-span-12 md:col-span-6"
         >
-          <TooltipExhibit />
+          <ClockExhibit />
         </ExhibitCard>
 
-        <ExhibitCard 
-          number="12" 
-          title="Liquid Radio" 
-          description="Selectable sizes with magnetic snap and bounce."
-          span="col-span-12 md:col-span-4"
+        <ExhibitCard
+          number="15"
+          title="Liquid Credit Card"
+          description="An interactive, 3D parallax credit card floating over animated circles."
+          span="col-span-12 md:col-span-6"
         >
-          <RadioExhibit />
+          <CreditCardExhibit />
         </ExhibitCard>
-
-        <ExhibitCard 
-          number="13" 
-          title="Liquid Toast" 
-          description="A sliding notification with glass blur depth."
-          span="col-span-12 md:col-span-4"
-        >
-          <ToastExhibit />
-        </ExhibitCard>
-
       </div>
     </main>
-
   </div>
-
 </MainLayout>

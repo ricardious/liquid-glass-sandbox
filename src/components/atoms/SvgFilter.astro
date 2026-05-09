@@ -1,36 +1,26 @@
 ---
 interface Props {
   filterId: string;
-  width?: number;
-  height?: number;
-  blurStdDev?: number;
-  scale?: number;
-  specularAlpha?: number;
-  saturation?: number;
-  mode?: "standard" | "control";
+  blurId?: string;
+  imageId?: string;
+  mapId?: string;
+  specularImageId?: string;
+  specularAlphaId?: string;
 }
 
 const { 
   filterId, 
-  width = 200,
-  height = 140,
-  blurStdDev = 0.5,
-  scale = 50,
-  specularAlpha = 0.8,
-  saturation = 1.3,
-  mode = "standard",
+  blurId = `${filterId}-blur`, 
+  imageId = `${filterId}-image`, 
+  mapId = `${filterId}-map`,
+  specularImageId = `${filterId}-specular`,
+  specularAlphaId = `${filterId}-alpha`
 } = Astro.props;
-
-const mapId = `${filterId}-map`;
-const imageId = `${filterId}-image`;
-const specularId = `${filterId}-specular`;
-const alphaId = `${filterId}-alpha`;
-const blurId = `${filterId}-blur`;
-const saturationId = `${filterId}-saturation`;
 ---
 
 <svg
   class="glass-filter-svg"
+  style="width: 0; height: 0; position: absolute;"
   aria-hidden="true"
 >
   <defs>
@@ -45,7 +35,7 @@ const saturationId = `${filterId}-saturation`;
       <feGaussianBlur
         id={blurId}
         in="SourceGraphic"
-        stdDeviation={blurStdDev.toString()}
+        stdDeviation="0.5"
         result="blurred"
       />
       <feImage
@@ -53,8 +43,8 @@ const saturationId = `${filterId}-saturation`;
         href=""
         x="0"
         y="0"
-        width={width}
-        height={height}
+        width="200"
+        height="140"
         result="displacement_map"
         preserveAspectRatio="none"
       />
@@ -62,68 +52,42 @@ const saturationId = `${filterId}-saturation`;
         id={mapId}
         in="blurred"
         in2="displacement_map"
-        scale={scale}
+        scale="50"
         xChannelSelector="R"
         yChannelSelector="G"
         result="displaced"
       />
       <feColorMatrix
-        id={saturationId}
         in="displaced"
         type="saturate"
-        values={saturation.toString()}
+        values="1.3"
         result="displaced_saturated"
       />
       <feImage
-        id={specularId}
+        id={specularImageId}
         href=""
         x="0"
         y="0"
-        width={width}
-        height={height}
+        width="200"
+        height="140"
         result="specular_layer"
         preserveAspectRatio="none"
       />
-      {
-        mode === "control" && (
-          <feComposite
-            in="displaced_saturated"
-            in2="specular_layer"
-            operator="in"
-            result="specular_saturated"
-          />
-        )
-      }
-      <feComponentTransfer in="specular_layer" result="specular_faded">
+      <feComponentTransfer
+        in="specular_layer"
+        result="specular_faded"
+      >
         <feFuncA
-          id={alphaId}
+          id={specularAlphaId}
           type="linear"
-          slope={specularAlpha.toString()}
+          slope="0.5"
         />
       </feComponentTransfer>
-      {
-        mode === "control" ? (
-          <>
-            <feBlend
-              in="specular_saturated"
-              in2="displaced"
-              mode="normal"
-              result="withSaturation"
-            />
-            <feBlend
-              in="specular_faded"
-              in2="withSaturation"
-              mode="normal"
-            />
-          </>
-        ) : (
-          <feBlend
-            in="specular_faded"
-            in2="displaced_saturated"
-            mode="screen"
-          />
-        )
-      }
+      <feBlend
+        in="specular_faded"
+        in2="displaced_saturated"
+        mode="screen"
+      />
     </filter>
   </defs>
 </svg>
