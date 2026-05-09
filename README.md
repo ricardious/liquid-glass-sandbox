@@ -1,46 +1,68 @@
-# Astro Starter Kit: Basics
+# Liquid Glass Sandbox
+
+An Astro showcase for liquid glass UI experiments built with SVG displacement maps, specular highlights, DOM cloning, and spring-driven interaction.
+
+## What It Includes
+
+- Gallery of interactive glass components on `/`
+- Documentation page on `/how-it-works`
+- SVG export tool on `/svg-generator`
+- Reusable controls, filters, and liquid rendering helpers
+
+Current gallery highlights include:
+
+- The Lens
+- The Button
+- The Switch
+- The Slider
+- The Cursor
+- Liquid Input
+- Layered FAB
+- Liquid Credit Card
+
+## Stack
+
+- Astro
+- Tailwind CSS v4
+- TypeScript
+- SVG filter pipeline for displacement/specular rendering
+
+## Local Development
+
+Requirements:
+
+- Node.js `>= 22.12.0`
+
+Install dependencies:
 
 ```sh
-pnpm create astro@latest -- --template basics
+pnpm install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Run the dev server:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```sh
+pnpm dev
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Build for production:
 
-## 🧞 Commands
+```sh
+pnpm build
+```
 
-All commands are run from the root of the project, from a terminal:
+Preview the build:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+```sh
+pnpm preview
+```
 
-## 👀 Want to learn more?
+## Credits
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This project is explicitly inspired by the original liquid glass article by `@kube`:
+
+- https://kube.io/blog/liquid-glass-css-svg/
+
+Repository:
+
+- https://github.com/ricardious/liquid-glass-sandbox
