@@ -13,7 +13,15 @@ import InputExhibit from "../components/organisms/InputExhibit.astro";
 import LayeredFabExhibit from "../components/organisms/LayeredFabExhibit.astro";
 import CreditCardExhibit from "../components/organisms/CreditCardExhibit.astro";
 import TopNav from "../components/molecules/TopNav.astro";
+import { galleryControls } from "../lib/galleryControls";
 import { projectLinks } from "../lib/site";
+
+const buttonControls = galleryControls.button;
+const switchControls = galleryControls.switch;
+const cursorControls = galleryControls.cursor;
+const inputControls = galleryControls.input;
+const fabControls = galleryControls.fab;
+const cardControls = galleryControls.card;
 ---
 
 <MainLayout title="Liquid Glass - Interactive Gallery">
@@ -150,70 +158,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="button-controls-modal"
-            title="Button Parameters"
-            panelDataAttr="data-button-modal-panel"
-            closeDataAttr="data-close-button-controls"
-            triggerDataAttr="data-open-button-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={buttonControls.modal.id}
+            title={buttonControls.modal.title}
+            panelDataAttr={buttonControls.modal.panelDataAttr}
+            closeDataAttr={buttonControls.modal.closeDataAttr}
+            triggerDataAttr={buttonControls.modal.triggerDataAttr}
+            triggerLabel={buttonControls.modal.triggerLabel}
+            panelSide={buttonControls.modal.panelSide}
+            panelAlign={buttonControls.modal.panelAlign}
           >
             <LiquidControls
-              title="Button Controls"
-              target="button-controls"
+              title={buttonControls.panelTitle}
+              target={buttonControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.4,
-                  max: 2.4,
-                  step: 0.01,
-                  value: 0.8,
-                },
-                {
-                  key: "hoverRefraction",
-                  label: "Hover Boost",
-                  min: 0.8,
-                  max: 2.2,
-                  step: 0.01,
-                  value: 1.2,
-                },
-                {
-                  key: "pressRefraction",
-                  label: "Press Boost",
-                  min: 0.8,
-                  max: 2.4,
-                  step: 0.01,
-                  value: 1.5,
-                },
-                {
-                  key: "scale",
-                  label: "Hover Scale",
-                  min: 1,
-                  max: 1.14,
-                  step: 0.01,
-                  value: 1.05,
-                },
-                {
-                  key: "pressScale",
-                  label: "Press Scale",
-                  min: 0.82,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.9,
-                },
-                {
-                  key: "shadowDepth",
-                  label: "Shadow",
-                  min: 4,
-                  max: 18,
-                  step: 0.1,
-                  value: 8,
-                },
-              ]}
+              controls={buttonControls.controls}
             />
           </ControlsModal>
           <ButtonExhibit />
@@ -227,60 +186,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="switch-controls-modal"
-            title="Switch Parameters"
-            panelDataAttr="data-switch-modal-panel"
-            closeDataAttr="data-close-switch-controls"
-            triggerDataAttr="data-open-switch-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={switchControls.modal.id}
+            title={switchControls.modal.title}
+            panelDataAttr={switchControls.modal.panelDataAttr}
+            closeDataAttr={switchControls.modal.closeDataAttr}
+            triggerDataAttr={switchControls.modal.triggerDataAttr}
+            triggerLabel={switchControls.modal.triggerLabel}
+            panelSide={switchControls.modal.panelSide}
+            panelAlign={switchControls.modal.panelAlign}
           >
             <LiquidControls
-              title="Switch Controls"
-              target="switch-controls"
+              title={switchControls.panelTitle}
+              target={switchControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "forceActive",
-                  label: "Force Active",
-                  type: "toggle",
-                  value: false,
-                },
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0,
-                  max: 1.4,
-                  step: 0.01,
-                  value: 1,
-                },
-                {
-                  key: "blur",
-                  label: "Blur",
-                  min: 0,
-                  max: 3,
-                  step: 0.01,
-                  value: 0.2,
-                },
-                {
-                  key: "specularOpacity",
-                  label: "Specular",
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.5,
-                },
-                {
-                  key: "saturation",
-                  label: "Saturation",
-                  min: 0,
-                  max: 12,
-                  step: 0.1,
-                  value: 6,
-                },
-              ]}
+              controls={switchControls.controls}
             />
           </ControlsModal>
           <SwitchExhibit />
@@ -303,78 +223,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="cursor-controls-modal"
-            title="Cursor Parameters"
-            panelDataAttr="data-cursor-modal-panel"
-            closeDataAttr="data-close-cursor-controls"
-            triggerDataAttr="data-open-cursor-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={cursorControls.modal.id}
+            title={cursorControls.modal.title}
+            panelDataAttr={cursorControls.modal.panelDataAttr}
+            closeDataAttr={cursorControls.modal.closeDataAttr}
+            triggerDataAttr={cursorControls.modal.triggerDataAttr}
+            triggerLabel={cursorControls.modal.triggerLabel}
+            panelSide={cursorControls.modal.panelSide}
+            panelAlign={cursorControls.modal.panelAlign}
           >
             <LiquidControls
-              title="Cursor Controls"
-              target="liquid-cursor"
+              title={cursorControls.panelTitle}
+              target={cursorControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "idleScale",
-                  label: "Idle Scale",
-                  min: 0.8,
-                  max: 1.4,
-                  step: 0.01,
-                  value: 1,
-                },
-                {
-                  key: "hoverScale",
-                  label: "Hover Scale",
-                  min: 1,
-                  max: 2.2,
-                  step: 0.01,
-                  value: 1.6,
-                },
-                {
-                  key: "pressScale",
-                  label: "Press Scale",
-                  min: 0.5,
-                  max: 1.1,
-                  step: 0.01,
-                  value: 0.7,
-                },
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.4,
-                  max: 2.2,
-                  step: 0.01,
-                  value: 1.5,
-                },
-                {
-                  key: "blur",
-                  label: "Blur",
-                  min: 0,
-                  max: 2,
-                  step: 0.01,
-                  value: 0,
-                },
-                {
-                  key: "specularOpacity",
-                  label: "Specular",
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.75,
-                },
-                {
-                  key: "saturation",
-                  label: "Saturation",
-                  min: 0,
-                  max: 12,
-                  step: 0.1,
-                  value: 7,
-                },
-              ]}
+              controls={cursorControls.controls}
             />
           </ControlsModal>
           <CursorExhibit />
@@ -388,78 +251,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="input-controls-modal"
-            title="Input Parameters"
-            panelDataAttr="data-input-modal-panel"
-            closeDataAttr="data-close-input-controls"
-            triggerDataAttr="data-open-input-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={inputControls.modal.id}
+            title={inputControls.modal.title}
+            panelDataAttr={inputControls.modal.panelDataAttr}
+            closeDataAttr={inputControls.modal.closeDataAttr}
+            triggerDataAttr={inputControls.modal.triggerDataAttr}
+            triggerLabel={inputControls.modal.triggerLabel}
+            panelSide={inputControls.modal.panelSide}
+            panelAlign={inputControls.modal.panelAlign}
           >
             <LiquidControls
-              title="Input Controls"
-              target="input-controls"
+              title={inputControls.panelTitle}
+              target={inputControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "focusScale",
-                  label: "Focus Scale",
-                  min: 1,
-                  max: 1.2,
-                  step: 0.01,
-                  value: 1.05,
-                },
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.4,
-                  max: 2,
-                  step: 0.01,
-                  value: 1,
-                },
-                {
-                  key: "blur",
-                  label: "Blur",
-                  min: 0,
-                  max: 2,
-                  step: 0.01,
-                  value: 0,
-                },
-                {
-                  key: "specularOpacity",
-                  label: "Specular",
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.75,
-                },
-                {
-                  key: "saturation",
-                  label: "Saturation",
-                  min: 0,
-                  max: 12,
-                  step: 0.1,
-                  value: 6,
-                },
-                {
-                  key: "pulseX",
-                  label: "Type Pulse X",
-                  min: 0,
-                  max: 3,
-                  step: 0.1,
-                  value: 1.5,
-                },
-                {
-                  key: "pulseY",
-                  label: "Type Pulse Y",
-                  min: -3,
-                  max: 0,
-                  step: 0.1,
-                  value: -1,
-                },
-              ]}
+              controls={inputControls.controls}
             />
           </ControlsModal>
           <InputExhibit />
@@ -473,70 +279,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="fab-controls-modal"
-            title="FAB Parameters"
-            panelDataAttr="data-fab-modal-panel"
-            closeDataAttr="data-close-fab-controls"
-            triggerDataAttr="data-open-fab-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={fabControls.modal.id}
+            title={fabControls.modal.title}
+            panelDataAttr={fabControls.modal.panelDataAttr}
+            closeDataAttr={fabControls.modal.closeDataAttr}
+            triggerDataAttr={fabControls.modal.triggerDataAttr}
+            triggerLabel={fabControls.modal.triggerLabel}
+            panelSide={fabControls.modal.panelSide}
+            panelAlign={fabControls.modal.panelAlign}
           >
             <LiquidControls
-              title="FAB Controls"
-              target="fab-controls"
+              title={fabControls.panelTitle}
+              target={fabControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "menuLift",
-                  label: "Menu Lift",
-                  min: 72,
-                  max: 132,
-                  step: 1,
-                  value: 96,
-                },
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.3,
-                  max: 1.6,
-                  step: 0.01,
-                  value: 0.9,
-                },
-                {
-                  key: "blur",
-                  label: "Blur",
-                  min: 0,
-                  max: 1.5,
-                  step: 0.01,
-                  value: 0.25,
-                },
-                {
-                  key: "specularOpacity",
-                  label: "Specular",
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.75,
-                },
-                {
-                  key: "saturation",
-                  label: "Saturation",
-                  min: 0.5,
-                  max: 4,
-                  step: 0.01,
-                  value: 1.2,
-                },
-                {
-                  key: "bounce",
-                  label: "Bounce",
-                  min: 0.5,
-                  max: 1.6,
-                  step: 0.01,
-                  value: 1,
-                },
-              ]}
+              controls={fabControls.controls}
             />
           </ControlsModal>
           <LayeredFabExhibit />
@@ -550,70 +307,21 @@ import { projectLinks } from "../lib/site";
         >
           <ControlsModal
             slot="actions"
-            id="card-controls-modal"
-            title="Card Parameters"
-            panelDataAttr="data-card-modal-panel"
-            closeDataAttr="data-close-card-controls"
-            triggerDataAttr="data-open-card-controls"
-            triggerLabel="Parameters"
-            panelSide="bottom"
-            panelAlign="end"
+            id={cardControls.modal.id}
+            title={cardControls.modal.title}
+            panelDataAttr={cardControls.modal.panelDataAttr}
+            closeDataAttr={cardControls.modal.closeDataAttr}
+            triggerDataAttr={cardControls.modal.triggerDataAttr}
+            triggerLabel={cardControls.modal.triggerLabel}
+            panelSide={cardControls.modal.panelSide}
+            panelAlign={cardControls.modal.panelAlign}
           >
             <LiquidControls
-              title="Card Controls"
-              target="liquid-card-container"
+              title={cardControls.panelTitle}
+              target={cardControls.target}
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
-              controls={[
-                {
-                  key: "hoverScale",
-                  label: "Hover Scale",
-                  min: 1,
-                  max: 1.08,
-                  step: 0.01,
-                  value: 1.02,
-                },
-                {
-                  key: "refraction",
-                  label: "Refraction",
-                  min: 0.2,
-                  max: 1.2,
-                  step: 0.01,
-                  value: 0.5,
-                },
-                {
-                  key: "tilt",
-                  label: "Tilt",
-                  min: 0.01,
-                  max: 0.08,
-                  step: 0.005,
-                  value: 0.05,
-                },
-                {
-                  key: "blur",
-                  label: "Blur",
-                  min: 0,
-                  max: 2,
-                  step: 0.01,
-                  value: 0,
-                },
-                {
-                  key: "specularOpacity",
-                  label: "Specular",
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  value: 0.6,
-                },
-                {
-                  key: "saturation",
-                  label: "Saturation",
-                  min: 0.5,
-                  max: 4,
-                  step: 0.01,
-                  value: 1.2,
-                },
-              ]}
+              controls={cardControls.controls}
             />
           </ControlsModal>
           <CreditCardExhibit />
