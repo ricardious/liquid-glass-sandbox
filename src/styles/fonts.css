@@ -7,7 +7,7 @@
   font-family: "Gaspers Regular";
   src:
     local("Gaspers Regular"),
-    url("/fonts/gaspers-regular.ttf") format("truetype");
+    url("./fonts/gaspers-regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +17,7 @@
   font-family: "Barokah Signature";
   src:
     local("Barokah Signature"),
-    url("/fonts/barokah-signature.ttf") format("truetype");
+    url("./fonts/barokah-signature.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
