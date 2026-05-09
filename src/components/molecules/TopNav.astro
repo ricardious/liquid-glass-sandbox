@@ -17,9 +17,14 @@ const { currentPath = "/" } = Astro.props;
   >
     <a
       href="/"
-      class="font-display text-base tracking-tight text-zinc-900 dark:text-white"
+      class="inline-flex items-center text-zinc-900 dark:text-white"
+      aria-label="Liquid Glass home"
     >
-      Ricardious
+      <img
+        src="/favicon.svg"
+        alt="Liquid Glass"
+        class="h-7 w-7 sm:h-8 sm:w-8"
+      />
     </a>
 
     <div
