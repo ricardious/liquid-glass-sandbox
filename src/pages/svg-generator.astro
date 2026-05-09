@@ -1,0 +1,1375 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import TopNav from "../components/molecules/TopNav.astro";
+import SvgFilter from "../components/atoms/SvgFilter.astro";
+import SelectField from "../components/atoms/SelectField.astro";
+import { projectLinks } from "../lib/site";
+import botanical from "../assets/tropical-floral-pattern-dark.webp";
+
+const filterId = "exported-liquid-filter";
+---
+
+<MainLayout title="SVG Generator - Liquid Glass">
+  <div
+    class="min-h-screen bg-[#f4f1ea] text-gray-900 dark:bg-black dark:text-gray-100"
+  >
+    <TopNav currentPath="/svg-generator" />
+
+    <header
+      class="border-b border-gray-200 bg-white px-4 py-14 sm:px-6 md:px-8 md:py-20 dark:border-gray-800 dark:bg-[#0a0a0a]"
+    >
+      <div class="mx-auto max-w-screen-2xl">
+        <span
+          class="text-[10px] uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400"
+          >Tooling</span
+        >
+        <h1
+          class="mt-5 md:mt-10 font-display
+         text-[1.8rem] sm:text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] xl:text-5xl
+         leading-[3] tracking-[-0.02em]"
+        >
+          SVG Generator
+        </h1>
+        <p
+          class="mt-5 max-w-3xl text-base leading-relaxed text-gray-600 sm:text-lg dark:text-gray-400"
+        >
+          Tune the surface, preview the distortion in motion, and download the
+          filter with the base CSS helpers needed to wire the glass layer into
+          a real component.
+        </p>
+      </div>
+    </header>
+
+    <main
+      class="mx-auto grid max-w-screen-2xl gap-6 px-4 py-8 sm:px-6 md:px-8 md:py-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-8"
+    >
+      <section class="space-y-8">
+        <article
+          class="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#0b0d11]"
+        >
+          <div
+            id="generator-scene"
+            class="relative min-h-[20rem] overflow-hidden bg-[#0d1218] sm:min-h-[24rem] md:min-h-[30rem]"
+          >
+            <div
+              id="generator-real-world"
+              class="absolute inset-0 overflow-hidden"
+            >
+              <div
+                id="generator-background"
+                class="absolute inset-0 opacity-90"
+                style={`background-image: url(${botanical.src});`}
+                data-background-url={botanical.src}
+              >
+              </div>
+              <div
+                class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_35%),linear-gradient(180deg,rgba(9,14,20,0.1),rgba(5,8,12,0.72))]"
+              >
+              </div>
+              <div
+                class="absolute inset-0 z-[2] flex items-center justify-center"
+              >
+                <span
+                  class="px-4 text-center font-display text-3xl text-white/75 drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)] sm:text-4xl"
+                  >Preview Layer</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="absolute inset-0 flex items-center justify-center p-4 sm:p-6 md:p-10"
+            >
+              <div
+                id="generator-glass"
+                class="absolute left-1/2 top-1/2 z-20 overflow-hidden"
+                style="width: 280px; height: 180px; border-radius: 36px; transform: translate(-50%, -50%);"
+              >
+                <div
+                  class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+                >
+                  <div
+                    id="generator-content-clone"
+                    class="glass-clone-wrap absolute inset-0 rounded-[inherit]"
+                  >
+                    <div id="generator-clone-inner" class="glass-clone-inner">
+                    </div>
+                  </div>
+                </div>
+
+                <SvgFilter filterId={filterId} width={280} height={180} />
+
+                <div
+                  class="glass-inner-overlay rounded-[inherit] border border-white/25 bg-white/8 shadow-[0_24px_60px_rgba(0,0,0,0.28),inset_0_2px_12px_rgba(255,255,255,0.3),inset_0_-2px_10px_rgba(0,0,0,0.32)]"
+                >
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="rounded-[2rem] border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-[#0b0d11]"
+        >
+          <div
+            class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
+          >
+            <div>
+              <span
+                class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+                >Export</span
+              >
+              <h2
+                class="mt-3 font-display text-[1.5rem] leading-[5.5rem] tracking-[0.03em] sm:text-[1.9rem]"
+              >
+                Export Package
+              </h2>
+            </div>
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <button
+                id="copy-svg-button"
+                type="button"
+                class="w-full rounded-full border border-gray-200 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-700 transition hover:bg-gray-100 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+              >
+                Copy Package
+              </button>
+              <button
+                id="download-svg-button"
+                type="button"
+                class="w-full rounded-full bg-gray-900 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-gray-700 sm:w-auto dark:bg-white dark:text-black dark:hover:bg-gray-200"
+              >
+                Download Package
+              </button>
+              <button
+                id="download-preview-button"
+                type="button"
+                class="w-full rounded-full border border-gray-200 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-700 transition hover:bg-gray-100 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+              >
+                Download Preview HTML
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-4 xl:grid-cols-2">
+            <div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Generated CSS</span>
+                <button
+                  id="copy-css-button"
+                  type="button"
+                  class="rounded-full border border-gray-200 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                >
+                  Copy CSS
+                </button>
+              </div>
+              <div class="mt-3 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]">
+                <textarea
+                  id="generator-css-output"
+                  readonly
+                  class="block h-[14rem] w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+                ></textarea>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Generated HTML</span>
+                <button
+                  id="copy-html-button"
+                  type="button"
+                  class="rounded-full border border-gray-200 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                >
+                  Copy HTML
+                </button>
+              </div>
+              <div class="mt-3 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]">
+                <textarea
+                  id="generator-html-output"
+                  readonly
+                  class="block h-[14rem] w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+                ></textarea>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Generated SVG</span>
+                <button
+                  id="copy-svg-only-button"
+                  type="button"
+                  class="rounded-full border border-gray-200 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                >
+                  Copy SVG
+                </button>
+              </div>
+              <div class="mt-3 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]">
+                <textarea
+                  id="generator-svg-output"
+                  readonly
+                  class="block h-[14rem] w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+                ></textarea>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Generated Tailwind</span>
+                <button
+                  id="copy-tailwind-button"
+                  type="button"
+                  class="rounded-full border border-gray-200 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                >
+                  Copy Tailwind
+                </button>
+              </div>
+              <div class="mt-3 overflow-hidden rounded-[1.5rem] border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]">
+                <textarea
+                  id="generator-tailwind-output"
+                  readonly
+                  class="block h-[14rem] w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="space-y-6">
+        <article
+          class="rounded-[2rem] border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-[#0b0d11]"
+        >
+          <span
+            class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+            >Controls</span
+          >
+          <div class="mt-5 space-y-4" id="generator-controls">
+            <label
+              class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+            >
+              Filter Id
+              <input
+                data-key="filterName"
+                value="liquid-glass-custom"
+                class="mt-2 w-full rounded-2xl border border-gray-200 bg-transparent px-4 py-3 text-sm normal-case tracking-normal text-gray-900 outline-none dark:border-gray-700 dark:text-white"
+              />
+            </label>
+            <SelectField
+              label="Surface"
+              keyName="surfaceType"
+              value="convex_squircle"
+              options={[
+                { value: "convex_squircle", label: "Convex Squircle", description: "Balanced rounded glass" },
+                { value: "convex_circle", label: "Convex Circle", description: "More spherical refraction" },
+                { value: "concave", label: "Concave", description: "Inset lens behavior" },
+                { value: "lip", label: "Lip", description: "Raised edge emphasis" },
+              ]}
+            />
+            <SelectField
+              label="Element Type"
+              keyName="elementType"
+              value="panel"
+              options={[
+                { value: "panel", label: "Panel", description: "Wide content surface" },
+                { value: "button", label: "Button", description: "Compact action shape" },
+                { value: "card", label: "Card", description: "Broader UI container" },
+                { value: "pill", label: "Pill", description: "Slim status capsule" },
+              ]}
+            />
+            <div class="grid grid-cols-2 gap-4">
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Width</span>
+                  <span data-value-for="width" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">280</span>
+                </span>
+                <input
+                  data-key="width"
+                  type="range"
+                  min="180"
+                  max="420"
+                  step="2"
+                  value="280"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Height</span>
+                  <span data-value-for="height" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">180</span>
+                </span>
+                <input
+                  data-key="height"
+                  type="range"
+                  min="120"
+                  max="260"
+                  step="2"
+                  value="180"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Radius</span>
+                  <span data-value-for="radius" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">36</span>
+                </span>
+                <input
+                  data-key="radius"
+                  type="range"
+                  min="8"
+                  max="72"
+                  step="1"
+                  value="36"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Bezel</span>
+                  <span data-value-for="bezelWidth" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">24</span>
+                </span>
+                <input
+                  data-key="bezelWidth"
+                  type="range"
+                  min="8"
+                  max="48"
+                  step="1"
+                  value="24"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Thickness</span>
+                  <span data-value-for="glassThickness" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">120</span>
+                </span>
+                <input
+                  data-key="glassThickness"
+                  type="range"
+                  min="40"
+                  max="220"
+                  step="2"
+                  value="120"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>IOR</span>
+                  <span data-value-for="refractiveIndex" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">1.45</span>
+                </span>
+                <input
+                  data-key="refractiveIndex"
+                  type="range"
+                  min="1"
+                  max="2"
+                  step="0.01"
+                  value="1.45"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Blur</span>
+                  <span data-value-for="blurStdDev" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">0.45</span>
+                </span>
+                <input
+                  data-key="blurStdDev"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.01"
+                  value="0.45"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Saturation</span>
+                  <span data-value-for="saturation" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">1.15</span>
+                </span>
+                <input
+                  data-key="saturation"
+                  type="range"
+                  min="0.5"
+                  max="4"
+                  step="0.01"
+                  value="1.15"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Specular</span>
+                  <span data-value-for="specularAlpha" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">0.85</span>
+                </span>
+                <input
+                  data-key="specularAlpha"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.85"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+              <label
+                class="block text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400"
+              >
+                <span class="flex items-center justify-between gap-3">
+                  <span>Scale Multiplier</span>
+                  <span data-value-for="scaleMultiplier" class="text-[10px] tracking-[0.08em] text-gray-400 dark:text-gray-500">1.35</span>
+                </span>
+                <input
+                  data-key="scaleMultiplier"
+                  type="range"
+                  min="0.5"
+                  max="2.5"
+                  step="0.01"
+                  value="1.35"
+                  class="mt-3 w-full accent-gray-900 dark:accent-white"
+                />
+              </label>
+            </div>
+            <button
+              id="generator-reset-button"
+              type="button"
+              class="w-full rounded-full border border-gray-200 px-4 py-3 text-xs uppercase tracking-[0.2em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+            >
+              Reset Preview
+            </button>
+          </div>
+        </article>
+
+        <article
+          class="rounded-[2rem] border border-gray-200 bg-[#13161b] p-4 text-white sm:p-6 dark:border-gray-800"
+        >
+          <span class="text-[10px] uppercase tracking-[0.28em] text-white/50"
+            >Preview Behavior</span
+          >
+          <ol class="mt-5 space-y-3 text-sm leading-7 text-white/75">
+            <li>1. Adjust the surface with the sliders until the distortion feels balanced.</li>
+            <li>2. Press and drag the glass panel to inspect edge refraction and blur falloff.</li>
+            <li>3. Download the generated package when the preview looks right.</li>
+            <li>
+              4. Use the exported SVG together with the CSS helpers inside any cloned backdrop glass component.
+            </li>
+          </ol>
+          <a
+            href={projectLinks.article.url}
+            target="_blank"
+            rel="noreferrer"
+            class="mt-6 inline-flex rounded-full border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70 transition hover:bg-white/10 hover:text-white"
+          >
+            Read the base article
+          </a>
+        </article>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    import {
+      applyLiquidAssets,
+      createLiquidAssets,
+      syncCloneContent,
+      updateLiquidFilter,
+    } from "../quarks/liquidGlassEngine";
+
+    const scene = document.getElementById("generator-scene");
+    const realWorld = document.getElementById("generator-real-world");
+    const glass = document.getElementById("generator-glass");
+    const cloneInner = document.getElementById("generator-clone-inner");
+    const cloneWrapper = document.getElementById("generator-content-clone");
+    const backgroundLayer = document.getElementById("generator-background");
+    const controls = document.getElementById("generator-controls");
+    const resetButton = document.getElementById("generator-reset-button");
+    const cssOutput = document.getElementById(
+      "generator-css-output",
+    ) as HTMLTextAreaElement | null;
+    const htmlOutput = document.getElementById(
+      "generator-html-output",
+    ) as HTMLTextAreaElement | null;
+    const svgOutput = document.getElementById(
+      "generator-svg-output",
+    ) as HTMLTextAreaElement | null;
+    const tailwindOutput = document.getElementById(
+      "generator-tailwind-output",
+    ) as HTMLTextAreaElement | null;
+    const copyCssButton = document.getElementById("copy-css-button");
+    const copyHtmlButton = document.getElementById("copy-html-button");
+    const copySvgOnlyButton = document.getElementById("copy-svg-only-button");
+    const copyTailwindButton = document.getElementById("copy-tailwind-button");
+    const copyButton = document.getElementById("copy-svg-button");
+    const downloadButton = document.getElementById("download-svg-button");
+    const downloadPreviewButton = document.getElementById("download-preview-button");
+
+    if (
+      scene &&
+      realWorld &&
+      glass &&
+      cloneInner &&
+      cloneWrapper &&
+      controls &&
+      cssOutput &&
+      htmlOutput &&
+      svgOutput &&
+      tailwindOutput
+    ) {
+      const runtimeFilterId = "exported-liquid-filter";
+      const previewBackgroundUrl =
+        backgroundLayer?.getAttribute("data-background-url") ?? "";
+      cloneWrapper.style.filter = `url(#${runtimeFilterId})`;
+      syncCloneContent(cloneInner, realWorld);
+
+      const state = {
+        filterName: "liquid-glass-custom",
+        surfaceType: "convex_squircle",
+        elementType: "panel",
+        width: 280,
+        height: 180,
+        radius: 36,
+        bezelWidth: 24,
+        glassThickness: 120,
+        refractiveIndex: 1.45,
+        blurStdDev: 0.45,
+        saturation: 1.15,
+        specularAlpha: 0.85,
+        scaleMultiplier: 1.35,
+      };
+
+      const defaults = { ...state };
+
+      const presets = {
+        panel: { width: 280, height: 180, radius: 36 },
+        button: { width: 260, height: 86, radius: 43 },
+        card: { width: 388, height: 236, radius: 20 },
+        pill: { width: 300, height: 64, radius: 999 },
+      } satisfies Record<string, { width: number; height: number; radius: number }>;
+
+      const surfacePresets = {
+        convex_squircle: {
+          bezelWidth: 24,
+          glassThickness: 120,
+          refractiveIndex: 1.45,
+          blurStdDev: 0.45,
+          specularAlpha: 0.85,
+          scaleMultiplier: 1.35,
+        },
+        convex_circle: {
+          bezelWidth: 26,
+          glassThickness: 126,
+          refractiveIndex: 1.48,
+          blurStdDev: 0.38,
+          specularAlpha: 0.88,
+          scaleMultiplier: 1.48,
+        },
+        concave: {
+          bezelWidth: 30,
+          glassThickness: 136,
+          refractiveIndex: 1.5,
+          blurStdDev: 0.28,
+          specularAlpha: 0.7,
+          scaleMultiplier: 1.82,
+        },
+        lip: {
+          bezelWidth: 28,
+          glassThickness: 126,
+          refractiveIndex: 1.48,
+          blurStdDev: 0.22,
+          specularAlpha: 0.96,
+          scaleMultiplier: 1.62,
+        },
+      } satisfies Record<
+        string,
+        Pick<
+          typeof state,
+          | "bezelWidth"
+          | "glassThickness"
+          | "refractiveIndex"
+          | "blurStdDev"
+          | "specularAlpha"
+          | "scaleMultiplier"
+        >
+      >;
+
+      const updateClone = () => {
+        const sceneRect = scene.getBoundingClientRect();
+        const glassRect = glass.getBoundingClientRect();
+        cloneInner.style.width = `${sceneRect.width}px`;
+        cloneInner.style.height = `${sceneRect.height}px`;
+        cloneInner.style.transform = `translate(${-(glassRect.left - sceneRect.left)}px, ${-(glassRect.top - sceneRect.top)}px)`;
+      };
+
+      const drag = {
+        active: false,
+        x: 0,
+        y: 0,
+        startX: 0,
+        startY: 0,
+      };
+
+      const applyGlassPosition = () => {
+        glass.style.transform = `translate(calc(-50% + ${drag.x}px), calc(-50% + ${drag.y}px))`;
+        updateClone();
+      };
+
+      const clampDrag = () => {
+        const sceneRect = scene.getBoundingClientRect();
+        const maxX = Math.max(0, (sceneRect.width - state.width) / 2 - 24);
+        const maxY = Math.max(0, (sceneRect.height - state.height) / 2 - 24);
+        drag.x = Math.max(-maxX, Math.min(maxX, drag.x));
+        drag.y = Math.max(-maxY, Math.min(maxY, drag.y));
+      };
+
+      const updateFilterAssetDimensions = () => {
+        document
+          .getElementById(`${runtimeFilterId}-image`)
+          ?.setAttribute("width", String(state.width));
+        document
+          .getElementById(`${runtimeFilterId}-image`)
+          ?.setAttribute("height", String(state.height));
+        document
+          .getElementById(`${runtimeFilterId}-specular`)
+          ?.setAttribute("width", String(state.width));
+        document
+          .getElementById(`${runtimeFilterId}-specular`)
+          ?.setAttribute("height", String(state.height));
+      };
+
+      const renderPreviewContent = () => {
+        const overlay = glass.querySelector(".glass-inner-overlay") as HTMLElement | null;
+        if (!overlay) return;
+
+        overlay.className =
+          "glass-inner-overlay rounded-[inherit] border border-white/25 bg-white/8 shadow-[0_24px_60px_rgba(0,0,0,0.28),inset_0_2px_12px_rgba(255,255,255,0.3),inset_0_-2px_10px_rgba(0,0,0,0.32)]";
+
+        if (state.elementType === "button") {
+          overlay.className += " flex items-center justify-center";
+          overlay.innerHTML = `<span class="text-sm font-bold uppercase tracking-[0.28em] text-white/82">Launch</span>`;
+          return;
+        }
+
+        if (state.elementType === "card") {
+          overlay.className += " flex flex-col justify-between p-5";
+          overlay.innerHTML = `
+            <div class="h-8 w-12 rounded-xl border border-white/15 bg-white/14"></div>
+            <div class="space-y-3">
+              <div class="h-3 w-40 rounded-full bg-white/20"></div>
+              <div class="h-3 w-28 rounded-full bg-white/14"></div>
+            </div>
+          `;
+          return;
+        }
+
+        if (state.elementType === "pill") {
+          overlay.className += " flex items-center justify-center";
+          overlay.innerHTML = `<span class="text-xs uppercase tracking-[0.34em] text-white/78">Status Active</span>`;
+          return;
+        }
+
+        overlay.className += " flex items-end p-5";
+        overlay.innerHTML = `
+          <div class="space-y-3">
+            <div class="h-3 w-32 rounded-full bg-white/18"></div>
+            <div class="h-3 w-48 rounded-full bg-white/12"></div>
+            <div class="h-3 w-24 rounded-full bg-white/10"></div>
+          </div>
+        `;
+      };
+
+      const applyElementPreset = () => {
+        const preset = presets[state.elementType as keyof typeof presets];
+        if (!preset) return;
+        state.width = preset.width;
+        state.height = preset.height;
+        state.radius = preset.radius;
+      };
+
+      const applySurfacePreset = () => {
+        const preset =
+          surfacePresets[state.surfaceType as keyof typeof surfacePresets];
+        if (!preset) return;
+        Object.assign(state, preset);
+      };
+
+      const syncInputs = (keys: string[]) => {
+        keys.forEach((key) => {
+          const input = controls.querySelector<HTMLInputElement>(
+            `[data-key='${key}']`,
+          );
+          if (!input) return;
+          input.value = String((state as Record<string, string | number>)[key]);
+          const valueNode = controls.querySelector<HTMLElement>(
+            `[data-value-for="${key}"]`,
+          );
+          if (valueNode) valueNode.textContent = input.value;
+        });
+      };
+
+      const getElementTag = () => {
+        if (state.elementType === "button") return "button";
+        return "div";
+      };
+
+      const getElementAttributes = () => {
+        if (state.elementType === "button") return ` type="button"`;
+        return "";
+      };
+
+      const getPreviewInnerMarkup = () => {
+        if (state.elementType === "button") {
+          return `  <span class="glass-shell__label">Launch</span>`;
+        }
+
+        if (state.elementType === "card") {
+          return `  <div class="glass-shell__card-chip"></div>
+  <div class="glass-shell__card-copy">
+    <div class="glass-shell__line glass-shell__line--wide"></div>
+    <div class="glass-shell__line glass-shell__line--mid"></div>
+  </div>`;
+        }
+
+        if (state.elementType === "pill") {
+          return `  <span class="glass-shell__label glass-shell__label--pill">Status Active</span>`;
+        }
+
+        return `  <div class="glass-shell__panel-copy">
+    <div class="glass-shell__line glass-shell__line--short"></div>
+    <div class="glass-shell__line glass-shell__line--wide"></div>
+    <div class="glass-shell__line glass-shell__line--tiny"></div>
+  </div>`;
+      };
+
+      const getContentComment = () => {
+        if (state.elementType === "button") {
+          return "Replace this label with your button text";
+        }
+
+        if (state.elementType === "card") {
+          return "Put your card content here";
+        }
+
+        if (state.elementType === "pill") {
+          return "Replace this label with your status text";
+        }
+
+        return "Put your content here";
+      };
+
+      const getHtmlContentMarkup = () => {
+        if (state.elementType === "button") {
+          return `    <!-- ${getContentComment()} -->\n    <span class="glass-shell__label">Button Label</span>`;
+        }
+
+        if (state.elementType === "card") {
+          return `    <!-- ${getContentComment()} -->\n    <div class="glass-shell__card-chip"></div>\n    <div class="glass-shell__card-copy">\n      <div class="glass-shell__line glass-shell__line--wide"></div>\n      <div class="glass-shell__line glass-shell__line--mid"></div>\n    </div>`;
+        }
+
+        if (state.elementType === "pill") {
+          return `    <!-- ${getContentComment()} -->\n    <span class="glass-shell__label glass-shell__label--pill">Status Label</span>`;
+        }
+
+        return `    <!-- ${getContentComment()} -->\n    <div class="glass-shell__panel-copy">\n      <div class="glass-shell__line glass-shell__line--short"></div>\n      <div class="glass-shell__line glass-shell__line--wide"></div>\n      <div class="glass-shell__line glass-shell__line--tiny"></div>\n    </div>`;
+      };
+
+      const getTailwindContentMarkup = () => {
+        if (state.elementType === "button") {
+          return `    {/* ${getContentComment()} */}\n    <span class="text-sm font-bold uppercase tracking-[0.28em] text-white/82">Button Label</span>`;
+        }
+
+        if (state.elementType === "card") {
+          return `    {/* ${getContentComment()} */}\n    <div class="h-8 w-12 rounded-xl border border-white/15 bg-white/14"></div>\n    <div class="space-y-3">\n      <div class="h-3 w-40 rounded-full bg-white/20"></div>\n      <div class="h-3 w-28 rounded-full bg-white/14"></div>\n    </div>`;
+        }
+
+        if (state.elementType === "pill") {
+          return `    {/* ${getContentComment()} */}\n    <span class="text-xs uppercase tracking-[0.34em] text-white/78">Status Label</span>`;
+        }
+
+        return `    {/* ${getContentComment()} */}\n    <div class="space-y-3">\n      <div class="h-3 w-32 rounded-full bg-white/18"></div>\n      <div class="h-3 w-48 rounded-full bg-white/12"></div>\n      <div class="h-3 w-24 rounded-full bg-white/10"></div>\n    </div>`;
+      };
+
+      const baseCss = `/* Base CSS required by the glass layer */
+.glass-shell {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  position: relative;
+  width: ${state.width}px;
+  height: ${state.height}px;
+  border-radius: ${state.radius}px;
+  overflow: hidden;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: default;
+}
+
+.glass-clone-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
+  filter: url(#${state.filterName});
+}
+
+.glass-clone-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.glass-inner-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.glass-shell__surface {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.28),
+    inset 0 2px 12px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 10px rgba(0, 0, 0, 0.32);
+}
+
+.glass-shell__surface--panel {
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+.glass-shell__surface--button,
+.glass-shell__surface--pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-shell__surface--card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.glass-shell__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.glass-shell__label--pill {
+  font-size: 0.75rem;
+  letter-spacing: 0.34em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.glass-shell__panel-copy,
+.glass-shell__card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.glass-shell__line {
+  height: 12px;
+  border-radius: 999px;
+}
+
+.glass-shell__line--wide {
+  width: 192px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.glass-shell__line--mid {
+  width: 112px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.glass-shell__line--short {
+  width: 128px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.glass-shell__line--tiny {
+  width: 96px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-shell__card-chip {
+  width: 48px;
+  height: 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
+}`;
+
+      const buildCssMarkup = () => `<style>
+${baseCss}
+</style>`;
+
+      const buildHtmlMarkup = () => {
+        const tag = getElementTag();
+        const attrs = getElementAttributes();
+        const surfaceVariant = `glass-shell__surface--${state.elementType}`;
+        const wrapperTag = tag === "button" ? "span" : "div";
+        return `<${tag} class="glass-shell"${attrs}>
+  <${wrapperTag} class="glass-clone-wrap">
+    <${wrapperTag} class="glass-clone-inner"><!-- cloned background goes here --></${wrapperTag}>
+  </${wrapperTag}>
+  <${wrapperTag} class="glass-inner-overlay glass-shell__surface ${surfaceVariant}">
+${getHtmlContentMarkup()}
+  </${wrapperTag}>
+</${tag}>`;
+      };
+
+      const buildTailwindMarkup = () => {
+        const tag = getElementTag();
+        const attrs = getElementAttributes();
+        const wrapperTag = tag === "button" ? "span" : "div";
+        const roundedClass =
+          state.radius >= 999 ? "rounded-full" : `rounded-[${state.radius}px]`;
+        const sharedSurface =
+          "absolute inset-0 z-[3] rounded-[inherit] border border-white/25 bg-white/8 shadow-[0_24px_60px_rgba(0,0,0,0.28),inset_0_2px_12px_rgba(255,255,255,0.3),inset_0_-2px_10px_rgba(0,0,0,0.32)]";
+
+        let surfaceLayout = "";
+
+        if (state.elementType === "button") {
+          surfaceLayout = " flex items-center justify-center";
+        } else if (state.elementType === "card") {
+          surfaceLayout = " flex flex-col justify-between p-5";
+        } else if (state.elementType === "pill") {
+          surfaceLayout = " flex items-center justify-center";
+        } else {
+          surfaceLayout = " flex items-end p-5";
+        }
+
+        return `<${tag}
+  class="relative overflow-hidden w-[${state.width}px] h-[${state.height}px] ${roundedClass}"
+${attrs}>
+  <${wrapperTag}
+    class="absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
+    style="filter:url(#${state.filterName})"
+  >
+    <${wrapperTag} class="pointer-events-none absolute left-0 top-0 origin-top-left"><!-- cloned background goes here --></${wrapperTag}>
+  </${wrapperTag}>
+  <${wrapperTag} class="${sharedSurface}${surfaceLayout}">
+${getTailwindContentMarkup()}
+  </${wrapperTag}>
+</${tag}>`;
+      };
+
+      const buildSvgMarkup = (assets: {
+        displacementUrl: string;
+        specularUrl: string;
+        maximumDisplacement: number;
+      }) => {
+        const scale = assets.maximumDisplacement * state.scaleMultiplier;
+        return `<!-- SVG filter assets -->
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none;overflow:hidden">
+  <defs>
+    <filter id="${state.filterName}" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="${state.blurStdDev}" result="blurred" />
+      <feImage href="${assets.displacementUrl}" x="0" y="0" width="${state.width}" height="${state.height}" result="displacement_map" preserveAspectRatio="none" />
+      <feDisplacementMap in="blurred" in2="displacement_map" scale="${scale}" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      <feColorMatrix in="displaced" type="saturate" values="${state.saturation}" result="displaced_saturated" />
+      <feImage href="${assets.specularUrl}" x="0" y="0" width="${state.width}" height="${state.height}" result="specular_layer" preserveAspectRatio="none" />
+      <feComponentTransfer in="specular_layer" result="specular_faded">
+        <feFuncA type="linear" slope="${state.specularAlpha}" />
+      </feComponentTransfer>
+      <feBlend in="specular_faded" in2="displaced_saturated" mode="screen" />
+    </filter>
+  </defs>
+</svg>`;
+      };
+
+      const buildPreviewDocument = (assets: {
+        displacementUrl: string;
+        specularUrl: string;
+        maximumDisplacement: number;
+      }) => `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${state.filterName || "liquid-glass-preview"}</title>
+    <style>
+      html, body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        overflow: hidden;
+        background: #0d1218;
+        font-family: "Inter", system-ui, sans-serif;
+      }
+
+      .preview-scene {
+        position: relative;
+        width: min(92vw, 920px);
+        height: min(76vh, 640px);
+        overflow: hidden;
+        border-radius: 32px;
+        background-image:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 35%),
+          linear-gradient(180deg, rgba(9, 14, 20, 0.1), rgba(5, 8, 12, 0.72)),
+          url("${previewBackgroundUrl}");
+        background-size: auto, auto, 560px auto;
+        background-position: center, center, center;
+        background-repeat: no-repeat, no-repeat, repeat;
+      }
+
+      .preview-title {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        z-index: 0;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: clamp(2rem, 3vw, 3rem);
+        letter-spacing: 0.02em;
+        text-transform: none;
+      }
+
+      .preview-center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+${baseCss}
+    </style>
+  </head>
+  <body>
+    <div class="preview-scene">
+      <div class="preview-title">Preview Layer</div>
+      <div class="preview-center">
+${buildHtmlMarkup()}
+      </div>
+    </div>
+${buildSvgMarkup(assets)}
+    <script>
+      const scene = document.querySelector(".preview-scene");
+      const shell = document.querySelector(".glass-shell");
+      const cloneInner = document.querySelector(".glass-clone-inner");
+      const updateClone = () => {
+        if (!scene || !shell || !cloneInner) return;
+        const sceneRect = scene.getBoundingClientRect();
+        const shellRect = shell.getBoundingClientRect();
+        cloneInner.style.width = sceneRect.width + "px";
+        cloneInner.style.height = sceneRect.height + "px";
+        cloneInner.style.transform =
+          "translate(" +
+          -(shellRect.left - sceneRect.left) +
+          "px, " +
+          -(shellRect.top - sceneRect.top) +
+          "px)";
+        cloneInner.style.backgroundImage =
+          "radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 35%), linear-gradient(180deg, rgba(9,14,20,0.1), rgba(5,8,12,0.72)), url('${previewBackgroundUrl}')";
+        cloneInner.style.backgroundSize = "auto, auto, 560px auto";
+        cloneInner.style.backgroundPosition = "center, center, center";
+        cloneInner.style.backgroundRepeat = "no-repeat, no-repeat, repeat";
+      };
+      window.addEventListener("load", updateClone);
+      window.addEventListener("resize", updateClone);
+    <\/script>
+  </body>
+</html>`;
+
+      const render = () => {
+        glass.style.width = `${state.width}px`;
+        glass.style.height = `${state.height}px`;
+        glass.style.borderRadius = `${state.radius}px`;
+        clampDrag();
+        applyGlassPosition();
+        updateFilterAssetDimensions();
+        renderPreviewContent();
+
+        const assets = createLiquidAssets({
+          width: state.width,
+          height: state.height,
+          radius: state.radius,
+          bezelWidth: state.bezelWidth,
+          glassThickness: state.glassThickness,
+          refractiveIndex: state.refractiveIndex,
+          surfaceType: state.surfaceType as "convex_squircle",
+        });
+
+        applyLiquidAssets("exported-liquid-filter", assets);
+        updateLiquidFilter("exported-liquid-filter", {
+          blurStdDev: state.blurStdDev,
+          saturation: state.saturation,
+          specularAlpha: state.specularAlpha,
+          scale: assets.maximumDisplacement * state.scaleMultiplier,
+        });
+
+        cssOutput.value = buildCssMarkup();
+        htmlOutput.value = buildHtmlMarkup();
+        svgOutput.value = buildSvgMarkup(assets);
+        tailwindOutput.value = buildTailwindMarkup();
+      };
+
+      controls
+        .querySelectorAll<HTMLInputElement>("[data-key]")
+        .forEach((input) => {
+          const valueNode = controls.querySelector<HTMLElement>(`[data-value-for="${input.dataset.key}"]`);
+          if (valueNode) valueNode.textContent = input.value;
+          input.addEventListener("input", () => {
+            const key = input.dataset.key as keyof typeof state;
+            const value =
+              input.type === "range" || input.type === "number"
+                ? Number(input.value)
+                : input.value;
+            (state as Record<string, string | number>)[key] = value;
+            if (valueNode) valueNode.textContent = input.value;
+            if (key === "elementType") {
+              applyElementPreset();
+              syncInputs(["width", "height", "radius"]);
+            }
+            render();
+          });
+        });
+
+      const syncSelectFields = () => {
+        controls.querySelectorAll<HTMLElement>("[data-generator-select]").forEach((selectRoot) => {
+          const key = selectRoot.dataset.keyRoot as keyof typeof state;
+          const currentValue = String(state[key]);
+          const hiddenInput = selectRoot.querySelector<HTMLInputElement>("[data-key]");
+          const labelNode = selectRoot.querySelector<HTMLElement>("[data-select-label]");
+          const descriptionNode = selectRoot.querySelector<HTMLElement>("[data-select-description]");
+          const activeOption = selectRoot.querySelector<HTMLButtonElement>(`[data-select-option][data-value="${currentValue}"]`);
+          if (hiddenInput) hiddenInput.value = currentValue;
+          if (labelNode && activeOption) labelNode.textContent = activeOption.dataset.label ?? activeOption.textContent ?? "";
+          if (descriptionNode) descriptionNode.textContent = activeOption?.dataset.description ?? "";
+          selectRoot.querySelectorAll<HTMLButtonElement>("[data-select-option]").forEach((button) => {
+            const isActive = button.dataset.value === currentValue;
+            button.classList.toggle("is-active", isActive);
+          });
+        });
+      };
+
+      controls.querySelectorAll<HTMLButtonElement>("[data-select-option]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const key = button.dataset.key as keyof typeof state;
+          const nextValue = button.dataset.value ?? "";
+          (state as Record<string, string | number>)[key] = nextValue;
+          if (key === "elementType") {
+            applyElementPreset();
+            syncInputs(["width", "height", "radius"]);
+          }
+          if (key === "surfaceType") {
+            applySurfacePreset();
+            syncInputs([
+              "bezelWidth",
+              "glassThickness",
+              "refractiveIndex",
+              "blurStdDev",
+              "specularAlpha",
+              "scaleMultiplier",
+            ]);
+          }
+          const details = button.closest("details");
+          if (details) details.open = false;
+          syncSelectFields();
+          render();
+        });
+      });
+
+      resetButton?.addEventListener("click", () => {
+        Object.assign(state, defaults);
+        drag.x = 0;
+        drag.y = 0;
+        controls
+          .querySelectorAll<HTMLInputElement>("[data-key]")
+          .forEach((input) => {
+            const key = input.dataset.key as keyof typeof state;
+            const nextValue = state[key];
+            input.value = String(nextValue);
+            const valueNode = controls.querySelector<HTMLElement>(`[data-value-for="${input.dataset.key}"]`);
+            if (valueNode) valueNode.textContent = input.value;
+          });
+        syncSelectFields();
+        render();
+      });
+
+      copyHtmlButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(htmlOutput.value);
+        copyHtmlButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyHtmlButton.textContent = "Copy HTML";
+        }, 1400);
+      });
+
+      copyCssButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(cssOutput.value);
+        copyCssButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyCssButton.textContent = "Copy CSS";
+        }, 1400);
+      });
+
+      copySvgOnlyButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(svgOutput.value);
+        copySvgOnlyButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copySvgOnlyButton.textContent = "Copy SVG";
+        }, 1400);
+      });
+
+      copyTailwindButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(tailwindOutput.value);
+        copyTailwindButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyTailwindButton.textContent = "Copy Tailwind";
+        }, 1400);
+      });
+
+      copyButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(
+          `${cssOutput.value}\n\n${htmlOutput.value}\n\n${svgOutput.value}\n\n${tailwindOutput.value}`,
+        );
+        copyButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copy Package";
+        }, 1400);
+      });
+
+      downloadButton?.addEventListener("click", () => {
+        const blob = new Blob(
+          [`${cssOutput.value}\n\n${htmlOutput.value}\n\n${svgOutput.value}\n\n${tailwindOutput.value}`],
+          { type: "text/plain;charset=utf-8" },
+        );
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${state.filterName || "liquid-glass-filter"}.txt`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+
+      downloadPreviewButton?.addEventListener("click", () => {
+        const assets = createLiquidAssets({
+          width: state.width,
+          height: state.height,
+          radius: state.radius,
+          bezelWidth: state.bezelWidth,
+          glassThickness: state.glassThickness,
+          refractiveIndex: state.refractiveIndex,
+          surfaceType: state.surfaceType as "convex_squircle",
+        });
+        const blob = new Blob([buildPreviewDocument(assets)], {
+          type: "text/html;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${state.filterName || "liquid-glass-preview"}.html`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+
+      glass.addEventListener("pointerdown", (event) => {
+        drag.active = true;
+        drag.startX = event.clientX - drag.x;
+        drag.startY = event.clientY - drag.y;
+        glass.setPointerCapture(event.pointerId);
+        glass.classList.add("is-dragging");
+      });
+
+      glass.addEventListener("pointermove", (event) => {
+        if (!drag.active) return;
+        drag.x = event.clientX - drag.startX;
+        drag.y = event.clientY - drag.startY;
+        clampDrag();
+        applyGlassPosition();
+      });
+
+      const endDrag = (event?: PointerEvent) => {
+        drag.active = false;
+        if (event) glass.releasePointerCapture(event.pointerId);
+        glass.classList.remove("is-dragging");
+      };
+
+      glass.addEventListener("pointerup", endDrag);
+      glass.addEventListener("pointercancel", endDrag);
+
+      window.addEventListener("resize", () => {
+        clampDrag();
+        applyGlassPosition();
+      });
+      document.addEventListener("click", (event) => {
+        const target = event.target as Node;
+        controls.querySelectorAll<HTMLDetailsElement>("[data-generator-select]").forEach((details) => {
+          if (!details.contains(target)) details.open = false;
+        });
+      });
+      syncSelectFields();
+      render();
+    }
+  </script>
+
+  <style>
+    #generator-background {
+      background-position: center center;
+      background-repeat: repeat;
+      background-size: 560px auto;
+      animation: generatorBgMove 60s linear infinite;
+    }
+
+    @keyframes generatorBgMove {
+      from {
+        background-position: 0% 0%;
+      }
+
+      to {
+        background-position: 0% -1000%;
+      }
+    }
+
+    #generator-glass {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #generator-glass.is-dragging {
+      cursor: grabbing;
+    }
+
+  </style>
+</MainLayout>
