@@ -6,7 +6,9 @@ interface Props {
   currentPath?: string;
 }
 
-const { currentPath = "/" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const rawPath = Astro.props.currentPath ?? "/";
+const currentPath = rawPath === "/" ? `${base}/` : `${base}${rawPath}`;
 ---
 
 <nav
@@ -17,12 +19,12 @@ const { currentPath = "/" } = Astro.props;
   >
     <div class="flex items-center justify-between gap-4 md:hidden">
       <a
-        href="/"
+        href={`${base}/`}
         class="inline-flex items-center text-zinc-900 dark:text-white"
         aria-label="Liquid Glass home"
       >
         <img
-          src="/favicon.svg"
+          src={`${base}/favicon.svg`}
           alt="Liquid Glass"
           class="h-7 w-7 sm:h-8 sm:w-8"
         />
@@ -79,12 +81,12 @@ const { currentPath = "/" } = Astro.props;
 
     <div class="hidden items-center justify-between gap-6 md:flex">
       <a
-        href="/"
+        href={`${base}/`}
         class="inline-flex items-center text-zinc-900 dark:text-white"
         aria-label="Liquid Glass home"
       >
         <img
-          src="/favicon.svg"
+          src={`${base}/favicon.svg`}
           alt="Liquid Glass"
           class="h-8 w-8"
         />

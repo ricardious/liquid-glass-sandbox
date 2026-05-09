@@ -1,3 +1,5 @@
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export const projectLinks = {
   article: {
     label: "Original Article",
@@ -11,7 +13,7 @@ export const projectLinks = {
 };
 
 export const primaryNav = [
-  { href: "/", label: "Gallery" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/svg-generator", label: "SVG Generator" },
+  { href: `${base}/`, label: "Gallery" },
+  { href: `${base}/how-it-works`, label: "How It Works" },
+  { href: `${base}/svg-generator`, label: "SVG Generator" },
 ];
