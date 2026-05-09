@@ -1,5 +1,5 @@
 ---
-import flowers from "@assets/succulent-seamless.webp";
+import flowers from "@assets/botanical-bloom-pattern-teal.webp";
 import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "card-glass-filter";
@@ -31,9 +31,14 @@ const cardR = 20;
 >
   <div
     id="card-real-world"
-    class="absolute inset-4 pointer-events-none overflow-hidden rounded-3xl bg-[#071015] bg-cover bg-center sm:inset-8"
-    style={`background-image: url(${flowers.src});`}
+    class="absolute inset-4 pointer-events-none overflow-hidden rounded-3xl bg-[#071015] sm:inset-8"
   >
+    <div
+      data-card-bg-layer
+      class="absolute inset-[-10%] bg-cover bg-center will-change-transform"
+      style={`background-image: url(${flowers.src});`}
+    >
+    </div>
     <div
       class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,14,0.48),rgba(0,0,0,0.74))]"
     >
@@ -158,6 +163,8 @@ const cardR = 20;
     private demoArea: HTMLElement;
     private realWorld!: HTMLElement;
     private cloneWrapper: HTMLElement;
+    private bgLayer: HTMLElement;
+    private cloneBgLayer: HTMLElement | null = null;
     private modal: HTMLElement | null;
     private modalPanel: HTMLElement | null;
     private modalSurface: HTMLElement | null;
@@ -184,6 +191,9 @@ const cardR = 20;
     private scaleSpring = new Spring(1, 200, 20);
     private rotXSpring = new Spring(0, 150, 15);
     private rotYSpring = new Spring(0, 150, 15);
+    private bgXSpring = new Spring(0, 160, 16);
+    private bgYSpring = new Spring(0, 160, 16);
+    private bgScaleSpring = new Spring(1.08, 160, 16);
 
     constructor() {
       this.container = document.getElementById(
@@ -195,6 +205,9 @@ const cardR = 20;
       this.demoArea = document.getElementById("card-demo-area") as HTMLElement;
       this.realWorld = document.getElementById(
         "card-real-world",
+      ) as HTMLElement;
+      this.bgLayer = this.realWorld.querySelector(
+        "[data-card-bg-layer]",
       ) as HTMLElement;
       this.cloneWrapper = document.getElementById(
         "card-content-clone",
@@ -214,6 +227,9 @@ const cardR = 20;
 
     private init() {
       syncCloneContent(this.cloneInner, this.realWorld);
+      this.cloneBgLayer = this.cloneInner.querySelector(
+        "[data-card-bg-layer]",
+      ) as HTMLElement | null;
       this.cloneWrapper.style.filter = "url(#card-glass-filter)";
 
       const assets = createLiquidAssets({
@@ -237,11 +253,14 @@ const cardR = 20;
         const y = e.clientY - rect.top - rect.height / 2;
         this.rotYSpring.setTarget(x * this.controls.tilt);
         this.rotXSpring.setTarget(-y * this.controls.tilt);
+        this.bgXSpring.setTarget(-x * 0.045);
+        this.bgYSpring.setTarget(-y * 0.045);
         this.startLoop();
       });
 
       this.container.addEventListener("mouseenter", () => {
         this.scaleSpring.setTarget(this.controls.hoverScale);
+        this.bgScaleSpring.setTarget(1.14);
         this.startLoop();
       });
 
@@ -249,6 +268,9 @@ const cardR = 20;
         this.scaleSpring.setTarget(1);
         this.rotXSpring.setTarget(0);
         this.rotYSpring.setTarget(0);
+        this.bgXSpring.setTarget(0);
+        this.bgYSpring.setTarget(0);
+        this.bgScaleSpring.setTarget(1.08);
         this.startLoop();
       });
 
@@ -365,15 +387,24 @@ const cardR = 20;
       const scale = this.scaleSpring.update(dt);
       const rx = this.rotXSpring.update(dt);
       const ry = this.rotYSpring.update(dt);
+      const bgX = this.bgXSpring.update(dt);
+      const bgY = this.bgYSpring.update(dt);
+      const bgScale = this.bgScaleSpring.update(dt);
 
       this.container.style.transform = `perspective(1000px) scale(${scale}) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      const bgTransform = `translate3d(${bgX}px, ${bgY}px, 0) scale(${bgScale})`;
+      this.bgLayer.style.transform = bgTransform;
+      if (this.cloneBgLayer) this.cloneBgLayer.style.transform = bgTransform;
 
       this.updateClone();
 
       if (
         !this.scaleSpring.isSettled() ||
         !this.rotXSpring.isSettled() ||
-        !this.rotYSpring.isSettled()
+        !this.rotYSpring.isSettled() ||
+        !this.bgXSpring.isSettled() ||
+        !this.bgYSpring.isSettled() ||
+        !this.bgScaleSpring.isSettled()
       ) {
         this.af = requestAnimationFrame(this.loop);
       } else {

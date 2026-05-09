@@ -1,6 +1,6 @@
 ---
 import arrowRight from "@assets/arrow_right.svg";
-import backgroundImage from "@assets/tropical-floral-pattern-dark.webp";
+import backgroundImage from "@assets/botanical-bloom-pattern-violet.webp";
 import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const buttonFilterId = "fab-button-glass-filter";
@@ -19,9 +19,14 @@ const menuRadius = 36;
 >
   <div
     id="fab-real-world"
-    class="absolute inset-4 overflow-hidden rounded-3xl bg-[#08121d] bg-cover bg-center pointer-events-none sm:inset-8"
-    style={`background-image: url(${backgroundImage.src});`}
+    class="absolute inset-4 overflow-hidden rounded-3xl bg-[#08121d] pointer-events-none sm:inset-8"
   >
+    <div
+      data-fab-bg-layer
+      class="absolute inset-[-10%] bg-cover bg-center will-change-transform"
+      style={`background-image: url(${backgroundImage.src});`}
+    >
+    </div>
     <div
       class="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.16),transparent_22%),radial-gradient(circle_at_82%_78%,rgba(82,157,255,0.18),transparent_24%),linear-gradient(180deg,rgba(5,8,12,0.18),rgba(5,8,12,0.68))]"
     >
@@ -220,6 +225,9 @@ const menuRadius = 36;
     private menuClone: HTMLElement;
     private topLine: HTMLElement;
     private bottomLine: HTMLElement;
+    private bgLayer: HTMLElement;
+    private buttonBgClone: HTMLElement | null = null;
+    private menuBgClone: HTMLElement | null = null;
     private modal: HTMLElement | null;
     private modalPanel: HTMLElement | null;
     private modalSurface: HTMLElement | null;
@@ -246,6 +254,9 @@ const menuRadius = 36;
       buttonScale: new Spring(1, 420, 22),
       buttonY: new Spring(0, 420, 22),
       lineRotate: new Spring(0, 420, 30),
+      bgX: new Spring(0, 180, 18),
+      bgY: new Spring(0, 180, 18),
+      bgScale: new Spring(1.12, 180, 18),
     };
 
     private af: number | null = null;
@@ -254,6 +265,9 @@ const menuRadius = 36;
       this.area = document.getElementById("fab-demo-area") as HTMLElement;
       this.realWorld = document.getElementById("fab-real-world") as HTMLElement;
       this.wrapper = document.getElementById("layered-fab") as HTMLElement;
+      this.bgLayer = this.realWorld.querySelector(
+        "[data-fab-bg-layer]",
+      ) as HTMLElement;
       this.trigger = document.getElementById(
         "fab-trigger",
       ) as HTMLButtonElement;
@@ -289,6 +303,12 @@ const menuRadius = 36;
     private init() {
       syncCloneContent(this.buttonCloneInner, this.realWorld);
       syncCloneContent(this.menuCloneInner, this.realWorld);
+      this.buttonBgClone = this.buttonCloneInner.querySelector(
+        "[data-fab-bg-layer]",
+      ) as HTMLElement | null;
+      this.menuBgClone = this.menuCloneInner.querySelector(
+        "[data-fab-bg-layer]",
+      ) as HTMLElement | null;
 
       const buttonAssets = createLiquidAssets({
         width: 72,
@@ -415,6 +435,10 @@ const menuRadius = 36;
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
+      const time = performance.now() * 0.00045;
+      const orbitStrength = this.state.open ? 1.2 : 1;
+      const orbitX = Math.sin(time) * 12 * orbitStrength;
+      const orbitY = Math.cos(time * 1.18) * 10 * orbitStrength;
 
       this.springs.menuScale.setTarget(this.state.open ? 1 : 0.46);
       this.springs.menuY.setTarget(this.state.open ? 0 : 44);
@@ -422,6 +446,9 @@ const menuRadius = 36;
       this.springs.buttonScale.setTarget(this.state.open ? 0.94 : 1);
       this.springs.buttonY.setTarget(this.state.open ? 8 : 0);
       this.springs.lineRotate.setTarget(this.state.open ? 1 : 0);
+      this.springs.bgX.setTarget(orbitX);
+      this.springs.bgY.setTarget(orbitY);
+      this.springs.bgScale.setTarget(this.state.open ? 1.16 : 1.12);
 
       const menuScale = this.springs.menuScale.update(dt);
       const menuY = this.springs.menuY.update(dt);
@@ -429,28 +456,23 @@ const menuRadius = 36;
       const buttonScale = this.springs.buttonScale.update(dt);
       const buttonY = this.springs.buttonY.update(dt);
       const lineRotate = this.springs.lineRotate.update(dt);
+      const bgX = this.springs.bgX.update(dt);
+      const bgY = this.springs.bgY.update(dt);
+      const bgScale = this.springs.bgScale.update(dt);
 
       this.menu.style.transform = `translateY(${menuY - this.controls.menuLift + 96}px) scale(${menuScale})`;
       this.menu.style.opacity = String(Math.max(0, menuOpacity));
       this.trigger.style.transform = `translateY(${buttonY}px) scale(${buttonScale})`;
+      const bgTransform = `translate3d(${bgX}px, ${bgY}px, 0) scale(${bgScale})`;
+      this.bgLayer.style.transform = bgTransform;
+      if (this.buttonBgClone) this.buttonBgClone.style.transform = bgTransform;
+      if (this.menuBgClone) this.menuBgClone.style.transform = bgTransform;
 
       this.topLine.style.transform = `translateY(${4 * lineRotate}px) rotate(${45 * lineRotate}deg)`;
       this.bottomLine.style.transform = `translateY(${-4 * lineRotate}px) rotate(${-45 * lineRotate}deg)`;
 
       this.updateClones();
-
-      if (
-        !this.springs.menuScale.isSettled() ||
-        !this.springs.menuY.isSettled() ||
-        !this.springs.menuOpacity.isSettled() ||
-        !this.springs.buttonScale.isSettled() ||
-        !this.springs.buttonY.isSettled() ||
-        !this.springs.lineRotate.isSettled()
-      ) {
-        this.af = requestAnimationFrame(this.loop);
-      } else {
-        this.af = null;
-      }
+      this.af = requestAnimationFrame(this.loop);
     };
 
     private startLoop() {
