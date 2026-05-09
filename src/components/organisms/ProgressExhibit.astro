@@ -2,32 +2,56 @@
 import SvgFilter from "../atoms/SvgFilter.astro";
 
 const filterId = "progress-glass-filter";
+const barH = 48;
+const barR = 24;
 ---
 
-<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#0f0f0f]" id="progress-demo-area">
+<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-[#0a0a0f]" id="progress-demo-area">
   
   <div id="progress-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-200 to-transparent dark:from-gray-800"></div>
-    <div class="absolute w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-30 bottom-1/3"></div>
+    <!-- Sleek background grid -->
+    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px;"></div>
+    
+    <!-- Empty track background (dimmed) -->
+    <div id="progress-track-bg" class="absolute bg-white/5 rounded-full" style={`width: 384px; height: ${barH}px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);`}></div>
+    
+    <!-- The actual liquid progress -->
+    <div id="progress-liquid-bar" class="absolute bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full" style={`height: ${barH}px; width: 0px; box-shadow: 0 0 20px rgba(236,72,153,0.6);`}></div>
+    
+    <!-- The glowing leading edge -->
+    <div id="progress-glow" class="absolute w-[80px] h-[80px] bg-pink-400 rounded-full blur-[20px] opacity-80 mix-blend-screen" style="transform: translate(-50%, -50%);"></div>
   </div>
 
-  <SvgFilter filterId={filterId} />
+  <SvgFilter filterId={filterId} width={400} height={barH} />
 
-  <div class="relative w-full max-w-sm h-12 z-10" id="progress-container">
-    <div id="progress-content-clone" class="absolute inset-0 overflow-hidden rounded-full z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
-      <div id="progress-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-50 dark:bg-[#0f0f0f]"></div>
+  <!-- The Glass Container -->
+  <div id="progress-wrapper" class="relative z-10 will-change-transform flex items-center" style={`width: 384px; height: ${barH}px; justify-content: flex-start;`}>
+    <div id="progress-container" class="relative" style={`width: 48px; height: ${barH}px; border-radius: ${barR}px;`}>
+      <div class="absolute inset-0 pointer-events-none" style={`border-radius: ${barR}px; overflow: hidden;`}>
+        <div id="progress-content-clone" class="glass-clone-wrap absolute inset-0" style={`border-radius: ${barR}px;`}>
+          <!-- The clone inner now has the colored liquid glow behind the glass! -->
+          <div id="progress-clone-inner" class="glass-clone-inner absolute inset-0"></div>
+        </div>
+      </div>
+      
+      <div
+        class="glass-inner-overlay absolute inset-0 z-[2] pointer-events-none"
+        style={`border-radius: ${barR}px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 0 20px rgba(255,255,255,0.1);`}
+      ></div>
+
+      <div
+        id="progress-specular-img"
+        class="absolute inset-0 pointer-events-none opacity-100 mix-blend-screen z-[3]"
+        style={`border-radius: ${barR}px;`}
+      ></div>
     </div>
     
-    <div class="absolute inset-0 z-[2] rounded-full border border-gray-300 dark:border-white/20 bg-white/10 dark:bg-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] pointer-events-none" id="progress-bg"></div>
-    
-    <div class="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500" id="progress-bar" style="width: 0%"></div>
-    
-    <div class="absolute inset-0 z-[3] flex items-center justify-center">
-      <span class="text-sm font-bold text-white drop-shadow-md tracking-wider" id="progress-text">0%</span>
+    <div class="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none">
+      <span class="text-sm font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wider" id="progress-text">0%</span>
     </div>
   </div>
   
-  <button id="progress-trigger" class="mt-8 px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-full hover:scale-105 transition-transform">Simulate Load</button>
+  <button id="progress-trigger" class="mt-16 px-8 py-3 text-white text-sm font-bold rounded-full hover:scale-105 transition-transform relative z-20" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(10px);">Simulate Load</button>
 </div>
 
 <script>
@@ -37,28 +61,36 @@ const filterId = "progress-glass-filter";
 
   class ProgressExhibit {
     private container: HTMLElement;
-    private bar: HTMLElement;
+    private trackBg: HTMLElement;
+    private liquidBar: HTMLElement;
+    private liquidGlow: HTMLElement;
+    private clonedLiquidBar: HTMLElement | null = null;
+    private clonedLiquidGlow: HTMLElement | null = null;
     private text: HTMLElement;
     private trigger: HTMLElement;
     private cloneInner: HTMLElement;
+    private cloneWrapper: HTMLElement;
     private demoArea: HTMLElement;
     
-    private config = { w: 384, h: 48, bw: 10, gt: 30, r: 24, ri: 1.4, maxDisp: 0 };
+    private config = { w: 48, h: 48, bw: 16, gt: 100, r: 24, ri: 2.2, maxDisp: 0 };
     private state = { progress: 0, isAnimating: false };
     
     private springs = {
-      progress: new Spring(0, 400, 30),
-      wave: new Spring(0, 500, 20)
+      progress: new Spring(0, 300, 30)
     };
     
     private af: number | null = null;
+    private lastW: number = -1;
 
     constructor() {
       this.container = document.getElementById('progress-container') as HTMLElement;
-      this.bar = document.getElementById('progress-bar') as HTMLElement;
+      this.trackBg = document.getElementById('progress-track-bg') as HTMLElement;
+      this.liquidBar = document.getElementById('progress-liquid-bar') as HTMLElement;
+      this.liquidGlow = document.getElementById('progress-glow') as HTMLElement;
       this.text = document.getElementById('progress-text') as HTMLElement;
       this.trigger = document.getElementById('progress-trigger') as HTMLElement;
       this.cloneInner = document.getElementById('progress-clone-inner') as HTMLElement;
+      this.cloneWrapper = document.getElementById('progress-content-clone') as HTMLElement;
       this.demoArea = document.getElementById('progress-demo-area') as HTMLElement;
 
       if (!this.container) return;
@@ -67,28 +99,70 @@ const filterId = "progress-glass-filter";
 
     private init() {
       const rw = document.getElementById('progress-real-world');
-      if (rw) this.cloneInner.innerHTML = rw.outerHTML;
+      if (rw) {
+          this.cloneInner.innerHTML = rw.outerHTML;
+          this.clonedLiquidBar = this.cloneInner.querySelector('#progress-liquid-bar');
+          this.clonedLiquidGlow = this.cloneInner.querySelector('#progress-glow');
+      }
+      this.cloneWrapper.style.filter = "url(#progress-glass-filter)";
 
-      const rect = this.container.getBoundingClientRect();
-      this.config.w = rect.width || 384;
+      this.renderOptics();
+
+      this.trigger.addEventListener('click', this.animate.bind(this));
+      window.addEventListener('resize', () => {
+        this.alignRealWorldElements();
+        this.updateClone();
+      });
+      
+      this.alignRealWorldElements();
+      this.updateClone();
+      this.startLoop();
+    }
+
+    private renderOptics() {
+      const intW = Math.max(48, Math.round(this.config.w));
+      const intH = Math.round(this.config.h);
+      
+      if (intW === this.lastW) return;
+      this.lastW = intW;
 
       const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
       this.config.maxDisp = Math.max(...pc.map(Math.abs));
 
-      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
-      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
+      const dispData = calculateDisplacementMap2D(intW, intH, intW, intH, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
+      const specData = calculateSpecularHighlight(intW, intH, this.config.r, this.config.bw);
 
-      document.getElementById("progress-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
-      document.getElementById("progress-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
-
-      this.trigger.addEventListener('click', this.animate.bind(this));
-      window.addEventListener('resize', () => {
-        this.config.w = this.container.getBoundingClientRect().width;
-        this.updateClone();
-      });
+      const filterImg = document.getElementById("progress-glass-filter-image");
+      if (filterImg) {
+          filterImg.setAttribute("href", imageDataToDataURL(dispData));
+          filterImg.setAttribute("x", "0");
+          filterImg.setAttribute("y", "0");
+          filterImg.setAttribute("width", "100%");
+          filterImg.setAttribute("height", "100%");
+          filterImg.setAttribute("preserveAspectRatio", "none");
+      }
       
-      this.updateClone();
-      this.startLoop();
+      const specImg = document.getElementById("progress-specular-img");
+      if (specImg) {
+        specImg.style.backgroundImage = `url(${imageDataToDataURL(specData)})`;
+        specImg.style.backgroundSize = "100% 100%";
+      }
+    }
+
+    private alignRealWorldElements() {
+      const wrapper = document.getElementById('progress-wrapper')!;
+      const cR = wrapper.getBoundingClientRect();
+      const aR = this.demoArea.getBoundingClientRect();
+      const left = cR.left - aR.left;
+      const top = cR.top - aR.top;
+      
+      this.trackBg.style.left = left + "px";
+      this.trackBg.style.top = top + "px";
+      
+      this.liquidBar.style.left = left + "px";
+      this.liquidBar.style.top = top + "px";
+      
+      this.liquidGlow.style.top = (top + this.config.h / 2) + "px";
     }
 
     private animate() {
@@ -98,13 +172,10 @@ const filterId = "progress-glass-filter";
       const target = 10 + Math.random() * 90;
       this.springs.progress.setTarget(target);
       
-      this.springs.wave.setTarget(1);
-      this.springs.wave.setTarget(0);
-      
       setTimeout(() => {
         this.state.isAnimating = false;
         if (Math.random() > 0.5) this.animate();
-      }, 300);
+      }, 500);
       
       this.startLoop();
     }
@@ -116,34 +187,39 @@ const filterId = "progress-glass-filter";
       this.cloneInner.style.width = aR.width + "px";
       this.cloneInner.style.height = aR.height + "px";
       
-      const p = this.springs.progress.value / 100;
-      const barWidth = this.config.w * p;
-      
-      const offsetX = cR.left + barWidth / 2 - aR.left;
+      const offsetX = cR.left - aR.left;
       const offsetY = cR.top - aR.top;
 
-      this.cloneInner.style.transform = `scale(${1/Math.max(0.1,p)}) translate(${-offsetX}px, ${-offsetY}px)`;
+      this.cloneInner.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
     }
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
       
       const p = this.springs.progress.update(dt);
-      const w = this.springs.wave.update(dt);
       
-      this.bar.style.width = `${p}%`;
+      const maxW = 384;
+      const progressW = (p / 100) * maxW;
+      
+      this.liquidBar.style.width = `${progressW}px`;
+      if (this.clonedLiquidBar) this.clonedLiquidBar.style.width = `${progressW}px`;
+      
+      const wrapper = document.getElementById('progress-wrapper')!;
+      const left = wrapper.getBoundingClientRect().left - this.demoArea.getBoundingClientRect().left;
+      this.liquidGlow.style.left = `${left + progressW}px`;
+      if (this.clonedLiquidGlow) this.clonedLiquidGlow.style.left = `${left + progressW}px`;
+
+      const pixelWidth = Math.max(48, progressW);
+      this.config.w = pixelWidth;
+      this.container.style.width = `${pixelWidth}px`;
+      
       this.text.innerText = `${Math.round(p)}%`;
       
-      if (p > 80) {
-        this.text.classList.add('text-white');
-      } else {
-        this.text.classList.remove('text-white');
-      }
-      
-      // Refraction intensity based on progress
-      const ds = 1 + (p / 100) * 0.5;
+      const velocity = this.springs.progress.velocity;
+      const ds = 1 + Math.abs(velocity) * 0.003;
       document.getElementById("progress-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
 
+      this.renderOptics();
       this.updateClone();
 
       if (this.state.isAnimating || !this.springs.progress.isSettled()) {

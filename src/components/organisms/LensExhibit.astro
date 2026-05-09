@@ -1,50 +1,154 @@
 ---
 import SvgFilter from "../atoms/SvgFilter.astro";
+import LiquidControls from "../molecules/LiquidControls.astro";
+import flowers from "../../assets/botanical-seamless.webp";
 
 const filterId = "lens-glass-filter";
+const glassW = 200;
+const glassH = 140;
+const glassR = 70;
 ---
 
-<div class="relative w-full h-full" id="lens-demo-area">
-  <!-- Content to be refracted -->
-  <div id="lens-real-world" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white dark:bg-[#0f0f0f]">
-    <div class="w-full max-w-md grid grid-cols-1 md:grid-cols-2 gap-8 items-center pointer-events-none">
-      <div class="flex flex-col gap-2">
-        <span class="text-xs font-mono font-bold tracking-widest text-gray-400 uppercase">Optics Study</span>
-        <h3 class="text-4xl font-bold tracking-tighter text-gray-900 dark:text-white leading-none">Sharp<br>Focus</h3>
-        <p class="text-sm text-gray-500 mt-2">Minimalist glass over clean geometry.</p>
+<div
+  class="grid w-full items-start gap-5 p-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-6 lg:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]"
+  id="lens-demo-shell"
+>
+  <div
+    class="relative h-full w-full aspect-video overflow-hidden rounded-2xl"
+    id="lens-demo-area"
+  >
+    <div
+      id="lens-real-world"
+      class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl bg-[#091119]"
+    >
+      <div
+        class="lens-image-panel h-full w-full"
+        style={`background-image: url(${flowers.src});`}
+      >
       </div>
-      <div class="relative aspect-square border border-gray-200 dark:border-gray-800 overflow-hidden bg-gray-100 dark:bg-zinc-800">
-         <img src="https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover mix-blend-luminosity dark:mix-blend-screen opacity-80" alt="Abstract geometry" />
+      <div
+        class="pointer-events-none absolute inset-0 z-2 flex items-center justify-center px-6"
+      >
+        <span
+          class="block max-w-[80%] text-center font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-none text-white drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]"
+        >
+          Ricardious
+        </span>
+      </div>
+    </div>
+
+    <div
+      id="lens-glass-element"
+      data-controls="lens-controls"
+      class="absolute left-1/2 top-1/2 z-10 cursor-grab touch-none select-none overflow-hidden will-change-transform active:cursor-grabbing"
+      style={`width: ${glassW}px; height: ${glassH}px; border-radius: ${glassR}px; transform: translate(-50%, -50%);`}
+    >
+      <div
+        class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
+      >
+        <div
+          id="lens-content-clone"
+          class="glass-clone-wrap absolute inset-0 rounded-[inherit]"
+        >
+          <div
+            id="lens-clone-inner"
+            class="glass-clone-inner bg-white dark:bg-[#0f0f0f]"
+          >
+          </div>
+        </div>
+      </div>
+
+      <SvgFilter filterId={filterId} width={glassW} height={glassH} />
+
+      <div
+        id="lens-inner-overlay"
+        class="glass-inner-overlay rounded-[inherit] border border-white/20 bg-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_2px_8px_rgba(255,255,255,0.25),inset_0_-2px_8px_rgba(0,0,0,0.3)]"
+      >
       </div>
     </div>
   </div>
 
-  <!-- Interactive Glass Lens -->
-  <div 
-    id="lens-glass-element" 
-    class="absolute z-10 cursor-grab active:cursor-grabbing will-change-transform shadow-[0_20px_40px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.6)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-gray-200 dark:border-gray-700/50 bg-white/5 dark:bg-black/5"
-    style="width: 200px; height: 200px; border-radius: 12px; left: 50%; top: 50%; transform: translate(-50%, -50%);"
-  >
-    <div id="lens-content-clone" class="absolute inset-0 overflow-hidden rounded-inherit z-[1] will-change-filter">
-      <div id="lens-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu bg-white dark:bg-[#0f0f0f]">
-         <!-- JS will inject the clone here -->
-      </div>
-    </div>
-    <div class="absolute inset-0 rounded-inherit z-[3] pointer-events-none"></div>
-    
-    <SvgFilter filterId={filterId} />
+  <div class="min-w-0 self-start">
+    <LiquidControls
+      title="Lens Parameters"
+      target="lens-controls"
+      className="mt-0! w-full max-w-none self-start"
+      controls={[
+        {
+          key: "surfaceType",
+          label: "Surface",
+          type: "segmented",
+          value: "convex_squircle",
+          options: [
+            { value: "convex_squircle", label: "Squircle" },
+            { value: "convex_circle", label: "Circle" },
+            { value: "concave", label: "Concave" },
+            { value: "lip", label: "Lip" },
+          ],
+        },
+        {
+          key: "bezelWidth",
+          label: "Bezel",
+          min: 8,
+          max: 48,
+          step: 1,
+          value: 30,
+        },
+        {
+          key: "glassThickness",
+          label: "Thickness",
+          min: 40,
+          max: 200,
+          step: 1,
+          value: 150,
+        },
+        {
+          key: "refractiveIndex",
+          label: "IOR",
+          min: 1.1,
+          max: 2.2,
+          step: 0.01,
+          value: 1.5,
+        },
+        {
+          key: "refractionScale",
+          label: "Refraction",
+          min: 0.2,
+          max: 2,
+          step: 0.01,
+          value: 1.5,
+        },
+        { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0.5 },
+        {
+          key: "specularOpacity",
+          label: "Specular",
+          min: 0,
+          max: 1,
+          step: 0.01,
+          value: 0.8,
+        },
+        {
+          key: "saturation",
+          label: "Saturation",
+          min: 0,
+          max: 3,
+          step: 0.01,
+          value: 1.3,
+        },
+      ]}
+    />
   </div>
 </div>
 
 <script>
   import { Spring } from "../../quarks/spring";
-  import { SurfaceEquations } from "../../quarks/surfaceEquations";
   import {
-    calculateDisplacementMap1D,
-    calculateDisplacementMap2D,
-    calculateSpecularHighlight,
-    imageDataToDataURL,
-  } from "../../quarks/surfaceRenderer";
+    applyLiquidAssets,
+    bindLiquidControls,
+    createLiquidAssets,
+    syncCloneContent,
+    updateLiquidFilter,
+  } from "../../quarks/liquidGlassEngine";
 
   class LensExhibit {
     private glassEl: HTMLElement;
@@ -52,51 +156,71 @@ const filterId = "lens-glass-filter";
     private demoArea: HTMLElement;
     private realWorld: HTMLElement;
     private cloneWrapper: HTMLElement;
-    
-    private config = { bezelWidth: 30, glassThickness: 150, refractiveIndex: 1.5, refractionScale: 1.5, width: 200, height: 200, radius: 12 };
-    private state = { isDragging: false, dragOffset: {x: 0, y: 0}, velocityX: 0, velocityY: 0, lastX: 0, lastY: 0, lastTime: 0 };
-    
+    private innerOverlay: HTMLElement;
+
+    private state = {
+      surfaceType: "convex_squircle",
+      bezelWidth: 30,
+      glassThickness: 150,
+      refractiveIndex: 1.5,
+      refractionScale: 1.5,
+      blur: 0.5,
+      specularOpacity: 0.8,
+      saturation: 1.3,
+      isDragging: false,
+      dragOffsetX: 0,
+      dragOffsetY: 0,
+      velocityX: 0,
+      velocityY: 0,
+      lastX: 0,
+      lastY: 0,
+      lastTime: 0,
+      maxDisp: 0,
+    };
+
     private springs = {
-      scale: new Spring(0.9, 400, 25),
+      scale: new Spring(0.85, 400, 25),
       scaleX: new Spring(1, 400, 30),
       scaleY: new Spring(1, 400, 30),
-      ox: new Spring(0, 400, 30),
-      oy: new Spring(4, 400, 30),
-      blur: new Spring(12, 400, 30),
-      alpha: new Spring(0.1, 300, 25)
+      rb: new Spring(0.8, 300, 18),
     };
-    
+
     private af: number | null = null;
-    private maxDisp = 0;
+    private readonly base = { width: 200, height: 140, radius: 70 };
 
     constructor() {
-      this.glassEl = document.getElementById("lens-glass-element") as HTMLElement;
-      this.cloneInner = document.getElementById("lens-clone-inner") as HTMLElement;
+      this.glassEl = document.getElementById(
+        "lens-glass-element",
+      ) as HTMLElement;
+      this.cloneInner = document.getElementById(
+        "lens-clone-inner",
+      ) as HTMLElement;
       this.demoArea = document.getElementById("lens-demo-area") as HTMLElement;
-      this.realWorld = document.getElementById("lens-real-world") as HTMLElement;
-      this.cloneWrapper = document.getElementById("lens-content-clone") as HTMLElement;
+      this.realWorld = document.getElementById(
+        "lens-real-world",
+      ) as HTMLElement;
+      this.cloneWrapper = document.getElementById(
+        "lens-content-clone",
+      ) as HTMLElement;
+      this.innerOverlay = document.getElementById(
+        "lens-inner-overlay",
+      ) as HTMLElement;
 
       if (!this.glassEl) return;
       this.init();
     }
 
     private init() {
-      // Setup HTML clone
-      this.cloneInner.innerHTML = this.realWorld.innerHTML;
-      this.cloneWrapper.style.filter = "url(#lens-glass-filter)";
+      syncCloneContent(this.cloneInner, this.realWorld);
+      this.cloneWrapper.style.filter = `url(#${"lens-glass-filter"})`;
 
-      // Setup SVGs
-      const pc = calculateDisplacementMap1D(this.config.glassThickness, this.config.bezelWidth, SurfaceEquations.convex_squircle, this.config.refractiveIndex);
-      this.maxDisp = Math.max(...pc.map(Math.abs));
+      this.regenerateFilter();
+      this.bindControls();
 
-      const dispData = calculateDisplacementMap2D(this.config.width, this.config.height, this.config.width, this.config.height, this.config.radius, this.config.bezelWidth, this.maxDisp || 1, pc);
-      const specData = calculateSpecularHighlight(this.config.width, this.config.height, this.config.radius, this.config.bezelWidth);
-
-      document.getElementById("lens-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
-      document.getElementById("lens-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
-
-      // Events
-      this.glassEl.addEventListener("pointerdown", this.onPointerDown.bind(this));
+      this.glassEl.addEventListener(
+        "pointerdown",
+        this.onPointerDown.bind(this),
+      );
       window.addEventListener("pointermove", this.onPointerMove.bind(this));
       window.addEventListener("pointerup", this.onPointerUp.bind(this));
       window.addEventListener("resize", this.updateClone.bind(this));
@@ -105,53 +229,143 @@ const filterId = "lens-glass-filter";
       this.startLoop();
     }
 
+    private bindControls() {
+      bindLiquidControls(
+        this.glassEl,
+        this.state,
+        (key) => {
+          if (
+            [
+              "surfaceType",
+              "bezelWidth",
+              "glassThickness",
+              "refractiveIndex",
+            ].includes(key)
+          ) {
+            this.regenerateFilter();
+          }
+
+          if (
+            [
+              "blur",
+              "specularOpacity",
+              "saturation",
+              "refractionScale",
+            ].includes(key)
+          ) {
+            this.updateFilterTuning();
+          }
+
+          this.startLoop();
+        },
+        () => {
+          Object.assign(this.state, {
+            surfaceType: "convex_squircle",
+            bezelWidth: 30,
+            glassThickness: 150,
+            refractiveIndex: 1.5,
+            refractionScale: 1.5,
+            blur: 0.5,
+            specularOpacity: 0.8,
+            saturation: 1.3,
+          });
+          this.regenerateFilter();
+          this.startLoop();
+        },
+      );
+    }
+
+    private regenerateFilter() {
+      const assets = createLiquidAssets({
+        width: this.base.width,
+        height: this.base.height,
+        radius: this.base.radius,
+        bezelWidth: this.state.bezelWidth,
+        glassThickness: this.state.glassThickness,
+        refractiveIndex: this.state.refractiveIndex,
+        surfaceType: this.state.surfaceType as "convex_squircle",
+      });
+      this.state.maxDisp = assets.maximumDisplacement;
+      applyLiquidAssets("lens-glass-filter", assets);
+      this.updateFilterTuning();
+    }
+
+    private updateFilterTuning() {
+      updateLiquidFilter("lens-glass-filter", {
+        blurStdDev: this.state.blur,
+        saturation: this.state.saturation,
+        specularAlpha: this.state.specularOpacity,
+        scale:
+          this.state.maxDisp *
+          this.state.refractionScale *
+          this.springs.rb.value,
+      });
+    }
+
     private updateClone() {
-      const aR = this.demoArea.getBoundingClientRect();
-      this.cloneInner.style.width = aR.width + "px";
-      this.cloneInner.style.height = aR.height + "px";
-      
-      // Calculate current translation based on center positioning
-      const glassRect = this.glassEl.getBoundingClientRect();
-      const glassLeft = glassRect.left - aR.left;
-      const glassTop = glassRect.top - aR.top;
-      
-      this.cloneInner.style.transform = `translate(${-glassLeft}px, ${-glassTop}px)`;
+      const areaRect = this.demoArea.getBoundingClientRect();
+      this.cloneInner.style.width = `${areaRect.width}px`;
+      this.cloneInner.style.height = `${areaRect.height}px`;
+
+      const rect = this.glassEl.getBoundingClientRect();
+      const offsetX = rect.left - areaRect.left;
+      const offsetY = rect.top - areaRect.top;
+      this.cloneInner.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
     }
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
-      
-      this.springs.scale.setTarget(this.state.isDragging ? 1 : 0.9);
-      this.springs.ox.setTarget(this.state.isDragging ? 4 : 0);
-      this.springs.oy.setTarget(this.state.isDragging ? 16 : 4);
-      this.springs.blur.setTarget(this.state.isDragging ? 24 : 12);
-      this.springs.alpha.setTarget(this.state.isDragging ? 0.2 : 0.1);
+      this.springs.scale.setTarget(this.state.isDragging ? 1 : 0.85);
+      this.springs.rb.setTarget(this.state.isDragging ? 1 : 0.8);
 
-      const vM = Math.sqrt(this.state.velocityX ** 2 + this.state.velocityY ** 2);
-      const sq = Math.min(0.15, vM / 3000);
+      const velocityMagnitude = Math.sqrt(
+        this.state.velocityX ** 2 + this.state.velocityY ** 2,
+      );
+      const squishAmount = Math.min(0.15, velocityMagnitude / 3000);
 
-      if (vM > 50) {
-          const vx = this.state.velocityX / vM, vy = this.state.velocityY / vM;
-          this.springs.scaleX.setTarget(1 + sq * Math.abs(vx) - sq * 0.5 * Math.abs(vy));
-          this.springs.scaleY.setTarget(1 + sq * Math.abs(vy) - sq * 0.5 * Math.abs(vx));
+      if (velocityMagnitude > 50) {
+        const vx = this.state.velocityX / velocityMagnitude;
+        const vy = this.state.velocityY / velocityMagnitude;
+        this.springs.scaleX.setTarget(
+          1 + squishAmount * Math.abs(vx) - squishAmount * 0.5 * Math.abs(vy),
+        );
+        this.springs.scaleY.setTarget(
+          1 + squishAmount * Math.abs(vy) - squishAmount * 0.5 * Math.abs(vx),
+        );
       } else {
-          this.springs.scaleX.setTarget(1);
-          this.springs.scaleY.setTarget(1);
+        this.springs.scaleX.setTarget(1);
+        this.springs.scaleY.setTarget(1);
       }
 
-      const sc = this.springs.scale.update(dt), sx = this.springs.scaleX.update(dt), sy = this.springs.scaleY.update(dt);
-      
-      // Center transform + scale
-      this.glassEl.style.transform = `translate(-50%, -50%) scale(${sc * sx}, ${sc * sy})`;
-      
-      document.getElementById("lens-glass-filter-map")?.setAttribute("scale", (this.maxDisp * this.config.refractionScale).toString());
+      const scale = this.springs.scale.update(dt);
+      const scaleX = this.springs.scaleX.update(dt);
+      const scaleY = this.springs.scaleY.update(dt);
+      const refractionBoost = this.springs.rb.update(dt);
+
+      this.glassEl.style.transform = `translate(-50%, -50%) scale(${scale * scaleX}, ${scale * scaleY})`;
+      this.innerOverlay.style.boxShadow = this.state.isDragging
+        ? "0 28px 48px rgba(0,0,0,0.42), inset 0 3px 10px rgba(255,255,255,0.28), inset 0 -3px 10px rgba(0,0,0,0.32)"
+        : "0 20px 40px rgba(0,0,0,0.4), inset 0 2px 8px rgba(255,255,255,0.25), inset 0 -2px 8px rgba(0,0,0,0.3)";
+
+      updateLiquidFilter("lens-glass-filter", {
+        scale:
+          this.state.maxDisp * this.state.refractionScale * refractionBoost,
+      });
 
       if (!this.state.isDragging) {
         this.state.velocityX *= 0.95;
         this.state.velocityY *= 0.95;
       }
 
-      if (!(Object.values(this.springs).every(x => x.isSettled()) && Math.abs(this.state.velocityX) < 1 && Math.abs(this.state.velocityY) < 1)) {
+      this.updateClone();
+
+      if (
+        !(
+          Object.values(this.springs).every((spring) => spring.isSettled()) &&
+          Math.abs(this.state.velocityX) < 1 &&
+          Math.abs(this.state.velocityY) < 1
+        )
+      ) {
         this.af = requestAnimationFrame(this.loop);
       } else {
         this.af = null;
@@ -166,49 +380,50 @@ const filterId = "lens-glass-filter";
       e.preventDefault();
       this.state.isDragging = true;
       this.glassEl.setPointerCapture(e.pointerId);
-      
-      const r = this.glassEl.getBoundingClientRect();
-      const cs = this.springs.scale.value;
-      this.state.dragOffset.x = (e.clientX - r.left - r.width/2) / cs;
-      this.state.dragOffset.y = (e.clientY - r.top - r.height/2) / cs;
-      
+
+      const rect = this.glassEl.getBoundingClientRect();
+      const currentScale = this.springs.scale.value;
+      this.state.dragOffsetX =
+        (e.clientX - rect.left - rect.width / 2) / currentScale;
+      this.state.dragOffsetY =
+        (e.clientY - rect.top - rect.height / 2) / currentScale;
       this.state.lastX = e.clientX;
       this.state.lastY = e.clientY;
       this.state.lastTime = performance.now();
       this.state.velocityX = 0;
       this.state.velocityY = 0;
-      
       this.startLoop();
     }
 
     private onPointerMove(e: PointerEvent) {
       if (!this.state.isDragging) return;
       e.preventDefault();
-      
-      const cx = e.clientX;
-      const cy = e.clientY;
-      const dt = Math.max(1, performance.now() - this.state.lastTime) / 1000;
-      
-      this.state.velocityX = (cx - this.state.lastX) / dt;
-      this.state.velocityY = (cy - this.state.lastY) / dt;
-      this.state.lastX = cx;
-      this.state.lastY = cy;
-      this.state.lastTime = performance.now();
-      
-      const aR = this.demoArea.getBoundingClientRect();
-      
-      // Calculate new center
-      let nx = cx - aR.left - this.state.dragOffset.x;
-      let ny = cy - aR.top - this.state.dragOffset.y;
-      
-      // Bounds
-      nx = Math.max(this.config.width/2, Math.min(nx, aR.width - this.config.width/2));
-      ny = Math.max(this.config.height/2, Math.min(ny, aR.height - this.config.height/2));
-      
-      this.glassEl.style.left = nx + "px";
-      this.glassEl.style.top = ny + "px";
-      
+
+      const now = performance.now();
+      const dt = Math.max(1, now - this.state.lastTime) / 1000;
+      this.state.velocityX = (e.clientX - this.state.lastX) / dt;
+      this.state.velocityY = (e.clientY - this.state.lastY) / dt;
+      this.state.lastX = e.clientX;
+      this.state.lastY = e.clientY;
+      this.state.lastTime = now;
+
+      const areaRect = this.demoArea.getBoundingClientRect();
+      let nextX = e.clientX - areaRect.left - this.state.dragOffsetX;
+      let nextY = e.clientY - areaRect.top - this.state.dragOffsetY;
+
+      nextX = Math.max(
+        this.base.width / 2,
+        Math.min(nextX, areaRect.width - this.base.width / 2),
+      );
+      nextY = Math.max(
+        this.base.height / 2,
+        Math.min(nextY, areaRect.height - this.base.height / 2),
+      );
+
+      this.glassEl.style.left = `${nextX}px`;
+      this.glassEl.style.top = `${nextY}px`;
       this.updateClone();
+      this.startLoop();
     }
 
     private onPointerUp() {
@@ -217,8 +432,27 @@ const filterId = "lens-glass-filter";
     }
   }
 
-  // Initialize when DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     new LensExhibit();
   });
 </script>
+
+<style>
+  .lens-image-panel {
+    background-position: center center;
+    background-repeat: repeat;
+    background-size: 640px auto;
+    animation: lensMoveBackground 60s linear infinite;
+    will-change: background-position;
+  }
+
+  @keyframes lensMoveBackground {
+    from {
+      background-position: 0% 0%;
+    }
+
+    to {
+      background-position: 0% -1000%;
+    }
+  }
+</style>

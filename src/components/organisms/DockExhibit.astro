@@ -1,41 +1,206 @@
 ---
 import SvgFilter from "../atoms/SvgFilter.astro";
+import flowers from "../../assets/flowers.webp";
 
-// We will use one single filter definition for all dock items to save DOM nodes
 const filterId = "dock-glass-filter";
+const dockW = 300;
+const dockH = 95;
+const dockR = 47;
 ---
 
-<div class="relative w-full h-full flex items-end justify-center pb-12" id="dock-demo-area">
-  <!-- Real World Background (ambient shapes) -->
-  <div id="dock-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-gray-100 dark:bg-[#0f0f0f]">
-    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay dark:mix-blend-lighten" alt="Abstract fluid" />
-  </div>
+<style>
+  .dock-svg-icon-deactive {
+    fill: #ffffff;
+    stroke: #ffffff;
+    display: inline;
+    width: 10px;
+    height: 10px;
+  }
 
-  <SvgFilter filterId={filterId} />
+  .dock-tab input,
+  .dock-tab use.tab-active {
+    display: none;
+  }
 
-  <!-- The Dock Container -->
-  <div class="relative flex items-end gap-4 p-4 rounded-3xl bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl z-10" id="liquid-dock">
-    
-    <!-- Dock Items will be generated via JS to attach logic easily, or we can hardcode the DOM and attach logic -->
-    {Array.from({ length: 5 }).map((_, i) => (
-      <div class="dock-item relative w-[64px] h-[64px] will-change-transform cursor-pointer touch-none" data-index={i}>
-        <div class="dock-content-clone absolute inset-0 overflow-hidden rounded-2xl z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
-          <div class="dock-clone-inner absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-100 dark:bg-[#0f0f0f]">
-             <!-- JS will inject the clone here -->
-          </div>
-        </div>
-        <div class="dock-thumb-inner absolute inset-0 z-[3] rounded-2xl border border-white/40 dark:border-white/20 bg-white/20 dark:bg-white/10 shadow-[0_8px_16px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-300 flex items-center justify-center">
-            <span class="text-white text-xl drop-shadow-md font-bold">{i + 1}</span>
-        </div>
+  .dock-tab input:checked + label svg use.tab-active {
+    transform-origin: 50% 50%;
+    animation: dock-fill-animation 0.9s ease 0.3s;
+    animation-fill-mode: forwards;
+    display: block;
+    fill: none;
+  }
+
+  .dock-tab input:checked + label {
+    transform: translateY(-6px) scale(1.04);
+  }
+
+  .dock-tab label:hover {
+    animation: dock-scale-animation 0.9s ease 0.2s;
+    animation-fill-mode: forwards;
+  }
+
+  .dock-tab label {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dock-indicator {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    bottom: 12px;
+    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
+    border-radius: 50%;
+  }
+
+  .dock-force-active .dock-tab input:checked + label {
+    transform: translateY(-10px) scale(1.08);
+  }
+
+  @keyframes dock-fill-animation {
+    from {
+      clip-path: circle(0% at 50% 100%);
+    }
+    to {
+      clip-path: circle(110% at bottom);
+      fill: #ffffff;
+    }
+  }
+
+  @keyframes dock-scale-animation {
+    from {
+      transform: scale(0.9);
+    }
+    to {
+      transform: scale(1.05);
+    }
+  }
+</style>
+
+<div class="relative flex h-[400px] w-full items-stretch justify-center overflow-hidden bg-[#10151c]" id="dock-demo-area">
+  <div id="dock-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center scale-110" style={`background-image: url(${flowers.src});`}></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.28),transparent_20%),radial-gradient(circle_at_82%_22%,rgba(255,214,153,0.22),transparent_24%),linear-gradient(180deg,rgba(10,15,20,0.18),rgba(8,10,16,0.66))]"></div>
+    <div class="absolute left-6 top-6 flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.24em] text-white/80 backdrop-blur-sm">
+      <span class="inline-block h-2 w-2 rounded-full bg-[#f7be63]"></span>
+      Curated
+    </div>
+    <div class="absolute left-6 top-20 max-w-[14rem] text-white">
+      <p class="text-[11px] uppercase tracking-[0.3em] text-white/55">Dock Scene</p>
+      <p class="mt-3 text-2xl font-semibold leading-tight drop-shadow-[0_8px_20px_rgba(0,0,0,0.35)]">Floating actions over a warm botanical backdrop.</p>
+    </div>
+    <div class="absolute bottom-28 left-6 right-6 flex items-end justify-between gap-4 text-white/70">
+      <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 backdrop-blur-sm">
+        <p class="text-[10px] uppercase tracking-[0.26em] text-white/55">Mode</p>
+        <p class="mt-1 text-sm font-medium text-white">Desktop / Utility</p>
       </div>
-    ))}
-
+      <div class="hidden rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-right backdrop-blur-sm sm:block">
+        <p class="text-[10px] uppercase tracking-[0.26em] text-white/55">Focus</p>
+        <p class="mt-1 text-sm font-medium text-white">Magnify, distort, react</p>
+      </div>
+    </div>
+    <div class="absolute left-0 right-0 top-[58%] h-px bg-white/12"></div>
+    <div class="absolute left-[8%] top-[62%] h-24 w-24 rounded-full border border-white/10 bg-white/10 blur-2xl"></div>
+    <div class="absolute right-[10%] top-[18%] h-20 w-20 rounded-full border border-white/10 bg-[#f59d0c]/20 blur-2xl"></div>
   </div>
+
+  <SvgFilter filterId={filterId} width={dockW} height={dockH} />
+
+  <div
+    class="relative z-10 mt-auto mb-8 flex justify-around items-center will-change-transform dock-force-active"
+    id="liquid-dock-container"
+    data-controls="dock-controls"
+    style={`width: ${dockW}px; height: ${dockH}px; border-radius: ${dockR}px;`}
+  >
+    <div class="absolute inset-0 pointer-events-none" style={`border-radius: ${dockR}px; overflow: hidden;`}>
+      <div id="dock-content-clone" class="glass-clone-wrap absolute inset-0" style={`border-radius: ${dockR}px;`}>
+        <div id="dock-clone-inner" class="glass-clone-inner absolute inset-0"></div>
+      </div>
+    </div>
+    
+    <div class="glass-inner-overlay absolute inset-0 pointer-events-none" style={`border-radius: ${dockR}px; background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05)); box-shadow: -1.5px -1.5px 2px -2px #ffffff, 5px 5px 30px rgba(0, 0, 0, 0.25), inset 0 0 20px rgba(255,255,255,0.3); border: 1px solid; border-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.2) transparent rgba(255, 255, 255, 0.2);`}></div>
+
+    <div
+      id="dock-specular-img"
+      class="absolute inset-0 pointer-events-none opacity-90 mix-blend-screen z-10"
+      style={`border-radius: ${dockR}px;`}
+    ></div>
+
+    <div class="dock-tab w-[50px] h-[50px] flex justify-center items-center relative z-20">
+      <input id="tab-one" name="dock-tab" type="radio" checked/>
+      <label for="tab-one" class="cursor-pointer w-full h-full flex justify-center items-center">
+        <svg class="w-[40px] relative" viewBox="0 0 25 25">
+          <use href="#home-deactive" class="dock-svg-icon-deactive" />
+          <use href="#home-active" class="tab-active" />
+        </svg>
+      </label>
+    </div>
+    
+    <div class="dock-tab w-[50px] h-[50px] flex justify-center items-center relative z-20">
+      <input id="tab-two" name="dock-tab" type="radio" />
+      <label for="tab-two" class="cursor-pointer w-full h-full flex justify-center items-center">
+        <svg class="w-[40px] relative" viewBox="0 0 53 53">
+          <use href="#message-deactive" class="dock-svg-icon-deactive" />
+          <use href="#message-active" class="tab-active" />
+        </svg>
+      </label>
+    </div>
+    
+    <div class="dock-tab w-[50px] h-[50px] flex justify-center items-center relative z-20">
+      <input id="tab-three" name="dock-tab" type="radio" />
+      <label for="tab-three" class="cursor-pointer w-full h-full flex justify-center items-center">
+        <svg class="w-[40px] relative" viewBox="0 0 35 35">
+          <use href="#heart-deactive" class="dock-svg-icon-deactive" />
+          <use href="#heart-active" class="tab-active" />
+        </svg>
+      </label>
+    </div>
+    
+    <div class="dock-tab w-[50px] h-[50px] flex justify-center items-center relative z-20">
+      <input id="tab-four" name="dock-tab" type="radio" />
+      <label for="tab-four" class="cursor-pointer w-full h-full flex justify-center items-center">
+        <svg class="w-[40px] relative" viewBox="0 0 40 40">
+          <use href="#alert-deactive" class="dock-svg-icon-deactive" />
+          <use href="#alert-active" class="tab-active" />
+        </svg>
+      </label>
+    </div>
+    
+    <div class="dock-indicator z-10 pointer-events-none"></div>
+  </div>
+
+  <svg width="0" height="0" class="hidden">
+    <symbol id="home-deactive" class="svg-icon-deactive" viewBox="0 0 25 25">
+        <path xmlns="http://www.w3.org/2000/svg" d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z" stroke-width="0.05"/>
+    </symbol>
+    <symbol id="home-active" class="svg-icon-active" viewBox="0 0 25 25" >
+        <path xmlns="http://www.w3.org/2000/svg" d="M 12 2 A 1 1 0 0 0 11.289062 2.296875 L 1.203125 11.097656 A 0.5 0.5 0 0 0 1 11.5 A 0.5 0.5 0 0 0 1.5 12 L 4 12 L 4 20 C 4 20.552 4.448 21 5 21 L 9 21 C 9.552 21 10 20.552 10 20 L 10 14 L 14 14 L 14 20 C 14 20.552 14.448 21 15 21 L 19 21 C 19.552 21 20 20.552 20 20 L 20 12 L 22.5 12 A 0.5 0.5 0 0 0 23 11.5 A 0.5 0.5 0 0 0 22.796875 11.097656 L 12.716797 2.3027344 A 1 1 0 0 0 12.710938 2.296875 A 1 1 0 0 0 12 2 z"/>
+    </symbol>
+    <symbol id="message-deactive" class="svg-icon-deactive" viewBox="0 0 53 53">
+        <path xmlns="http://www.w3.org/2000/svg" d="M 25 4.0625 C 12.414063 4.0625 2.0625 12.925781 2.0625 24 C 2.0625 30.425781 5.625 36.09375 11 39.71875 C 10.992188 39.933594 11 40.265625 10.71875 41.3125 C 10.371094 42.605469 9.683594 44.4375 8.25 46.46875 L 7.21875 47.90625 L 9 47.9375 C 15.175781 47.964844 18.753906 43.90625 19.3125 43.25 C 21.136719 43.65625 23.035156 43.9375 25 43.9375 C 37.582031 43.9375 47.9375 35.074219 47.9375 24 C 47.9375 12.925781 37.582031 4.0625 25 4.0625 Z M 25 5.9375 C 36.714844 5.9375 46.0625 14.089844 46.0625 24 C 46.0625 33.910156 36.714844 42.0625 25 42.0625 C 22.996094 42.0625 21.050781 41.820313 19.21875 41.375 L 18.65625 41.25 L 18.28125 41.71875 C 18.28125 41.71875 15.390625 44.976563 10.78125 45.75 C 11.613281 44.257813 12.246094 42.871094 12.53125 41.8125 C 12.929688 40.332031 12.9375 39.3125 12.9375 39.3125 L 12.9375 38.8125 L 12.5 38.53125 C 7.273438 35.21875 3.9375 29.941406 3.9375 24 C 3.9375 14.089844 13.28125 5.9375 25 5.9375 Z"/>
+    </symbol>
+    <symbol id="message-active" class="svg-icon-active" viewBox="0 0 53 53">
+        <path xmlns="http://www.w3.org/2000/svg" d="M 25 4 C 12.316406 4 2 12.972656 2 24 C 2 30.1875 5.335938 36.066406 10.949219 39.839844 C 10.816406 40.890625 10.285156 43.441406 8.183594 46.425781 L 7.078125 47.992188 L 9.054688 48 C 14.484375 48 18.15625 44.671875 19.363281 43.394531 C 21.195313 43.796875 23.089844 44 25 44 C 37.683594 44 48 35.027344 48 24 C 48 12.972656 37.683594 4 25 4 Z"/>
+    </symbol>
+    <symbol id="heart-deactive" class="svg-icon-deactive" viewBox="0 0 35 35">
+        <path xmlns="http://www.w3.org/2000/svg" d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z" id="svg_1" class="selected" fill="none" stroke-opacity="1" stroke-width="2"/>
+    </symbol>
+    <symbol id="heart-active" class="svg-icon-active" viewBox="0 0 35 35">
+        <path xmlns="http://www.w3.org/2000/svg" d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z" id="svg_1" class="selected" stroke-opacity="1" stroke-width="2" fill-opacity="1"/>
+    </symbol>
+    <symbol id="alert-deactive" class="svg-icon-deactive" viewBox="0 0 40 40">
+        <path xmlns="http://www.w3.org/2000/svg" d="M26.8,25H5.2c-0.8,0-1.5-0.4-1.9-1.1c-0.4-0.7-0.3-1.5,0.1-2.2L4.5,20c1.8-2.7,2.7-5.8,2.7-9c0-3.7,2.4-7.1,5.9-8.3   C13.7,1.6,14.8,1,16,1s2.3,0.6,2.9,1.7c3.5,1.2,5.9,4.6,5.9,8.3c0,3.2,0.9,6.3,2.7,9l1.1,1.7c0.4,0.7,0.5,1.5,0.1,2.2   C28.4,24.6,27.6,25,26.8,25z" id="svg_2" fill="none" fill-opacity="1" stroke-opacity="1" stroke-width="2" opacity="1"/>
+        <path xmlns="http://www.w3.org/2000/svg" d="M11.100000381469727,28.129943668842316 c0.5,2.299999952316284 2.5,4 4.900000095367432,4 s4.400000095367432,-1.7000000476837158 4.900000095367432,-4 H11.100000381469727 z" id="svg_3" class="selected" fill="none" stroke-width="2" opacity="1" stroke-opacity="1"/>
+    </symbol>
+    <symbol id="alert-active" class="svg-icon-active" viewBox="0 0 40 40">
+        <path xmlns="http://www.w3.org/2000/svg" d="M26.8,25H5.2c-0.8,0-1.5-0.4-1.9-1.1c-0.4-0.7-0.3-1.5,0.1-2.2L4.5,20c1.8-2.7,2.7-5.8,2.7-9c0-3.7,2.4-7.1,5.9-8.3   C13.7,1.6,14.8,1,16,1s2.3,0.6,2.9,1.7c3.5,1.2,5.9,4.6,5.9,8.3c0,3.2,0.9,6.3,2.7,9l1.1,1.7c0.4,0.7,0.5,1.5,0.1,2.2   C28.4,24.6,27.6,25,26.8,25z" id="svg_2" fill="#none" fill-opacity="1" stroke="#ffffff" stroke-opacity="1"/>
+        <path xmlns="http://www.w3.org/2000/svg" d="M11.100000381469727,27.56497174501419 c0.5,2.299999952316284 2.5,4 4.900000095367432,4 s4.400000095367432,-1.7000000476837158 4.900000095367432,-4 H11.100000381469727 z" id="svg_3" class="" fill-opacity="1" stroke-width="2" opacity="1"/>
+    </symbol>
+  </svg>
 </div>
 
 <script>
-  import { Spring } from "../../quarks/spring";
   import { SurfaceEquations } from "../../quarks/surfaceEquations";
+  import { bindLiquidControls } from "../../quarks/liquidGlassEngine";
   import {
     calculateDisplacementMap1D,
     calculateDisplacementMap2D,
@@ -44,44 +209,81 @@ const filterId = "dock-glass-filter";
   } from "../../quarks/surfaceRenderer";
 
   class DockExhibit {
+    private container: HTMLElement;
+    private cloneInner: HTMLElement;
+    private cloneWrapper: HTMLElement;
     private demoArea: HTMLElement;
     private realWorld: HTMLElement;
-    private dock: HTMLElement;
-    private items: HTMLElement[] = [];
-    private clones: HTMLElement[] = [];
+    private specImg: HTMLElement | null;
     
-    private config = { w: 128, h: 128, bw: 20, gt: 80, r: 24, ri: 1.5, maxDisp: 0 };
-    private state = { mouseX: -1000, isHovering: false };
+    private indicator!: HTMLElement;
+    private tabs!: NodeListOf<HTMLElement>;
     
-    // One spring per item for its scale
-    private scales: Spring[] = [];
-    
-    private af: number | null = null;
+    private readonly defaults = {
+      forceActive: true,
+      refraction: 1,
+      blur: 0.2,
+      specularOpacity: 0.9,
+      saturation: 6,
+    };
+
+    private state = { ...this.defaults };
+
+    private config = { w: 300, h: 95, r: 47, bw: 30, gt: 150, ri: 1, maxDisp: 0 };
 
     constructor() {
+      this.container = document.getElementById('liquid-dock-container') as HTMLElement;
+      this.cloneInner = document.getElementById('dock-clone-inner') as HTMLElement;
+      this.cloneWrapper = document.getElementById('dock-content-clone') as HTMLElement;
       this.demoArea = document.getElementById('dock-demo-area') as HTMLElement;
       this.realWorld = document.getElementById('dock-real-world') as HTMLElement;
-      this.dock = document.getElementById('liquid-dock') as HTMLElement;
-
-      if (!this.dock) return;
+      this.specImg = document.getElementById("dock-specular-img");
+      
+      if (!this.container) return;
+      
+      this.indicator = this.container.querySelector('.dock-indicator') as HTMLElement;
+      this.tabs = this.container.querySelectorAll('.dock-tab');
+      
       this.init();
     }
 
     private init() {
-      // Find items
-      const itemNodes = this.dock.querySelectorAll('.dock-item');
-      
-      itemNodes.forEach((node) => {
-        const el = node as HTMLElement;
-        this.items.push(el);
-        this.scales.push(new Spring(64, 400, 25)); // Base size is 64px
-        
-        const cloneInner = el.querySelector('.dock-clone-inner') as HTMLElement;
-        cloneInner.innerHTML = this.realWorld.outerHTML;
-        this.clones.push(cloneInner);
+      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+      this.renderOptics();
+      this.applyState();
+
+      this.tabs.forEach((el) => el.addEventListener("click", this.clickTab.bind(this)));
+
+      bindLiquidControls(this.container, this.state, (key, value) => {
+        this.state[key as keyof typeof this.state] = value as never;
+
+        if (key === "refraction") {
+          this.renderOptics();
+        }
+
+        this.applyState();
+      }, () => {
+        this.state = { ...this.defaults };
+        this.renderOptics();
+        this.applyState();
       });
 
-      // Setup Optics (We pre-render a larger map (128x128) and scale it down via CSS for the icons, this is a trick to allow magnification without re-rendering maps)
+      setTimeout(() => {
+        const activeTab = this.container.querySelector("input:checked + label") as HTMLElement;
+        if (activeTab) {
+          const tabWrapper = activeTab.parentElement as HTMLElement;
+          this.indicator.style.left = `${tabWrapper.offsetLeft + 22}px`;
+          this.indicator.style.backgroundColor = "#e2921a";
+        }
+      }, 50);
+
+      window.addEventListener('resize', this.updateClone.bind(this));
+      this.updateClone();
+    }
+
+    private renderOptics() {
+      this.config.ri = Number(this.state.refraction);
+
       const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
       this.config.maxDisp = Math.max(...pc.map(Math.abs));
 
@@ -89,94 +291,60 @@ const filterId = "dock-glass-filter";
       const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
 
       document.getElementById("dock-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
-      document.getElementById("dock-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+      document.getElementById("dock-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * 1.5).toString());
 
-      // Events
-      this.dock.addEventListener('mousemove', this.onMouseMove.bind(this));
-      this.dock.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-      window.addEventListener('resize', this.updateClones.bind(this));
-      
-      this.updateClones();
-      this.startLoop();
-    }
-
-    private onMouseMove(e: MouseEvent) {
-      this.state.isHovering = true;
-      this.state.mouseX = e.clientX;
-      this.startLoop();
-    }
-
-    private onMouseLeave() {
-      this.state.isHovering = false;
-      this.startLoop();
-    }
-
-    private updateClones() {
-      const aR = this.demoArea.getBoundingClientRect();
-      
-      this.items.forEach((item, i) => {
-        const clone = this.clones[i];
-        const rect = item.getBoundingClientRect();
-        
-        clone.style.width = aR.width + "px";
-        clone.style.height = aR.height + "px";
-        
-        const offsetX = rect.left - aR.left;
-        const offsetY = rect.top - aR.top;
-        
-        // We scale the inner content inversely to the item's scale
-        const currentSize = this.scales[i].value;
-        const scaleRatio = currentSize / 128; // our base map is 128
-        
-        clone.style.transform = `scale(${1/scaleRatio}) translate(${-offsetX * scaleRatio}px, ${-offsetY * scaleRatio}px)`;
-      });
-    }
-
-    private loop = () => {
-      const dt = Math.min(0.032, 1 / 60);
-      let anyMoving = false;
-
-      this.items.forEach((item, i) => {
-        let targetSize = 64;
-        
-        if (this.state.isHovering) {
-            const rect = item.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const dist = Math.abs(this.state.mouseX - centerX);
-            
-            if (dist < 150) {
-                // macOS dock magnification curve
-                const scale = 1 + (1 - dist / 150) * 0.8;
-                targetSize = 64 * scale;
-            }
-        }
-        
-        this.scales[i].setTarget(targetSize);
-        const currentSize = this.scales[i].update(dt);
-        
-        if (!this.scales[i].isSettled()) anyMoving = true;
-        
-        item.style.width = `${currentSize}px`;
-        item.style.height = `${currentSize}px`;
-      });
-      
-      this.updateClones();
-      
-      // Update global map scale based on the largest item to avoid clipping
-      // Actually since all use the same filter, they share the map scale. 
-      // In a real scenario with different sizes, they should use individual filters, 
-      // but for this demo a shared scale works well enough visually.
-      document.getElementById("dock-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * 1.2).toString());
-
-      if (anyMoving) {
-        this.af = requestAnimationFrame(this.loop);
-      } else {
-        this.af = null;
+      if (this.specImg) {
+        this.specImg.style.backgroundImage = `url(${imageDataToDataURL(specData)})`;
+        this.specImg.style.backgroundSize = "100% 100%";
       }
-    };
+    }
 
-    private startLoop() {
-      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    private applyState() {
+      this.cloneWrapper.style.filter = `url(#dock-glass-filter) blur(${Number(this.state.blur)}px) saturate(${Number(this.state.saturation)})`;
+      this.container.classList.toggle("dock-force-active", Boolean(this.state.forceActive));
+
+      if (this.specImg) {
+        this.specImg.style.opacity = String(this.state.specularOpacity);
+      }
+    }
+    
+    private clickTab(e: Event) {
+      setTimeout(() => {
+        let activeTab = this.container.querySelector("input:checked + label") as HTMLElement;
+        let tabWrapper = activeTab.parentElement as HTMLElement;
+        this.indicator.style.left = `${tabWrapper.offsetLeft + 22}px`;
+        
+        let activeTabNumber = activeTab.getAttribute("for");
+
+        switch (activeTabNumber) {
+          case "tab-one":
+            this.indicator.style.backgroundColor = "#e18e1c";
+            break;
+          case "tab-two":
+            this.indicator.style.backgroundColor = "#e3911a";
+            break;
+          case "tab-three":
+            this.indicator.style.backgroundColor = "#e1921a";
+            break;
+          case "tab-four":
+            this.indicator.style.backgroundColor = "#e39519";
+            break;
+          default:
+            this.indicator.style.backgroundColor = "#e18e1c";
+        }
+      }, 10);
+    }
+
+    private updateClone() {
+      const aR = this.demoArea.getBoundingClientRect();
+
+      this.cloneInner.style.width = aR.width + "px";
+      this.cloneInner.style.height = aR.height + "px";
+
+      const offsetX = this.container.offsetLeft;
+      const offsetY = this.container.offsetTop;
+
+      this.cloneInner.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
     }
   }
 
