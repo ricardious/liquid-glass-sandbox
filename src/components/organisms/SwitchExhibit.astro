@@ -1,6 +1,6 @@
 ---
-import SvgFilter from "../atoms/SvgFilter.astro";
-import backgroundImage from "../../assets/tropical-floral-pattern-dark.webp";
+import backgroundImage from "@assets/tropical-floral-pattern-dark.webp";
+import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "switch-glass-filter";
 const trackW = 160;
@@ -82,14 +82,14 @@ const thumbR = 46;
 </style>
 
 <script>
-  import { Spring } from "../../quarks/spring";
+  import { Spring } from "@quarks/spring";
   import {
     applyLiquidAssets,
     bindLiquidControls,
     createLiquidAssets,
     syncCloneContent,
     updateLiquidFilter,
-  } from "../../quarks/liquidGlassEngine";
+  } from "@quarks/liquidGlassEngine";
 
   class SwitchExhibit {
     private container: HTMLElement;

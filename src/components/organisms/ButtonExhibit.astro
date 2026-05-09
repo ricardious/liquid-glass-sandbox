@@ -1,5 +1,5 @@
 ---
-import SvgFilter from "../atoms/SvgFilter.astro";
+import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "button-glass-filter";
 const glassW = 340;
@@ -83,14 +83,14 @@ const glassR = 43;
 </style>
 
 <script>
-  import { Spring } from "../../quarks/spring";
+  import { Spring } from "@quarks/spring";
   import {
     applyLiquidAssets,
     bindLiquidControls,
     createLiquidAssets,
     syncCloneContent,
     updateLiquidFilter,
-  } from "../../quarks/liquidGlassEngine";
+  } from "@quarks/liquidGlassEngine";
 
   class ButtonExhibit {
     private btn: HTMLElement;

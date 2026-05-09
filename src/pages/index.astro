@@ -1,20 +1,19 @@
 ---
-import MainLayout from "../layouts/MainLayout.astro";
-import ExhibitCard from "../components/molecules/ExhibitCard.astro";
-import ControlsModal from "../components/molecules/ControlsModal.astro";
-import LiquidControls from "../components/molecules/LiquidControls.astro";
-import LensExhibit from "../components/organisms/LensExhibit.astro";
-import ButtonExhibit from "../components/organisms/ButtonExhibit.astro";
-import SwitchExhibit from "../components/organisms/SwitchExhibit.astro";
-import SliderExhibit from "../components/organisms/SliderExhibit.astro";
-import CursorExhibit from "../components/organisms/CursorExhibit.astro";
-import InputExhibit from "../components/organisms/InputExhibit.astro";
-
-import LayeredFabExhibit from "../components/organisms/LayeredFabExhibit.astro";
-import CreditCardExhibit from "../components/organisms/CreditCardExhibit.astro";
-import TopNav from "../components/molecules/TopNav.astro";
-import { galleryControls } from "../lib/galleryControls";
-import { projectLinks } from "../lib/site";
+import ControlsModal from "@components/molecules/ControlsModal.astro";
+import ExhibitCard from "@components/molecules/ExhibitCard.astro";
+import LiquidControls from "@components/molecules/LiquidControls.astro";
+import TopNav from "@components/molecules/TopNav.astro";
+import ButtonExhibit from "@components/organisms/ButtonExhibit.astro";
+import CreditCardExhibit from "@components/organisms/CreditCardExhibit.astro";
+import CursorExhibit from "@components/organisms/CursorExhibit.astro";
+import InputExhibit from "@components/organisms/InputExhibit.astro";
+import LayeredFabExhibit from "@components/organisms/LayeredFabExhibit.astro";
+import LensExhibit from "@components/organisms/LensExhibit.astro";
+import SliderExhibit from "@components/organisms/SliderExhibit.astro";
+import SwitchExhibit from "@components/organisms/SwitchExhibit.astro";
+import MainLayout from "@layouts/MainLayout.astro";
+import { galleryControls } from "@lib/galleryControls";
+import { projectLinks } from "@lib/site";
 
 const buttonControls = galleryControls.button;
 const switchControls = galleryControls.switch;

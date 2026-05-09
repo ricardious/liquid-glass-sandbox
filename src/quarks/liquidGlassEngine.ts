@@ -1,4 +1,4 @@
-import { SurfaceEquations } from "./surfaceEquations";
+import { SurfaceEquations } from "@quarks/surfaceEquations";
 import {
   calculateDisplacementMap1D,
   calculateDisplacementMap2D,
@@ -68,19 +68,13 @@ export function createLiquidAssets(config: LiquidConfig): LiquidAssets {
 }
 
 export function applyLiquidAssets(filterId: string, assets: LiquidAssets) {
-  document
-    .getElementById(`${filterId}-image`)
-    ?.setAttribute("href", assets.displacementUrl);
-  document
-    .getElementById(`${filterId}-specular`)
-    ?.setAttribute("href", assets.specularUrl);
+  document.getElementById(`${filterId}-image`)?.setAttribute("href", assets.displacementUrl);
+  document.getElementById(`${filterId}-specular`)?.setAttribute("href", assets.specularUrl);
 }
 
 export function updateLiquidFilter(filterId: string, tuning: LiquidFilterTuning) {
   if (tuning.scale !== undefined) {
-    document
-      .getElementById(`${filterId}-map`)
-      ?.setAttribute("scale", tuning.scale.toString());
+    document.getElementById(`${filterId}-map`)?.setAttribute("scale", tuning.scale.toString());
   }
 
   if (tuning.blurStdDev !== undefined) {
@@ -131,7 +125,9 @@ export function bindLiquidControls(
     const optionButtons = row.querySelectorAll<HTMLButtonElement>("[data-liquid-option]");
 
     const renderValue = (value: string | number | boolean) => {
-      if (valueNode) valueNode.textContent = typeof value === "number" ? value.toFixed(value % 1 === 0 ? 0 : 2) : String(value);
+      if (valueNode)
+        valueNode.textContent =
+          typeof value === "number" ? value.toFixed(value % 1 === 0 ? 0 : 2) : String(value);
       optionButtons.forEach((button) => {
         const active = button.dataset.liquidOption === String(value);
         button.classList.toggle("border-zinc-900", active);

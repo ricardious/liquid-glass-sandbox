@@ -1,7 +1,7 @@
 ---
-import SvgFilter from "../atoms/SvgFilter.astro";
-import LiquidControls from "../molecules/LiquidControls.astro";
-import flowers from "../../assets/botanical-seamless.webp";
+import flowers from "@assets/botanical-seamless.webp";
+import SvgFilter from "@components/atoms/SvgFilter.astro";
+import LiquidControls from "@components/molecules/LiquidControls.astro";
 
 const filterId = "lens-glass-filter";
 const glassW = 200;
@@ -141,14 +141,14 @@ const glassR = 70;
 </div>
 
 <script>
-  import { Spring } from "../../quarks/spring";
+  import { Spring } from "@quarks/spring";
   import {
     applyLiquidAssets,
     bindLiquidControls,
     createLiquidAssets,
     syncCloneContent,
     updateLiquidFilter,
-  } from "../../quarks/liquidGlassEngine";
+  } from "@quarks/liquidGlassEngine";
 
   class LensExhibit {
     private glassEl: HTMLElement;

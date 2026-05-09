@@ -1,6 +1,6 @@
 ---
-import SvgFilter from "../atoms/SvgFilter.astro";
-import flowers from "../../assets/botanical-monochrome-pattern.webp";
+import flowers from "@assets/botanical-monochrome-pattern.webp";
+import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "input-glass-filter";
 const inputW = 340;
@@ -71,14 +71,14 @@ const inputR = 100;
 </div>
 
 <script>
-  import { Spring } from "../../quarks/spring";
+  import { Spring } from "@quarks/spring";
   import {
     applyLiquidAssets,
     bindLiquidControls,
     createLiquidAssets,
     syncCloneContent,
     updateLiquidFilter,
-  } from "../../quarks/liquidGlassEngine";
+  } from "@quarks/liquidGlassEngine";
 
   class InputExhibit {
     private container: HTMLElement;
