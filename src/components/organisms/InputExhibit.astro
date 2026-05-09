@@ -20,9 +20,16 @@ const inputR = 100;
       id="input-background-layer"
       class="absolute inset-0 bg-cover bg-center"
       style={`background-image: url(${flowers.src});`}
-    ></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.12),transparent_20%),linear-gradient(180deg,rgba(6,10,15,0.28),rgba(8,12,16,0.68))]"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:30px_30px] opacity-25"></div>
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.12),transparent_20%),linear-gradient(180deg,rgba(6,10,15,0.28),rgba(8,12,16,0.68))]"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-size-[30px_30px] opacity-25"
+    >
+    </div>
   </div>
 
   <SvgFilter filterId={filterId} width={inputW} height={inputH} />
@@ -33,7 +40,9 @@ const inputR = 100;
     data-controls="input-controls"
     style={`height:${inputH}px; border-radius:${inputR}px;`}
   >
-    <div class="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none">
+    <div
+      class="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none"
+    >
       <div
         id="input-content-clone"
         class="glass-clone-wrap absolute inset-0 rounded-[inherit]"
@@ -41,19 +50,21 @@ const inputR = 100;
         <div
           id="input-clone-inner"
           class="glass-clone-inner absolute inset-0 bg-gray-100 dark:bg-[#0f0f0f]"
-        ></div>
+        >
+        </div>
       </div>
     </div>
 
     <div
       class="glass-inner-overlay pointer-events-none absolute inset-0 rounded-[inherit] border border-white/10 bg-black/20 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5),0_20px_40px_rgba(0,0,0,0.4)] transition-[box-shadow,border-color] duration-300"
       id="input-glass-overlay"
-    ></div>
+    >
+    </div>
 
     <input
       type="text"
       placeholder="Provide input..."
-      class="absolute inset-0 z-[5] h-full w-full rounded-[inherit] border-none bg-transparent px-8 font-body text-3xl tracking-[0.04em] text-white outline-none placeholder:text-white/40 focus:ring-0"
+      class="absolute inset-0 z-5 h-full w-full rounded-[inherit] border-none bg-transparent px-8 font-body text-3xl tracking-[0.04em] text-white outline-none placeholder:text-white/40 focus:ring-0"
       id="liquid-input-field"
     />
   </div>
@@ -125,13 +136,19 @@ const inputR = 100;
       this.overlay = document.getElementById(
         "input-glass-overlay",
       ) as HTMLElement;
-      this.cloneInner = document.getElementById("input-clone-inner") as HTMLElement;
+      this.cloneInner = document.getElementById(
+        "input-clone-inner",
+      ) as HTMLElement;
       this.cloneWrapper = document.getElementById(
         "input-content-clone",
       ) as HTMLElement;
       this.demoArea = document.getElementById("input-demo-area") as HTMLElement;
-      this.realWorld = document.getElementById("input-real-world") as HTMLElement;
-      this.backgroundLayer = document.getElementById("input-background-layer") as HTMLElement;
+      this.realWorld = document.getElementById(
+        "input-real-world",
+      ) as HTMLElement;
+      this.backgroundLayer = document.getElementById(
+        "input-background-layer",
+      ) as HTMLElement;
       this.modal = document.getElementById("input-controls-modal");
       this.modalPanel = this.modal?.querySelector(
         "[data-input-modal-panel]",
@@ -177,8 +194,10 @@ const inputR = 100;
         this.springs.scaleX.velocity += this.controls.pulseX;
         this.springs.scaleY.velocity += this.controls.pulseY;
         this.springs.bgScale.velocity += 0.045;
-        this.springs.bgX.velocity += this.inputField.value.length % 2 === 0 ? 3.5 : -3.5;
-        this.springs.bgY.velocity += this.inputField.value.length % 2 === 0 ? -1.5 : 1.5;
+        this.springs.bgX.velocity +=
+          this.inputField.value.length % 2 === 0 ? 3.5 : -3.5;
+        this.springs.bgY.velocity +=
+          this.inputField.value.length % 2 === 0 ? -1.5 : 1.5;
         this.startLoop();
       });
       window.addEventListener("resize", () => {
@@ -321,7 +340,10 @@ const inputR = 100;
       this.container.style.transform = `scale(${s * sx}, ${s * sy})`;
       this.backgroundLayer.style.transform = `translate3d(${bgX}px, ${bgY}px, 0) scale(${bgScale})`;
       updateLiquidFilter("input-glass-filter", {
-        scale: this.config.maxDisp * this.controls.refraction * Math.max(bgScale, s * sx, s * sy),
+        scale:
+          this.config.maxDisp *
+          this.controls.refraction *
+          Math.max(bgScale, s * sx, s * sy),
       });
 
       this.updateClone();

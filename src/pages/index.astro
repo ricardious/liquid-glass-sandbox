@@ -242,11 +242,44 @@ import { projectLinks } from "../lib/site";
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "forceActive", label: "Force Active", type: "toggle", value: false },
-                { key: "refraction", label: "Refraction", min: 0, max: 1.4, step: 0.01, value: 1 },
-                { key: "blur", label: "Blur", min: 0, max: 3, step: 0.01, value: 0.2 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.5 },
-                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 6 },
+                {
+                  key: "forceActive",
+                  label: "Force Active",
+                  type: "toggle",
+                  value: false,
+                },
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0,
+                  max: 1.4,
+                  step: 0.01,
+                  value: 1,
+                },
+                {
+                  key: "blur",
+                  label: "Blur",
+                  min: 0,
+                  max: 3,
+                  step: 0.01,
+                  value: 0.2,
+                },
+                {
+                  key: "specularOpacity",
+                  label: "Specular",
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.5,
+                },
+                {
+                  key: "saturation",
+                  label: "Saturation",
+                  min: 0,
+                  max: 12,
+                  step: 0.1,
+                  value: 6,
+                },
               ]}
             />
           </ControlsModal>
@@ -285,13 +318,62 @@ import { projectLinks } from "../lib/site";
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "idleScale", label: "Idle Scale", min: 0.8, max: 1.4, step: 0.01, value: 1 },
-                { key: "hoverScale", label: "Hover Scale", min: 1, max: 2.2, step: 0.01, value: 1.6 },
-                { key: "pressScale", label: "Press Scale", min: 0.5, max: 1.1, step: 0.01, value: 0.7 },
-                { key: "refraction", label: "Refraction", min: 0.4, max: 2.2, step: 0.01, value: 1.5 },
-                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
-                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 7 },
+                {
+                  key: "idleScale",
+                  label: "Idle Scale",
+                  min: 0.8,
+                  max: 1.4,
+                  step: 0.01,
+                  value: 1,
+                },
+                {
+                  key: "hoverScale",
+                  label: "Hover Scale",
+                  min: 1,
+                  max: 2.2,
+                  step: 0.01,
+                  value: 1.6,
+                },
+                {
+                  key: "pressScale",
+                  label: "Press Scale",
+                  min: 0.5,
+                  max: 1.1,
+                  step: 0.01,
+                  value: 0.7,
+                },
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.4,
+                  max: 2.2,
+                  step: 0.01,
+                  value: 1.5,
+                },
+                {
+                  key: "blur",
+                  label: "Blur",
+                  min: 0,
+                  max: 2,
+                  step: 0.01,
+                  value: 0,
+                },
+                {
+                  key: "specularOpacity",
+                  label: "Specular",
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.75,
+                },
+                {
+                  key: "saturation",
+                  label: "Saturation",
+                  min: 0,
+                  max: 12,
+                  step: 0.1,
+                  value: 7,
+                },
               ]}
             />
           </ControlsModal>
@@ -321,13 +403,62 @@ import { projectLinks } from "../lib/site";
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "focusScale", label: "Focus Scale", min: 1, max: 1.2, step: 0.01, value: 1.05 },
-                { key: "refraction", label: "Refraction", min: 0.4, max: 2, step: 0.01, value: 1 },
-                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
-                { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 6 },
-                { key: "pulseX", label: "Type Pulse X", min: 0, max: 3, step: 0.1, value: 1.5 },
-                { key: "pulseY", label: "Type Pulse Y", min: -3, max: 0, step: 0.1, value: -1 },
+                {
+                  key: "focusScale",
+                  label: "Focus Scale",
+                  min: 1,
+                  max: 1.2,
+                  step: 0.01,
+                  value: 1.05,
+                },
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.4,
+                  max: 2,
+                  step: 0.01,
+                  value: 1,
+                },
+                {
+                  key: "blur",
+                  label: "Blur",
+                  min: 0,
+                  max: 2,
+                  step: 0.01,
+                  value: 0,
+                },
+                {
+                  key: "specularOpacity",
+                  label: "Specular",
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.75,
+                },
+                {
+                  key: "saturation",
+                  label: "Saturation",
+                  min: 0,
+                  max: 12,
+                  step: 0.1,
+                  value: 6,
+                },
+                {
+                  key: "pulseX",
+                  label: "Type Pulse X",
+                  min: 0,
+                  max: 3,
+                  step: 0.1,
+                  value: 1.5,
+                },
+                {
+                  key: "pulseY",
+                  label: "Type Pulse Y",
+                  min: -3,
+                  max: 0,
+                  step: 0.1,
+                  value: -1,
+                },
               ]}
             />
           </ControlsModal>
@@ -357,12 +488,54 @@ import { projectLinks } from "../lib/site";
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "menuLift", label: "Menu Lift", min: 72, max: 132, step: 1, value: 96 },
-                { key: "refraction", label: "Refraction", min: 0.3, max: 1.6, step: 0.01, value: 0.9 },
-                { key: "blur", label: "Blur", min: 0, max: 1.5, step: 0.01, value: 0.25 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
-                { key: "saturation", label: "Saturation", min: 0.5, max: 4, step: 0.01, value: 1.2 },
-                { key: "bounce", label: "Bounce", min: 0.5, max: 1.6, step: 0.01, value: 1 },
+                {
+                  key: "menuLift",
+                  label: "Menu Lift",
+                  min: 72,
+                  max: 132,
+                  step: 1,
+                  value: 96,
+                },
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.3,
+                  max: 1.6,
+                  step: 0.01,
+                  value: 0.9,
+                },
+                {
+                  key: "blur",
+                  label: "Blur",
+                  min: 0,
+                  max: 1.5,
+                  step: 0.01,
+                  value: 0.25,
+                },
+                {
+                  key: "specularOpacity",
+                  label: "Specular",
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.75,
+                },
+                {
+                  key: "saturation",
+                  label: "Saturation",
+                  min: 0.5,
+                  max: 4,
+                  step: 0.01,
+                  value: 1.2,
+                },
+                {
+                  key: "bounce",
+                  label: "Bounce",
+                  min: 0.5,
+                  max: 1.6,
+                  step: 0.01,
+                  value: 1,
+                },
               ]}
             />
           </ControlsModal>
@@ -392,12 +565,54 @@ import { projectLinks } from "../lib/site";
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "hoverScale", label: "Hover Scale", min: 1, max: 1.08, step: 0.01, value: 1.02 },
-                { key: "refraction", label: "Refraction", min: 0.2, max: 1.2, step: 0.01, value: 0.5 },
-                { key: "tilt", label: "Tilt", min: 0.01, max: 0.08, step: 0.005, value: 0.05 },
-                { key: "blur", label: "Blur", min: 0, max: 2, step: 0.01, value: 0 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.6 },
-                { key: "saturation", label: "Saturation", min: 0.5, max: 4, step: 0.01, value: 1.2 },
+                {
+                  key: "hoverScale",
+                  label: "Hover Scale",
+                  min: 1,
+                  max: 1.08,
+                  step: 0.01,
+                  value: 1.02,
+                },
+                {
+                  key: "refraction",
+                  label: "Refraction",
+                  min: 0.2,
+                  max: 1.2,
+                  step: 0.01,
+                  value: 0.5,
+                },
+                {
+                  key: "tilt",
+                  label: "Tilt",
+                  min: 0.01,
+                  max: 0.08,
+                  step: 0.005,
+                  value: 0.05,
+                },
+                {
+                  key: "blur",
+                  label: "Blur",
+                  min: 0,
+                  max: 2,
+                  step: 0.01,
+                  value: 0,
+                },
+                {
+                  key: "specularOpacity",
+                  label: "Specular",
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  value: 0.6,
+                },
+                {
+                  key: "saturation",
+                  label: "Saturation",
+                  min: 0.5,
+                  max: 4,
+                  step: 0.01,
+                  value: 1.2,
+                },
               ]}
             />
           </ControlsModal>

@@ -66,12 +66,7 @@ const panelOpenOffsetClass =
         : "translate-y-[0.75rem]";
 ---
 
-<div
-  class={cn(
-    "relative z-[9999] inline-flex",
-    containerClassName,
-  )}
->
+<div class={cn("relative z-9999 inline-flex", containerClassName)}>
   {
     triggerLabel && (
       <button
@@ -90,7 +85,7 @@ const panelOpenOffsetClass =
   <div
     id={id}
     class={cn(
-      "pointer-events-none absolute z-[9999] min-w-0 opacity-0 transition duration-200",
+      "pointer-events-none absolute z-9999 min-w-0 opacity-0 transition duration-200",
       panelPositionClass,
       panelAlignClass,
       panelClassName,

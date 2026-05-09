@@ -13,41 +13,36 @@ const cursorR = 45;
 >
   <div
     id="cursor-real-world"
-    class="absolute inset-4 flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-[length:400px] bg-center bg-repeat pointer-events-none sm:inset-8"
+    class="absolute inset-4 flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-size-[400px] bg-center bg-repeat pointer-events-none sm:inset-8"
     style={`background-image: url(${flowers.src});`}
   >
     <h3
-      class="z-[5] font-display text-5xl leading-none tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-7xl"
+      class="z-5 font-display text-5xl leading-none tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-7xl"
     >
       Liquid Space
     </h3>
     <button
-      class="cursor-hover-btn z-[5] mt-6 rounded-full border border-white/15 bg-white/10 px-8 py-4 font-display text-2xl leading-none text-white shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md cursor-none"
-      id="cursorHoverBtn"
-      >Hover Me</button
+      class="cursor-hover-btn z-5 mt-6 rounded-full border border-white/15 bg-white/10 px-8 py-4 font-display text-2xl leading-none text-white shadow-[0_10px_20px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md cursor-none"
+      id="cursorHoverBtn">Hover Me</button
     >
   </div>
 
   <div
-    class="absolute left-0 top-0 z-50 overflow-hidden opacity-0 transition-opacity duration-300 pointer-events-none will-change-transform [width:var(--cursor-size)] [height:var(--cursor-size)] rounded-[var(--cursor-radius)]"
+    class="absolute left-0 top-0 z-50 overflow-hidden opacity-0 transition-opacity duration-300 pointer-events-none will-change-transform w-(--cursor-size) h-(--cursor-size) rounded-(--cursor-radius)"
     id="liquid-cursor"
     style={`--cursor-size:${cursorSize}px; --cursor-radius:${cursorR}px;`}
   >
     <div
       id="cursor-content-clone"
-      class="glass-clone-wrap rounded-[var(--cursor-radius)]"
+      class="glass-clone-wrap rounded-(--cursor-radius)"
     >
-      <div
-        id="cursor-clone-inner"
-        class="glass-clone-inner bg-[#050508]"
-      >
-      </div>
+      <div id="cursor-clone-inner" class="glass-clone-inner bg-[#050508]"></div>
     </div>
 
     <SvgFilter filterId={filterId} width={cursorSize} height={cursorSize} />
 
     <div
-      class="glass-inner-overlay rounded-[var(--cursor-radius)] border border-white/15 bg-white/[0.03] shadow-[0_8px_20px_rgba(0,0,0,0.15),inset_0_4px_12px_rgba(255,255,255,0.2),inset_0_-4px_12px_rgba(0,0,0,0.5)]"
+      class="glass-inner-overlay rounded-(--cursor-radius) border border-white/15 bg-white/3 shadow-[0_8px_20px_rgba(0,0,0,0.15),inset_0_4px_12px_rgba(255,255,255,0.2),inset_0_-4px_12px_rgba(0,0,0,0.5)]"
       id="cursor-inner"
     >
     </div>
@@ -267,8 +262,12 @@ const cursorR = 45;
       const areaRect = this.demoArea.getBoundingClientRect();
       this.springs.x.setTarget(this.state.mx);
       this.springs.y.setTarget(this.state.my);
-      this.springs.bgx.setTarget(((this.state.mx / Math.max(areaRect.width, 1)) - 0.5) * 28);
-      this.springs.bgy.setTarget(((this.state.my / Math.max(areaRect.height, 1)) - 0.5) * 28);
+      this.springs.bgx.setTarget(
+        (this.state.mx / Math.max(areaRect.width, 1) - 0.5) * 28,
+      );
+      this.springs.bgy.setTarget(
+        (this.state.my / Math.max(areaRect.height, 1) - 0.5) * 28,
+      );
 
       if (this.state.ip) {
         this.springs.sc.setTarget(this.controls.pressScale);

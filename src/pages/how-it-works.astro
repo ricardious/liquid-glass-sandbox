@@ -145,7 +145,9 @@ const pipeline = [
           >
             Generated Maps
           </h2>
-          <div class="mt-5 space-y-5 text-sm leading-7 text-gray-600 dark:text-gray-400">
+          <div
+            class="mt-5 space-y-5 text-sm leading-7 text-gray-600 dark:text-gray-400"
+          >
             <div>
               <h3 class="font-medium text-gray-900 dark:text-white">
                 Displacement Map
@@ -155,12 +157,14 @@ const pipeline = [
                 directional offset. That map is what bends the cloned scene
                 through the SVG displacement filter.
               </p>
-              <div class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#f7f4ee] p-4 dark:border-gray-700 dark:bg-[#0f1217]">
-                <div class="mx-auto w-full max-w-[22rem]">
+              <div
+                class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#f7f4ee] p-4 dark:border-gray-700 dark:bg-[#0f1217]"
+              >
+                <div class="mx-auto w-full max-w-88">
                   <img
                     id="how-displacement-map"
                     alt="Generated displacement map preview"
-                    class="block aspect-[14/9] w-full rounded-2xl object-cover"
+                    class="block aspect-14/9 w-full rounded-2xl object-cover"
                   />
                 </div>
               </div>
@@ -174,12 +178,14 @@ const pipeline = [
                 response. Blending it back on top is what makes the glass read
                 as polished instead of just distorted.
               </p>
-              <div class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#13161b] p-4 dark:border-gray-700 dark:bg-[#090b0f]">
-                <div class="mx-auto w-full max-w-[22rem]">
+              <div
+                class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#13161b] p-4 dark:border-gray-700 dark:bg-[#090b0f]"
+              >
+                <div class="mx-auto w-full max-w-88">
                   <img
                     id="how-specular-map"
                     alt="Generated specular highlight preview"
-                    class="block aspect-[14/9] w-full rounded-2xl object-cover"
+                    class="block aspect-14/9 w-full rounded-2xl object-cover"
                   />
                 </div>
               </div>
@@ -212,7 +218,6 @@ const pipeline = [
             finish.
           </p>
         </article>
-
       </section>
     </main>
   </div>
