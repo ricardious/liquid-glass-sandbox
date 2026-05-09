@@ -1,0 +1,129 @@
+---
+import { cn } from "../../lib/utils";
+
+interface ControlItem {
+  key: string;
+  label: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  value?: number | string;
+  type?: "range" | "segmented" | "toggle";
+  options?: Array<{ value: string; label: string }>;
+}
+
+interface Props {
+  title?: string;
+  target: string;
+  controls: ControlItem[];
+  compact?: boolean;
+  className?: string;
+}
+
+const {
+  title = "Liquid Parameters",
+  target,
+  controls,
+  compact = false,
+  className = "",
+} = Astro.props;
+---
+
+<div
+  class={cn(
+    "min-w-0 rounded-2xl border border-black/10 bg-white/75 p-3 shadow-sm backdrop-blur-sm sm:p-4 dark:border-white/10 dark:bg-white/5",
+    compact ? "mt-4 w-full max-w-md" : "mt-6 w-full",
+    className,
+  )}
+  data-liquid-controls={target}
+>
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <span class="text-[10px] font-semibold uppercase tracking-[0.28em] text-zinc-500 dark:text-zinc-400">
+      {title}
+    </span>
+    <button
+      type="button"
+      class="rounded-lg border border-black/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500 transition hover:bg-black/5 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/10"
+      data-liquid-reset
+    >
+      Reset
+    </button>
+  </div>
+
+  <div class="space-y-3">
+    {
+      controls.map((control) => (
+        <div class="space-y-2" data-liquid-control={control.key}>
+          {control.type === "segmented" ? (
+            <>
+              <div class="flex items-center justify-between gap-3 min-w-0">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                  {control.label}
+                </span>
+                <span
+                  class="hidden font-mono text-[10px] text-zinc-500 sm:block dark:text-zinc-400"
+                  data-liquid-value
+                >
+                  {String(control.value ?? "")}
+                </span>
+              </div>
+              <div class="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-2 xl:grid-cols-4">
+                {control.options?.map((option) => (
+                  <button
+                    type="button"
+                    class:list={[
+                      "min-w-0 rounded-lg border px-2 py-1.5 text-[9px] font-medium leading-tight tracking-[0.08em] transition sm:text-[10px]",
+                      option.value === control.value
+                        ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-black"
+                        : "border-black/10 text-zinc-500 hover:bg-black/5 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/10",
+                    ]}
+                    data-liquid-option={option.value}
+                  >
+                    <span class="block truncate">{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : control.type === "toggle" ? (
+            <label class="flex items-center justify-between gap-3">
+              <span class="text-[10px] uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                {control.label}
+              </span>
+              <input
+                type="checkbox"
+                checked={Boolean(control.value)}
+                class="size-4 accent-zinc-900 dark:accent-white"
+                data-liquid-input
+                data-default-value={String(Boolean(control.value))}
+              />
+            </label>
+          ) : (
+            <>
+              <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+                <span class="text-[10px] uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+                  {control.label}
+                </span>
+                <span
+                  class="font-mono text-[10px] text-zinc-500 dark:text-zinc-400"
+                  data-liquid-value
+                >
+                  {String(control.value ?? "")}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={control.min}
+                max={control.max}
+                step={control.step ?? 0.01}
+                value={control.value}
+                class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-black/10 accent-zinc-900 dark:bg-white/10 dark:accent-white"
+                data-liquid-input
+                data-default-value={String(control.value ?? "")}
+              />
+            </>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</div>
