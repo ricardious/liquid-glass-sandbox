@@ -1,5 +1,5 @@
 ---
-import flowers from "@assets/orchid-tropical-pattern-light.webp";
+import flowers from "@assets/botanical-bloom-pattern-magenta.webp";
 import SvgFilter from "@components/atoms/SvgFilter.astro";
 
 const filterId = "cursor-glass-filter";
@@ -13,8 +13,8 @@ const cursorR = 45;
 >
   <div
     id="cursor-real-world"
-    class="absolute inset-4 flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-size-[400px] bg-center bg-repeat pointer-events-none sm:inset-8"
-    style={`background-image: url(${flowers.src});`}
+    class="absolute inset-4 flex flex-col items-center justify-center overflow-hidden rounded-3xl bg-[#091119] bg-center bg-no-repeat pointer-events-none sm:inset-8"
+    style={`background-image: url(${flowers.src}); background-size: 118%;`}
   >
     <h3
       class="z-5 font-display text-5xl leading-none tracking-tight text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] md:text-7xl"
