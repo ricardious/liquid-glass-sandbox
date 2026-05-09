@@ -1,0 +1,412 @@
+---
+import SvgFilter from "../atoms/SvgFilter.astro";
+import backgroundImage from "../../assets/tropical-floral-pattern-dark.webp";
+import arrowRight from "../../assets/arrow_right.svg";
+
+const buttonFilterId = "fab-button-glass-filter";
+const menuFilterId = "fab-menu-glass-filter";
+
+const buttonSize = 72;
+const buttonRadius = 36;
+const menuWidth = 72;
+const menuHeight = 176;
+const menuRadius = 36;
+---
+
+<div class="relative h-full min-h-[600px] w-full overflow-hidden p-4 sm:p-8" id="fab-demo-area">
+  <div
+    id="fab-real-world"
+    class="absolute inset-4 overflow-hidden rounded-3xl bg-[#08121d] bg-cover bg-center pointer-events-none sm:inset-8"
+    style={`background-image: url(${backgroundImage.src});`}
+  >
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.16),transparent_22%),radial-gradient(circle_at_82%_78%,rgba(82,157,255,0.18),transparent_24%),linear-gradient(180deg,rgba(5,8,12,0.18),rgba(5,8,12,0.68))]"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span class="font-display text-[18vw] leading-none tracking-[-0.06em] text-white/6">MENU</span>
+    </div>
+  </div>
+
+  <div class="relative z-10 flex h-full items-end justify-end p-4 sm:p-8">
+    <div class="pointer-events-none absolute bottom-[176px] right-[218px] z-10 hidden sm:block">
+      <span class="font-display text-[1.2rem] font-black tracking-[0.02em] text-white/88 [text-shadow:0_0_1px_rgba(255,255,255,0.92),0_0_1px_rgba(255,255,255,0.92),0_8px_18px_rgba(0,0,0,0.28)]">
+        Layered FAB
+      </span>
+    </div>
+    <img
+      src={arrowRight.src}
+      alt=""
+      aria-hidden="true"
+      class="pointer-events-none absolute bottom-[82px] right-[96px] z-10 hidden w-[180px] opacity-85 invert sm:block"
+    />
+    <div
+      id="layered-fab"
+      data-controls="fab-controls"
+      class="relative flex h-[280px] w-[180px] items-end justify-end"
+    >
+      <div
+        id="fab-menu"
+        class="absolute bottom-[96px] right-0 overflow-hidden"
+        style={`width: ${menuWidth}px; height: ${menuHeight}px; border-radius: ${menuRadius}px;`}
+      >
+        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+          <div id="fab-menu-clone" class="glass-clone-wrap absolute inset-0 rounded-[inherit]">
+            <div id="fab-menu-clone-inner" class="glass-clone-inner absolute inset-0"></div>
+          </div>
+        </div>
+
+        <SvgFilter
+          filterId={menuFilterId}
+          width={menuWidth}
+          height={menuHeight}
+          blurStdDev={0.35}
+          saturation={1.2}
+          specularAlpha={0.7}
+        />
+
+        <div
+          id="fab-menu-surface"
+          class="glass-inner-overlay rounded-[inherit] border border-white/15 bg-white/7 shadow-[0_20px_50px_rgba(0,0,0,0.45),inset_0_2px_10px_rgba(255,255,255,0.18)]"
+        ></div>
+
+        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4">
+          <button type="button" class="fab-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+            </svg>
+          </button>
+          <button type="button" class="fab-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <path d="M7 10l5-5 5 5"></path>
+              <path d="M12 5v12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button
+        id="fab-trigger"
+        type="button"
+        class="absolute bottom-0 right-0 overflow-hidden"
+        style={`width: ${buttonSize}px; height: ${buttonSize}px; border-radius: ${buttonRadius}px;`}
+        aria-label="Toggle fab menu"
+      >
+        <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+          <div id="fab-button-clone" class="glass-clone-wrap absolute inset-0 rounded-[inherit]">
+            <div id="fab-button-clone-inner" class="glass-clone-inner absolute inset-0"></div>
+          </div>
+        </div>
+
+        <SvgFilter
+          filterId={buttonFilterId}
+          width={buttonSize}
+          height={buttonSize}
+          blurStdDev={0.25}
+          saturation={1.2}
+          specularAlpha={0.8}
+        />
+
+        <div
+          id="fab-button-surface"
+          class="glass-inner-overlay rounded-[inherit] border border-white/20 bg-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.52),inset_0_3px_10px_rgba(255,255,255,0.2)]"
+        ></div>
+
+        <span class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-[5px]">
+          <span class="fab-toggle-line fab-toggle-line--top"></span>
+          <span class="fab-toggle-line fab-toggle-line--bottom"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fab-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .fab-icon:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(1.04);
+  }
+
+  .fab-icon svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fab-toggle-line {
+    width: 22px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+</style>
+
+<script>
+  import { Spring } from "../../quarks/spring";
+  import {
+    applyLiquidAssets,
+    bindLiquidControls,
+    createLiquidAssets,
+    syncCloneContent,
+    updateLiquidFilter,
+  } from "../../quarks/liquidGlassEngine";
+
+  class LayeredFabExhibit {
+    private area: HTMLElement;
+    private realWorld: HTMLElement;
+    private wrapper: HTMLElement;
+    private trigger: HTMLButtonElement;
+    private menu: HTMLElement;
+    private buttonCloneInner: HTMLElement;
+    private menuCloneInner: HTMLElement;
+    private buttonClone: HTMLElement;
+    private menuClone: HTMLElement;
+    private topLine: HTMLElement;
+    private bottomLine: HTMLElement;
+    private modal: HTMLElement | null;
+    private modalPanel: HTMLElement | null;
+    private modalSurface: HTMLElement | null;
+
+    private controls = {
+      menuLift: 96,
+      refraction: 0.9,
+      blur: 0.25,
+      specularOpacity: 0.75,
+      saturation: 1.2,
+      bounce: 1,
+    };
+
+    private state = {
+      open: false,
+      buttonMaxDisp: 0,
+      menuMaxDisp: 0,
+    };
+
+    private springs = {
+      menuScale: new Spring(0.46, 360, 26),
+      menuY: new Spring(44, 360, 26),
+      menuOpacity: new Spring(0, 260, 24),
+      buttonScale: new Spring(1, 420, 22),
+      buttonY: new Spring(0, 420, 22),
+      lineRotate: new Spring(0, 420, 30),
+    };
+
+    private af: number | null = null;
+
+    constructor() {
+      this.area = document.getElementById("fab-demo-area") as HTMLElement;
+      this.realWorld = document.getElementById("fab-real-world") as HTMLElement;
+      this.wrapper = document.getElementById("layered-fab") as HTMLElement;
+      this.trigger = document.getElementById("fab-trigger") as HTMLButtonElement;
+      this.menu = document.getElementById("fab-menu") as HTMLElement;
+      this.buttonCloneInner = document.getElementById("fab-button-clone-inner") as HTMLElement;
+      this.menuCloneInner = document.getElementById("fab-menu-clone-inner") as HTMLElement;
+      this.buttonClone = document.getElementById("fab-button-clone") as HTMLElement;
+      this.menuClone = document.getElementById("fab-menu-clone") as HTMLElement;
+      this.topLine = document.querySelector(".fab-toggle-line--top") as HTMLElement;
+      this.bottomLine = document.querySelector(".fab-toggle-line--bottom") as HTMLElement;
+      this.modal = document.getElementById("fab-controls-modal");
+      this.modalPanel = this.modal?.querySelector(
+        "[data-fab-modal-panel]",
+      ) as HTMLElement | null;
+      this.modalSurface = this.modal?.querySelector(
+        "[data-modal-surface]",
+      ) as HTMLElement | null;
+
+      if (!this.trigger) return;
+      this.init();
+    }
+
+    private init() {
+      syncCloneContent(this.buttonCloneInner, this.realWorld);
+      syncCloneContent(this.menuCloneInner, this.realWorld);
+
+      const buttonAssets = createLiquidAssets({
+        width: 72,
+        height: 72,
+        radius: 36,
+        bezelWidth: 20,
+        glassThickness: 100,
+        refractiveIndex: 1.8,
+      });
+      this.state.buttonMaxDisp = buttonAssets.maximumDisplacement;
+      applyLiquidAssets("fab-button-glass-filter", buttonAssets);
+
+      const menuAssets = createLiquidAssets({
+        width: 72,
+        height: 176,
+        radius: 36,
+        bezelWidth: 20,
+        glassThickness: 100,
+        refractiveIndex: 1.8,
+      });
+      this.state.menuMaxDisp = menuAssets.maximumDisplacement;
+      applyLiquidAssets("fab-menu-glass-filter", menuAssets);
+
+      this.buttonClone.style.filter = "url(#fab-button-glass-filter)";
+      this.menuClone.style.filter = "url(#fab-menu-glass-filter)";
+      this.syncFilterTuning();
+      this.bindControls();
+      this.bindModal();
+      this.bindInteractions();
+      this.updateClones();
+      this.startLoop();
+    }
+
+    private bindInteractions() {
+      this.trigger.addEventListener("click", () => {
+        this.state.open = !this.state.open;
+        this.springs.buttonScale.velocity -= 2.8 * this.controls.bounce;
+        this.startLoop();
+      });
+      window.addEventListener("resize", () => {
+        this.updateClones();
+        this.startLoop();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") this.setModal(false);
+      });
+    }
+
+    private bindControls() {
+      bindLiquidControls(
+        this.wrapper,
+        this.controls,
+        () => {
+          this.syncFilterTuning();
+          this.startLoop();
+        },
+        () => {
+          Object.assign(this.controls, {
+            menuLift: 96,
+            refraction: 0.9,
+            blur: 0.25,
+            specularOpacity: 0.75,
+            saturation: 1.2,
+            bounce: 1,
+          });
+          this.syncFilterTuning();
+          this.startLoop();
+        },
+      );
+    }
+
+    private bindModal() {
+      document
+        .querySelector("[data-open-fab-controls]")
+        ?.addEventListener("click", () => this.setModal(true));
+      this.modal
+        ?.querySelector("[data-close-fab-controls]")
+        ?.addEventListener("click", () => this.setModal(false));
+    }
+
+    private setModal(open: boolean) {
+      if (!this.modal || !this.modalPanel) return;
+      const hiddenOffsetClass =
+        this.modalPanel.dataset.modalOffsetClass ?? "translate-y-[0.75rem]";
+      this.modal.classList.toggle("pointer-events-none", !open);
+      this.modal.classList.toggle("opacity-0", !open);
+      this.modalPanel.classList.toggle(hiddenOffsetClass, !open);
+      this.modalSurface?.classList.toggle("pointer-events-auto", open);
+      this.modalSurface?.classList.toggle("pointer-events-none", !open);
+    }
+
+    private syncFilterTuning() {
+      const shared = {
+        blurStdDev: this.controls.blur,
+        saturation: this.controls.saturation,
+        specularAlpha: this.controls.specularOpacity,
+      };
+      updateLiquidFilter("fab-button-glass-filter", {
+        ...shared,
+        scale: this.state.buttonMaxDisp * this.controls.refraction,
+      });
+      updateLiquidFilter("fab-menu-glass-filter", {
+        ...shared,
+        scale: this.state.menuMaxDisp * this.controls.refraction,
+      });
+    }
+
+    private updateClones() {
+      const areaRect = this.area.getBoundingClientRect();
+      const buttonRect = this.trigger.getBoundingClientRect();
+      const menuRect = this.menu.getBoundingClientRect();
+
+      const applyClone = (target: HTMLElement, rect: DOMRect) => {
+        const offsetX = rect.left - areaRect.left;
+        const offsetY = rect.top - areaRect.top;
+        target.style.width = areaRect.width + "px";
+        target.style.height = areaRect.height + "px";
+        target.style.transform = `translate(${-offsetX}px, ${-offsetY}px)`;
+      };
+
+      applyClone(this.buttonCloneInner, buttonRect);
+      applyClone(this.menuCloneInner, menuRect);
+    }
+
+    private loop = () => {
+      const dt = Math.min(0.032, 1 / 60);
+
+      this.springs.menuScale.setTarget(this.state.open ? 1 : 0.46);
+      this.springs.menuY.setTarget(this.state.open ? 0 : 44);
+      this.springs.menuOpacity.setTarget(this.state.open ? 1 : 0);
+      this.springs.buttonScale.setTarget(this.state.open ? 0.94 : 1);
+      this.springs.buttonY.setTarget(this.state.open ? 8 : 0);
+      this.springs.lineRotate.setTarget(this.state.open ? 1 : 0);
+
+      const menuScale = this.springs.menuScale.update(dt);
+      const menuY = this.springs.menuY.update(dt);
+      const menuOpacity = this.springs.menuOpacity.update(dt);
+      const buttonScale = this.springs.buttonScale.update(dt);
+      const buttonY = this.springs.buttonY.update(dt);
+      const lineRotate = this.springs.lineRotate.update(dt);
+
+      this.menu.style.transform = `translateY(${menuY - this.controls.menuLift + 96}px) scale(${menuScale})`;
+      this.menu.style.opacity = String(Math.max(0, menuOpacity));
+      this.trigger.style.transform = `translateY(${buttonY}px) scale(${buttonScale})`;
+
+      this.topLine.style.transform = `translateY(${4 * lineRotate}px) rotate(${45 * lineRotate}deg)`;
+      this.bottomLine.style.transform = `translateY(${-4 * lineRotate}px) rotate(${-45 * lineRotate}deg)`;
+
+      this.updateClones();
+
+      if (
+        !this.springs.menuScale.isSettled() ||
+        !this.springs.menuY.isSettled() ||
+        !this.springs.menuOpacity.isSettled() ||
+        !this.springs.buttonScale.isSettled() ||
+        !this.springs.buttonY.isSettled() ||
+        !this.springs.lineRotate.isSettled()
+      ) {
+        this.af = requestAnimationFrame(this.loop);
+      } else {
+        this.af = null;
+      }
+    };
+
+    private startLoop() {
+      if (!this.af) this.af = requestAnimationFrame(this.loop);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    new LayeredFabExhibit();
+  });
+</script>

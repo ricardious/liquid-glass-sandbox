@@ -10,7 +10,7 @@ import SliderExhibit from "../components/organisms/SliderExhibit.astro";
 import CursorExhibit from "../components/organisms/CursorExhibit.astro";
 import InputExhibit from "../components/organisms/InputExhibit.astro";
 
-import ClockExhibit from "../components/organisms/ClockExhibit.astro";
+import LayeredFabExhibit from "../components/organisms/LayeredFabExhibit.astro";
 import CreditCardExhibit from "../components/organisms/CreditCardExhibit.astro";
 import TopNav from "../components/molecules/TopNav.astro";
 import { projectLinks } from "../lib/site";
@@ -336,36 +336,37 @@ import { projectLinks } from "../lib/site";
 
         <ExhibitCard
           number="07"
-          title="Glass Clock"
-          description="An analog clock with liquid glass effect replacing backdrop blur."
+          title="Layered FAB"
+          description="A floating action button whose stacked glass pieces push and settle against each other."
           span="col-span-12 md:col-span-6"
         >
           <ControlsModal
             slot="actions"
-            id="clock-controls-modal"
-            title="Clock Parameters"
-            panelDataAttr="data-clock-modal-panel"
-            closeDataAttr="data-close-clock-controls"
-            triggerDataAttr="data-open-clock-controls"
+            id="fab-controls-modal"
+            title="FAB Parameters"
+            panelDataAttr="data-fab-modal-panel"
+            closeDataAttr="data-close-fab-controls"
+            triggerDataAttr="data-open-fab-controls"
             triggerLabel="Parameters"
             panelSide="bottom"
             panelAlign="end"
           >
             <LiquidControls
-              title="Clock Controls"
-              target="clock-controls"
+              title="FAB Controls"
+              target="fab-controls"
               compact={true}
               className="mt-0! max-w-none border-transparent bg-transparent shadow-none"
               controls={[
-                { key: "hoverScale", label: "Hover Scale", min: 1, max: 1.12, step: 0.01, value: 1.03 },
-                { key: "refraction", label: "Refraction", min: 0.2, max: 1.4, step: 0.01, value: 0.55 },
-                { key: "blur", label: "Blur", min: 0, max: 1.5, step: 0.01, value: 0.1 },
-                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.55 },
+                { key: "menuLift", label: "Menu Lift", min: 72, max: 132, step: 1, value: 96 },
+                { key: "refraction", label: "Refraction", min: 0.3, max: 1.6, step: 0.01, value: 0.9 },
+                { key: "blur", label: "Blur", min: 0, max: 1.5, step: 0.01, value: 0.25 },
+                { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.75 },
                 { key: "saturation", label: "Saturation", min: 0.5, max: 4, step: 0.01, value: 1.2 },
+                { key: "bounce", label: "Bounce", min: 0.5, max: 1.6, step: 0.01, value: 1 },
               ]}
             />
           </ControlsModal>
-          <ClockExhibit />
+          <LayeredFabExhibit />
         </ExhibitCard>
 
         <ExhibitCard
