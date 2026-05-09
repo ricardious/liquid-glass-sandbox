@@ -1,36 +1,59 @@
 ---
 import SvgFilter from "../atoms/SvgFilter.astro";
+import flowers from "../../assets/botanical-monochrome-pattern.webp";
 
 const filterId = "input-glass-filter";
+const inputW = 340;
+const inputH = 60;
+const inputR = 100;
 ---
 
-<div class="relative w-full h-full flex flex-col items-center justify-center p-8 bg-gray-100 dark:bg-[#0f0f0f]" id="input-demo-area">
-  
-  <!-- Real World Background (ambient elements that will be refracted) -->
-  <div id="input-real-world" class="absolute inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05)_100%)] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_25%,rgba(255,255,255,0.02)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.02)_75%,rgba(255,255,255,0.02)_100%)] bg-[length:40px_40px]"></div>
-    
-    <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 dark:bg-blue-600/30 rounded-full blur-xl mix-blend-multiply"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-40 h-40 bg-purple-500/20 dark:bg-purple-600/30 rounded-full blur-xl mix-blend-multiply"></div>
+<div
+  class="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gray-100 p-8 dark:bg-[#0f0f0f]"
+  id="input-demo-area"
+>
+  <div
+    id="input-real-world"
+    class="absolute inset-4 overflow-hidden rounded-3xl bg-[#0b1016] pointer-events-none sm:inset-8"
+  >
+    <div
+      id="input-background-layer"
+      class="absolute inset-0 bg-cover bg-center"
+      style={`background-image: url(${flowers.src});`}
+    ></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.12),transparent_20%),linear-gradient(180deg,rgba(6,10,15,0.28),rgba(8,12,16,0.68))]"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:30px_30px] opacity-25"></div>
   </div>
 
-  <SvgFilter filterId={filterId} />
+  <SvgFilter filterId={filterId} width={inputW} height={inputH} />
 
-  <!-- The Glass Input Field -->
-  <div class="relative w-full max-w-sm h-16 z-10" id="liquid-input-container">
-    
-    <div id="input-content-clone" class="absolute inset-0 overflow-hidden rounded-xl z-[1] will-change-filter" style={`filter: url(#${filterId})`}>
-      <div id="input-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-gray-100 dark:bg-[#0f0f0f]">
-         <!-- JS will inject the clone here -->
+  <div
+    class="relative z-10 w-[340px] max-w-full will-change-transform"
+    id="liquid-input-container"
+    data-controls="input-controls"
+    style={`height:${inputH}px; border-radius:${inputR}px;`}
+  >
+    <div class="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none">
+      <div
+        id="input-content-clone"
+        class="glass-clone-wrap absolute inset-0 rounded-[inherit]"
+      >
+        <div
+          id="input-clone-inner"
+          class="glass-clone-inner absolute inset-0 bg-gray-100 dark:bg-[#0f0f0f]"
+        ></div>
       </div>
     </div>
-    
-    <div class="absolute inset-0 z-[2] rounded-xl border border-white/50 dark:border-white/20 bg-white/30 dark:bg-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-300" id="input-glass-overlay"></div>
-    
-    <input 
-      type="text" 
-      placeholder="Type something..." 
-      class="absolute inset-0 z-[3] w-full h-full bg-transparent border-none outline-none px-6 text-gray-900 dark:text-white font-medium placeholder-gray-500/70 dark:placeholder-gray-400 focus:ring-0"
+
+    <div
+      class="glass-inner-overlay pointer-events-none absolute inset-0 rounded-[inherit] border border-white/10 bg-black/20 shadow-[inset_0_4px_10px_rgba(0,0,0,0.5),0_20px_40px_rgba(0,0,0,0.4)] transition-[box-shadow,border-color] duration-300"
+      id="input-glass-overlay"
+    ></div>
+
+    <input
+      type="text"
+      placeholder="Provide input..."
+      class="absolute inset-0 z-[5] h-full w-full rounded-[inherit] border-none bg-transparent px-8 font-body text-3xl tracking-[0.04em] text-white outline-none placeholder:text-white/40 focus:ring-0"
       id="liquid-input-field"
     />
   </div>
@@ -38,163 +61,272 @@ const filterId = "input-glass-filter";
 
 <script>
   import { Spring } from "../../quarks/spring";
-  import { SurfaceEquations } from "../../quarks/surfaceEquations";
   import {
-    calculateDisplacementMap1D,
-    calculateDisplacementMap2D,
-    calculateSpecularHighlight,
-    imageDataToDataURL,
-  } from "../../quarks/surfaceRenderer";
+    applyLiquidAssets,
+    bindLiquidControls,
+    createLiquidAssets,
+    syncCloneContent,
+    updateLiquidFilter,
+  } from "../../quarks/liquidGlassEngine";
 
   class InputExhibit {
     private container: HTMLElement;
     private inputField: HTMLInputElement;
     private overlay: HTMLElement;
     private cloneInner: HTMLElement;
+    private cloneWrapper: HTMLElement;
     private demoArea: HTMLElement;
     private realWorld: HTMLElement;
-    
-    private config = { w: 384, h: 64, bw: 12, gt: 40, r: 12, ri: 1.4, maxDisp: 0 };
-    private state = { isFocused: false, isTyping: false };
-    
+    private backgroundLayer: HTMLElement;
+    private modal: HTMLElement | null;
+    private modalPanel: HTMLElement | null;
+    private modalSurface: HTMLElement | null;
+
+    private config = {
+      w: 340,
+      h: 60,
+      bw: 15,
+      gt: 60,
+      r: 30,
+      ri: 1.5,
+      maxDisp: 0,
+    };
+
+    private controls = {
+      focusScale: 1.04,
+      refraction: 1,
+      blur: 0,
+      specularOpacity: 0.75,
+      saturation: 6,
+      pulseX: 1,
+      pulseY: -0.45,
+    };
+
+    private state = { isFocused: false, modalOpen: false };
+
     private springs = {
       scale: new Spring(1, 400, 25),
-      dispScale: new Spring(1, 300, 20),
-      shake: new Spring(0, 600, 15) // For typing impact
+      scaleX: new Spring(1, 280, 18),
+      scaleY: new Spring(1, 280, 18),
+      bgScale: new Spring(1.03, 260, 18),
+      bgX: new Spring(0, 220, 16),
+      bgY: new Spring(0, 220, 16),
     };
-    
+
     private af: number | null = null;
-    private typingTimeout: any = null;
 
     constructor() {
-      this.container = document.getElementById('liquid-input-container') as HTMLElement;
-      this.inputField = document.getElementById('liquid-input-field') as HTMLInputElement;
-      this.overlay = document.getElementById('input-glass-overlay') as HTMLElement;
-      this.cloneInner = document.getElementById('input-clone-inner') as HTMLElement;
-      this.demoArea = document.getElementById('input-demo-area') as HTMLElement;
-      this.realWorld = document.getElementById('input-real-world') as HTMLElement;
+      this.container = document.getElementById(
+        "liquid-input-container",
+      ) as HTMLElement;
+      this.inputField = document.getElementById(
+        "liquid-input-field",
+      ) as HTMLInputElement;
+      this.overlay = document.getElementById(
+        "input-glass-overlay",
+      ) as HTMLElement;
+      this.cloneInner = document.getElementById("input-clone-inner") as HTMLElement;
+      this.cloneWrapper = document.getElementById(
+        "input-content-clone",
+      ) as HTMLElement;
+      this.demoArea = document.getElementById("input-demo-area") as HTMLElement;
+      this.realWorld = document.getElementById("input-real-world") as HTMLElement;
+      this.backgroundLayer = document.getElementById("input-background-layer") as HTMLElement;
+      this.modal = document.getElementById("input-controls-modal");
+      this.modalPanel = this.modal?.querySelector(
+        "[data-input-modal-panel]",
+      ) as HTMLElement | null;
+      this.modalSurface = this.modal?.querySelector(
+        "[data-modal-surface]",
+      ) as HTMLElement | null;
 
       if (!this.container) return;
       this.init();
     }
 
     private init() {
-      // Container width might be dynamic in responsive mode, we get initial
       const rect = this.container.getBoundingClientRect();
-      this.config.w = Math.max(100, rect.width); // Prevent zero
+      this.config.w = Math.max(100, rect.width);
 
-      // Setup Clone
-      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+      syncCloneContent(this.cloneInner, this.realWorld);
+      this.cloneWrapper.style.filter = "url(#input-glass-filter)";
 
-      // Setup Optics
       this.renderOptics();
+      this.syncFilterTuning();
+      this.bindControls();
+      this.bindModal();
 
-      // Events
-      this.inputField.addEventListener('focus', this.onFocus.bind(this));
-      this.inputField.addEventListener('blur', this.onBlur.bind(this));
-      this.inputField.addEventListener('input', this.onInput.bind(this));
-      window.addEventListener('resize', this.onResize.bind(this));
-      
+      this.inputField.addEventListener("focus", () => {
+        this.state.isFocused = true;
+        this.springs.scale.setTarget(this.controls.focusScale);
+        this.springs.scaleX.velocity += this.controls.pulseX * 0.75;
+        this.springs.scaleY.velocity += this.controls.pulseY * 0.75;
+        this.springs.bgScale.velocity += 0.06;
+        this.springs.bgX.velocity += 4.5;
+        this.springs.bgY.velocity -= 2.25;
+        this.applyFocusStyle(true);
+        this.startLoop();
+      });
+      this.inputField.addEventListener("blur", () => {
+        this.state.isFocused = false;
+        this.springs.scale.setTarget(1);
+        this.applyFocusStyle(false);
+        this.startLoop();
+      });
+      this.inputField.addEventListener("input", () => {
+        this.springs.scaleX.velocity += this.controls.pulseX;
+        this.springs.scaleY.velocity += this.controls.pulseY;
+        this.springs.bgScale.velocity += 0.045;
+        this.springs.bgX.velocity += this.inputField.value.length % 2 === 0 ? 3.5 : -3.5;
+        this.springs.bgY.velocity += this.inputField.value.length % 2 === 0 ? -1.5 : 1.5;
+        this.startLoop();
+      });
+      window.addEventListener("resize", () => {
+        const nextRect = this.container.getBoundingClientRect();
+        if (Math.abs(this.config.w - nextRect.width) > 10) {
+          this.config.w = nextRect.width;
+          this.renderOptics();
+        }
+        this.updateClone();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") this.setModal(false);
+      });
+
       this.updateClone();
       this.startLoop();
+    }
+
+    private bindControls() {
+      bindLiquidControls(
+        this.container,
+        this.controls,
+        () => {
+          this.syncFilterTuning();
+          if (this.state.isFocused) {
+            this.springs.scale.setTarget(this.controls.focusScale);
+          }
+          this.startLoop();
+        },
+        () => {
+          Object.assign(this.controls, {
+            focusScale: 1.04,
+            refraction: 1,
+            blur: 0,
+            specularOpacity: 0.75,
+            saturation: 6,
+            pulseX: 1,
+            pulseY: -0.45,
+          });
+          this.syncFilterTuning();
+          if (this.state.isFocused) {
+            this.springs.scale.setTarget(this.controls.focusScale);
+          }
+          this.startLoop();
+        },
+      );
+    }
+
+    private bindModal() {
+      document
+        .querySelector("[data-open-input-controls]")
+        ?.addEventListener("click", () => {
+          this.setModal(true);
+        });
+      this.modal
+        ?.querySelector("[data-close-input-controls]")
+        ?.addEventListener("click", () => {
+          this.setModal(false);
+        });
+    }
+
+    private setModal(open: boolean) {
+      this.state.modalOpen = open;
+      if (!this.modal || !this.modalPanel) return;
+      const hiddenOffsetClass =
+        this.modalPanel.dataset.modalOffsetClass ?? "translate-y-[0.75rem]";
+      this.modal.classList.toggle("pointer-events-none", !open);
+      this.modal.classList.toggle("opacity-0", !open);
+      this.modalPanel.classList.toggle(hiddenOffsetClass, !open);
+      this.modalSurface?.classList.toggle("pointer-events-auto", open);
+      this.modalSurface?.classList.toggle("pointer-events-none", !open);
     }
 
     private renderOptics() {
-      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
-      this.config.maxDisp = Math.max(...pc.map(Math.abs));
+      const assets = createLiquidAssets({
+        width: this.config.w,
+        height: this.config.h,
+        radius: this.config.r,
+        bezelWidth: this.config.bw,
+        glassThickness: this.config.gt,
+        refractiveIndex: this.config.ri,
+      });
 
-      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
-      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
-
-      document.getElementById("input-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
-      document.getElementById("input-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
+      this.config.maxDisp = assets.maximumDisplacement;
+      applyLiquidAssets("input-glass-filter", assets);
     }
 
-    private onResize() {
-      const rect = this.container.getBoundingClientRect();
-      if (Math.abs(this.config.w - rect.width) > 10) {
-        this.config.w = rect.width;
-        this.renderOptics();
+    private syncFilterTuning() {
+      updateLiquidFilter("input-glass-filter", {
+        blurStdDev: this.controls.blur,
+        saturation: this.controls.saturation,
+        specularAlpha: this.controls.specularOpacity,
+      });
+    }
+
+    private applyFocusStyle(focused: boolean) {
+      if (focused) {
+        this.overlay.style.boxShadow =
+          "inset 0 2px 5px rgba(0,0,0,0.2), 0 20px 50px rgba(0,0,0,0.6)";
+        this.overlay.style.borderColor = "rgba(255,255,255,0.3)";
+      } else {
+        this.overlay.style.boxShadow =
+          "inset 0 4px 10px rgba(0,0,0,0.5), 0 20px 40px rgba(0,0,0,0.4)";
+        this.overlay.style.borderColor = "rgba(255,255,255,0.1)";
       }
-      this.updateClone();
-    }
-
-    private onFocus() {
-      this.state.isFocused = true;
-      this.springs.scale.setTarget(1.02);
-      this.springs.dispScale.setTarget(1.3);
-      this.startLoop();
-    }
-
-    private onBlur() {
-      this.state.isFocused = false;
-      this.springs.scale.setTarget(1);
-      this.springs.dispScale.setTarget(1);
-      this.startLoop();
-    }
-
-    private onInput() {
-      this.state.isTyping = true;
-      
-      // Bump refraction and scale briefly
-      this.springs.dispScale.setTarget(2);
-      this.springs.scale.setTarget(1.04);
-      
-      // Add physical "shake" or bump
-      this.springs.shake.value = (Math.random() - 0.5) * 10;
-      this.springs.shake.setTarget(0);
-
-      clearTimeout(this.typingTimeout);
-      this.typingTimeout = setTimeout(() => {
-        this.state.isTyping = false;
-        if (this.state.isFocused) {
-          this.springs.dispScale.setTarget(1.3);
-          this.springs.scale.setTarget(1.02);
-        } else {
-          this.springs.dispScale.setTarget(1);
-          this.springs.scale.setTarget(1);
-        }
-      }, 100);
-
-      this.startLoop();
     }
 
     private updateClone() {
-      const aR = this.demoArea.getBoundingClientRect();
-      const contRect = this.container.getBoundingClientRect();
-      
-      this.cloneInner.style.width = aR.width + "px";
-      this.cloneInner.style.height = aR.height + "px";
-      
-      const offsetX = contRect.left - aR.left;
-      const offsetY = contRect.top - aR.top;
-      
-      const sc = this.springs.scale.value;
-      const shake = this.springs.shake.value;
+      const areaRect = this.demoArea.getBoundingClientRect();
 
-      this.cloneInner.style.transform = `scale(${1/sc}) translate(${(-offsetX - shake) * sc}px, ${-offsetY * sc}px)`;
+      this.cloneInner.style.width = areaRect.width + "px";
+      this.cloneInner.style.height = areaRect.height + "px";
+
+      const offsetX = this.container.offsetLeft;
+      const offsetY = this.container.offsetTop;
+
+      const s = this.springs.scale.value;
+      const sx = this.springs.scaleX.value;
+      const sy = this.springs.scaleY.value;
+
+      this.cloneInner.style.transform = `scale(${1 / (s * sx)}, ${1 / (s * sy)}) translate(${-offsetX}px, ${-offsetY}px)`;
     }
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
-      
-      const sc = this.springs.scale.update(dt);
-      const ds = this.springs.dispScale.update(dt);
-      const shake = this.springs.shake.update(dt);
-      
-      this.container.style.transform = `scale(${sc}) translateX(${shake}px)`;
-      
-      if (this.state.isFocused) {
-        this.overlay.style.boxShadow = `0 12px 32px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,1), 0 0 0 2px rgba(59, 130, 246, 0.5)`;
-      } else {
-        this.overlay.style.boxShadow = `0 8px 32px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.8)`;
-      }
 
-      document.getElementById("input-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+      this.springs.scaleX.setTarget(1);
+      this.springs.scaleY.setTarget(1);
+      this.springs.bgScale.setTarget(this.state.isFocused ? 1.1 : 1.03);
+      this.springs.bgX.setTarget(0);
+      this.springs.bgY.setTarget(0);
+
+      const s = this.springs.scale.update(dt);
+      const sx = this.springs.scaleX.update(dt);
+      const sy = this.springs.scaleY.update(dt);
+      const bgScale = this.springs.bgScale.update(dt);
+      const bgX = this.springs.bgX.update(dt);
+      const bgY = this.springs.bgY.update(dt);
+      this.container.style.transform = `scale(${s * sx}, ${s * sy})`;
+      this.backgroundLayer.style.transform = `translate3d(${bgX}px, ${bgY}px, 0) scale(${bgScale})`;
+      updateLiquidFilter("input-glass-filter", {
+        scale: this.config.maxDisp * this.controls.refraction * Math.max(bgScale, s * sx, s * sy),
+      });
 
       this.updateClone();
 
-      if (!Object.values(this.springs).every(s => s.isSettled())) {
+      if (!Object.values(this.springs).every((spring) => spring.isSettled())) {
         this.af = requestAnimationFrame(this.loop);
       } else {
         this.af = null;
@@ -206,7 +338,7 @@ const filterId = "input-glass-filter";
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     new InputExhibit();
   });
 </script>

@@ -1,246 +1,297 @@
 ---
 import SvgFilter from "../atoms/SvgFilter.astro";
+import LiquidControls from "../molecules/LiquidControls.astro";
+import flowers from "../../assets/botanical-floral-pattern-aqua.webp";
 
 const filterId = "slider-glass-filter";
+const trackW = 330;
+const trackH = 14;
+const thumbW = 90;
+const thumbH = 60;
+const thumbR = 30;
 ---
 
-<div class="relative w-full h-full flex flex-col items-center justify-center p-8" id="slider-demo-area">
-  <!-- Real World Background (ambient shapes) -->
-  <div id="slider-real-world" class="absolute inset-0 pointer-events-none overflow-hidden bg-white dark:bg-[#0f0f0f]">
-    <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:16px_16px]"></div>
-    <div class="absolute w-[200%] h-32 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 mix-blend-multiply blur-3xl top-1/2 -translate-y-1/2 transform rotate-12"></div>
-  </div>
-
-  <!-- The Slider Value Display -->
-  <div class="mb-12 font-mono text-5xl font-bold tracking-tighter text-gray-800 dark:text-gray-100 z-10" id="slider-value-display">
-    50%
-  </div>
-
-  <!-- The Slider Container -->
-  <div class="relative w-full max-w-sm h-[8px] bg-gray-200 dark:bg-gray-800" id="liquid-slider-track">
-    <!-- Active Track -->
-    <div class="absolute top-0 left-0 h-full bg-black dark:bg-white" id="liquid-slider-active-track" style="width: 50%;"></div>
-    
-    <!-- The Glass Thumb -->
-    <div 
-      class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[48px] h-[48px] z-10 will-change-transform touch-none cursor-grab active:cursor-grabbing" 
-      id="liquid-slider-thumb"
-      style="left: 50%;"
-    >
-      <div id="slider-content-clone" class="absolute inset-0 overflow-hidden rounded-none z-[1] will-change-filter">
-        <div id="slider-clone-inner" class="absolute top-0 left-0 pointer-events-none will-change-transform transform-gpu origin-top-left bg-white dark:bg-[#0f0f0f]">
-           <!-- JS will inject the clone here -->
+<div class="flex w-full flex-col">
+  <div
+    class="grid w-full items-stretch gap-5 p-4 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-6 lg:p-6 xl:grid-cols-[minmax(0,1fr)_17rem]"
+    id="slider-demo-shell"
+  >
+    <div class="relative min-h-[320px] w-full self-stretch overflow-hidden rounded-2xl lg:min-h-0" id="slider-demo-area">
+      <div id="slider-real-world" class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl bg-[#091119]">
+        <div
+          class="slider-background-motion h-full w-full bg-cover bg-center"
+          style={`background-image: url(${flowers.src});`}
+        >
+        </div>
+        <div
+          class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.16),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.12),transparent_22%),linear-gradient(180deg,rgba(7,12,18,0.08),rgba(8,12,16,0.52))]"
+        >
         </div>
       </div>
-      <SvgFilter filterId={filterId} />
-      <div id="slider-thumb-inner" class="absolute inset-0 z-[3] rounded-none border border-gray-300 dark:border-white/20 bg-white/40 dark:bg-white/10 shadow-[0_8px_16px_rgba(0,0,0,0.1),inset_0_1px_2px_rgba(255,255,255,0.9)] pointer-events-none transition-shadow duration-300"></div>
+
+      <div class="relative z-10 flex h-full flex-col items-center justify-center gap-12 px-6">
+        <div id="slider-value-display" class="font-mono text-5xl font-bold tracking-tighter text-white drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]">10%</div>
+
+        <div id="liquid-slider-container" data-controls="slider-controls" class="relative z-10" style={`width: ${trackW}px; height: 60px;`}>
+          <div
+            id="liquid-slider-track"
+            class="absolute left-0 top-[23px] cursor-pointer rounded-full bg-[rgba(137,137,143,0.4)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
+            style={`width: ${trackW}px; height: ${trackH}px;`}
+          ></div>
+          <div
+            id="liquid-slider-active-track"
+            class="pointer-events-none absolute left-0 top-[23px] rounded-full bg-[#0377f7] shadow-[0_0_10px_rgba(3,119,247,0.5)]"
+            style={`width: 10%; height: ${trackH}px;`}
+          ></div>
+
+          <div
+            id="liquid-slider-thumb"
+            class="absolute left-0 top-0 z-10 cursor-grab touch-none will-change-transform active:cursor-grabbing"
+            style={`width: ${thumbW}px; height: ${thumbH}px; border-radius: ${thumbR}px; transform-origin: center center;`}
+          >
+            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+              <div id="slider-content-clone" class="glass-clone-wrap absolute inset-0 rounded-[inherit] opacity-0">
+                <div id="slider-clone-inner" class="slider-clone-inner glass-clone-inner bg-white dark:bg-[#0f0f0f]"></div>
+              </div>
+            </div>
+
+            <SvgFilter
+              filterId={filterId}
+              width={thumbW}
+              height={thumbH}
+              blurStdDev={0}
+              saturation={7}
+              specularAlpha={0.4}
+              mode="control"
+            />
+
+            <div id="slider-thumb-inner" class="glass-inner-overlay rounded-[inherit] shadow-[0_3px_14px_rgba(0,0,0,0.1)]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="min-w-0 self-stretch">
+      <LiquidControls
+        title="Slider Parameters"
+        target="slider-controls"
+        className="mt-0! w-full max-w-none self-start"
+        controls={[
+          { key: "forceActive", label: "Force Active", type: "toggle", value: false },
+          { key: "refraction", label: "Refraction", min: 0, max: 1.4, step: 0.01, value: 1 },
+          { key: "blur", label: "Blur", min: 0, max: 4, step: 0.01, value: 0 },
+          { key: "specularOpacity", label: "Specular", min: 0, max: 1, step: 0.01, value: 0.4 },
+          { key: "saturation", label: "Saturation", min: 0, max: 12, step: 0.1, value: 7 },
+        ]}
+      />
     </div>
   </div>
 </div>
 
 <script>
   import { Spring } from "../../quarks/spring";
-  import { SurfaceEquations } from "../../quarks/surfaceEquations";
   import {
-    calculateDisplacementMap1D,
-    calculateDisplacementMap2D,
-    calculateSpecularHighlight,
-    imageDataToDataURL,
-  } from "../../quarks/surfaceRenderer";
+    applyLiquidAssets,
+    bindLiquidControls,
+    createLiquidAssets,
+    syncCloneContent,
+    updateLiquidFilter,
+  } from "../../quarks/liquidGlassEngine";
 
   class SliderExhibit {
     private track: HTMLElement;
     private activeTrack: HTMLElement;
     private thumb: HTMLElement;
-    private inner: HTMLElement;
     private cloneInner: HTMLElement;
     private demoArea: HTMLElement;
     private realWorld: HTMLElement;
     private cloneWrapper: HTMLElement;
     private valueDisplay: HTMLElement;
-    
-    private config = { w: 48, h: 48, bw: 12, gt: 70, r: 0, ri: 1.6, maxDisp: 0 };
-    private state = { 
-      isDragging: false, 
-      value: 0.5,
-      startX: 0, 
-      startValue: 0.5,
-      trackWidth: 0,
-      thumbVelocity: 0,
-      lastX: 0,
-      lastTime: 0
+    private container: HTMLElement;
+
+    private readonly config = {
+      trackW: 330,
+      trackH: 14,
+      thumbW: 90,
+      thumbH: 60,
+      thumbR: 30,
+      bezelWidth: 16,
+      glassThickness: 80,
+      refractiveIndex: 1.45,
+      restScale: 0.6,
+      activeScale: 1,
     };
-    
+
+    private controls = {
+      forceActive: false,
+      refraction: 1,
+      blur: 0,
+      specularOpacity: 0.4,
+      saturation: 7,
+    };
+
+    private state = {
+      isDragging: false,
+      value: 10,
+      maxDisp: 0,
+    };
+
     private springs = {
-      val: new Spring(0.5, 400, 30),
-      scaleX: new Spring(1, 400, 25), 
-      scaleY: new Spring(1, 400, 25), 
-      dispScale: new Spring(1, 300, 25)
+      scale: new Spring(0.6, 2000, 80),
+      bgOpacity: new Spring(1, 2000, 80),
+      dispScale: new Spring(0.4, 100, 10),
     };
-    
+
     private af: number | null = null;
 
     constructor() {
-      this.track = document.getElementById('liquid-slider-track') as HTMLElement;
-      this.activeTrack = document.getElementById('liquid-slider-active-track') as HTMLElement;
-      this.thumb = document.getElementById('liquid-slider-thumb') as HTMLElement;
-      this.inner = document.getElementById('slider-thumb-inner') as HTMLElement;
-      this.cloneInner = document.getElementById('slider-clone-inner') as HTMLElement;
-      this.demoArea = document.getElementById('slider-demo-area') as HTMLElement;
-      this.realWorld = document.getElementById('slider-real-world') as HTMLElement;
-      this.cloneWrapper = document.getElementById('slider-content-clone') as HTMLElement;
-      this.valueDisplay = document.getElementById('slider-value-display') as HTMLElement;
+      this.container = document.getElementById("liquid-slider-container") as HTMLElement;
+      this.track = document.getElementById("liquid-slider-track") as HTMLElement;
+      this.activeTrack = document.getElementById("liquid-slider-active-track") as HTMLElement;
+      this.thumb = document.getElementById("liquid-slider-thumb") as HTMLElement;
+      this.cloneInner = document.getElementById("slider-clone-inner") as HTMLElement;
+      this.demoArea = document.getElementById("slider-demo-area") as HTMLElement;
+      this.realWorld = document.getElementById("slider-real-world") as HTMLElement;
+      this.cloneWrapper = document.getElementById("slider-content-clone") as HTMLElement;
+      this.valueDisplay = document.getElementById("slider-value-display") as HTMLElement;
 
       if (!this.track) return;
       this.init();
     }
 
     private init() {
-      // Setup Clone
-      this.cloneInner.innerHTML = this.realWorld.outerHTML;
+      syncCloneContent(this.cloneInner, this.realWorld);
       this.cloneWrapper.style.filter = "url(#slider-glass-filter)";
 
-      // Setup Optics
-      const pc = calculateDisplacementMap1D(this.config.gt, this.config.bw, SurfaceEquations.convex_squircle, this.config.ri);
-      this.config.maxDisp = Math.max(...pc.map(Math.abs));
-
-      const dispData = calculateDisplacementMap2D(this.config.w, this.config.h, this.config.w, this.config.h, this.config.r, this.config.bw, this.config.maxDisp || 1, pc);
-      const specData = calculateSpecularHighlight(this.config.w, this.config.h, this.config.r, this.config.bw);
-
-      document.getElementById("slider-glass-filter-image")?.setAttribute("href", imageDataToDataURL(dispData));
-      document.getElementById("slider-glass-filter-specular")?.setAttribute("href", imageDataToDataURL(specData));
-
-      // Events
-      this.thumb.addEventListener('pointerdown', this.onPointerDown.bind(this));
-      window.addEventListener('pointermove', this.onPointerMove.bind(this));
-      window.addEventListener('pointerup', this.onPointerUp.bind(this));
-      
-      // Click on track to jump
-      this.track.addEventListener('click', (e) => {
-        if (e.target === this.thumb || this.state.isDragging) return;
-        const rect = this.track.getBoundingClientRect();
-        let val = (e.clientX - rect.left) / rect.width;
-        val = Math.max(0, Math.min(1, val));
-        this.state.value = val;
-        this.springs.val.setTarget(val);
-        
-        // Wobble effect on jump
-        this.springs.scaleX.setTarget(1.2);
-        this.springs.scaleY.setTarget(0.8);
-        setTimeout(() => {
-          this.springs.scaleX.setTarget(1);
-          this.springs.scaleY.setTarget(1);
-        }, 50);
-
-        this.startLoop();
+      const assets = createLiquidAssets({
+        width: this.config.thumbW,
+        height: this.config.thumbH,
+        radius: this.config.thumbR,
+        bezelWidth: this.config.bezelWidth,
+        glassThickness: this.config.glassThickness,
+        refractiveIndex: this.config.refractiveIndex,
       });
+      this.state.maxDisp = assets.maximumDisplacement;
+      applyLiquidAssets("slider-glass-filter", assets);
+      this.syncFilterTuning();
+      this.bindControls();
 
-      window.addEventListener('resize', () => {
-        this.state.trackWidth = this.track.getBoundingClientRect().width;
-        this.updateClone();
+      this.thumb.addEventListener("pointerdown", this.onPointerDown.bind(this));
+      this.track.addEventListener("pointerdown", (event) => {
+        this.onPointerDown(event);
+        this.onPointerMove(event);
       });
-      
-      this.state.trackWidth = this.track.getBoundingClientRect().width;
-      this.updateClone();
+      window.addEventListener("pointermove", this.onPointerMove.bind(this));
+      window.addEventListener("pointerup", this.onPointerUp.bind(this));
+      window.addEventListener("resize", this.updateSliderUI.bind(this));
+
+      this.updateSliderUI();
       this.startLoop();
     }
 
-    private onPointerDown(e: PointerEvent) {
-      e.preventDefault();
+    private bindControls() {
+      bindLiquidControls(
+        this.container,
+        this.controls,
+        () => {
+          this.syncFilterTuning();
+          this.startLoop();
+        },
+        () => {
+          Object.assign(this.controls, {
+            forceActive: false,
+            refraction: 1,
+            blur: 0,
+            specularOpacity: 0.4,
+            saturation: 7,
+          });
+          this.syncFilterTuning();
+          this.startLoop();
+        },
+      );
+    }
+
+    private syncFilterTuning() {
+      updateLiquidFilter("slider-glass-filter", {
+        blurStdDev: this.controls.blur,
+        saturation: this.controls.saturation,
+        specularAlpha: this.controls.specularOpacity,
+      });
+    }
+
+    private updateSliderUI() {
+      this.activeTrack.style.width = `${this.state.value}%`;
+      const thumbWidthRest = this.config.thumbW * this.config.restScale;
+      const ratio = this.state.value / 100;
+      const x0 = thumbWidthRest / 2;
+      const x100 = this.config.trackW - thumbWidthRest / 2;
+      const thumbCenterX = x0 + ratio * (x100 - x0);
+      const thumbX = thumbCenterX - this.config.thumbW / 2;
+      this.thumb.style.left = `${thumbX}px`;
+
+      const areaRect = this.demoArea.getBoundingClientRect();
+      const containerLeft = (areaRect.width - this.config.trackW) / 2;
+      const containerTop = (areaRect.height - this.config.thumbH) / 2;
+      const trackTop = (this.config.thumbH - this.config.trackH) / 2;
+
+      this.cloneInner.style.width = `${areaRect.width}px`;
+      this.cloneInner.style.height = `${areaRect.height}px`;
+      this.cloneInner.style.transform = `translate(${-(containerLeft + thumbX)}px, ${-containerTop}px)`;
+      this.cloneInner.style.setProperty("--track-left", `${containerLeft}px`);
+      this.cloneInner.style.setProperty("--track-top", `${containerTop + trackTop}px`);
+      this.cloneInner.style.setProperty("--track-width", `${this.config.trackW}px`);
+      this.cloneInner.style.setProperty("--track-height", `${this.config.trackH}px`);
+      this.cloneInner.style.setProperty("--fill-width", this.state.value.toString());
+      this.valueDisplay.innerText = `${Math.round(this.state.value)}%`;
+    }
+
+    private onPointerDown(event: PointerEvent) {
+      event.preventDefault();
       this.state.isDragging = true;
-      this.state.trackWidth = this.track.getBoundingClientRect().width;
-      this.state.startX = e.clientX;
-      this.state.startValue = this.state.value;
-      
-      this.state.lastX = e.clientX;
-      this.state.lastTime = performance.now();
-      this.state.thumbVelocity = 0;
-
-      this.springs.dispScale.setTarget(1.5);
       this.startLoop();
     }
 
-    private onPointerMove(e: PointerEvent) {
+    private onPointerMove(event: PointerEvent) {
       if (!this.state.isDragging) return;
-      e.preventDefault();
-      
-      const dx = e.clientX - this.state.startX;
-      let newVal = this.state.startValue + (dx / this.state.trackWidth);
-      newVal = Math.max(0, Math.min(1, newVal));
-      
-      this.state.value = newVal;
-      this.springs.val.setTarget(newVal);
+      event.preventDefault();
 
-      // Velocity calculation for stretching
-      const dt = Math.max(1, performance.now() - this.state.lastTime);
-      const v = (e.clientX - this.state.lastX) / dt;
-      this.state.lastX = e.clientX;
-      this.state.lastTime = performance.now();
-      this.state.thumbVelocity = v;
-
-      // Stretch based on velocity
-      const stretch = Math.min(0.4, Math.abs(v) * 0.1);
-      this.springs.scaleX.setTarget(1 + stretch);
-      this.springs.scaleY.setTarget(1 - stretch * 0.5);
-
+      const trackRect = this.track.getBoundingClientRect();
+      const thumbWidthRest = this.config.thumbW * this.config.restScale;
+      const x0 = trackRect.left + thumbWidthRest / 2;
+      const x100 = trackRect.right - thumbWidthRest / 2;
+      const nextX = Math.max(x0, Math.min(x100, event.clientX));
+      this.state.value = Math.max(0, Math.min(100, ((nextX - x0) / (x100 - x0)) * 100));
+      this.updateSliderUI();
       this.startLoop();
     }
 
     private onPointerUp() {
       if (!this.state.isDragging) return;
       this.state.isDragging = false;
-      this.state.thumbVelocity = 0;
-      
-      this.springs.scaleX.setTarget(1);
-      this.springs.scaleY.setTarget(1);
-      this.springs.dispScale.setTarget(1);
       this.startLoop();
-    }
-
-    private updateClone() {
-      const aR = this.demoArea.getBoundingClientRect();
-      const thumbRect = this.thumb.getBoundingClientRect();
-      
-      this.cloneInner.style.width = aR.width + "px";
-      this.cloneInner.style.height = aR.height + "px";
-      
-      const offsetX = thumbRect.left - aR.left;
-      const offsetY = thumbRect.top - aR.top;
-      
-      // We must reverse the scale to keep the background 1:1
-      const scX = this.springs.scaleX.value;
-      const scY = this.springs.scaleY.value;
-
-      this.cloneInner.style.transform = `scale(${1/scX}, ${1/scY}) translate(${-offsetX * scX}px, ${-offsetY * scY}px)`;
     }
 
     private loop = () => {
       const dt = Math.min(0.032, 1 / 60);
-      
-      const v = this.springs.val.update(dt);
-      const sx = this.springs.scaleX.update(dt);
-      const sy = this.springs.scaleY.update(dt);
-      const ds = this.springs.dispScale.update(dt);
-      
-      // Update DOM
-      this.thumb.style.left = `${v * 100}%`;
-      this.thumb.style.transform = `translate(-50%, -50%) scale(${sx}, ${sy})`;
-      this.activeTrack.style.width = `${v * 100}%`;
-      
-      // Update text
-      this.valueDisplay.innerText = `${Math.round(v * 100)}%`;
+      const isActive = this.state.isDragging || this.controls.forceActive;
 
-      if (this.state.isDragging) {
-        this.inner.style.boxShadow = `0 12px 24px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.9)`;
-      } else {
-        this.inner.style.boxShadow = `0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)`;
-      }
+      this.springs.scale.setTarget(isActive ? this.config.activeScale : this.config.restScale);
+      this.springs.bgOpacity.setTarget(isActive ? 0.1 : 1);
+      this.springs.dispScale.setTarget((isActive ? 0.9 : 0.4) * this.controls.refraction);
 
-      document.getElementById("slider-glass-filter-map")?.setAttribute("scale", (this.config.maxDisp * ds).toString());
+      const scale = this.springs.scale.update(dt);
+      const bgOpacity = this.springs.bgOpacity.update(dt);
+      const dispScale = this.springs.dispScale.update(dt);
 
-      this.updateClone();
+      this.thumb.style.transform = `scale(${scale})`;
+      this.thumb.style.backgroundColor = `rgba(255,255,255,${bgOpacity})`;
+      this.cloneWrapper.style.opacity = `${1 - bgOpacity}`;
 
-      if (!Object.values(this.springs).every(s => s.isSettled())) {
+      updateLiquidFilter("slider-glass-filter", {
+        scale: this.state.maxDisp * dispScale,
+      });
+
+      if (!Object.values(this.springs).every((spring) => spring.isSettled())) {
         this.af = requestAnimationFrame(this.loop);
       } else {
         this.af = null;
@@ -252,7 +303,37 @@ const filterId = "slider-glass-filter";
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     new SliderExhibit();
   });
 </script>
+
+<style>
+  .slider-background-motion {
+    transform-origin: center;
+    animation: sliderBackgroundOrbit 20s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes sliderBackgroundOrbit {
+    0% {
+      transform: translate3d(0, -2%, 0) scale(1.08) rotate(0deg);
+    }
+
+    25% {
+      transform: translate3d(2%, 0, 0) scale(1.14) rotate(1.5deg);
+    }
+
+    50% {
+      transform: translate3d(0, 2%, 0) scale(1.2) rotate(0deg);
+    }
+
+    75% {
+      transform: translate3d(-2%, 0, 0) scale(1.14) rotate(-1.5deg);
+    }
+
+    100% {
+      transform: translate3d(0, -2%, 0) scale(1.08) rotate(0deg);
+    }
+  }
+</style>
