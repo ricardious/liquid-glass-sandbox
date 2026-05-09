@@ -8,8 +8,14 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "lint": "biome check . --linter-enabled=false --css-parse-tailwind-directives=true",
+    "format": "biome format --write . --css-parse-tailwind-directives=true",
+    "check": "biome check --write . --linter-enabled=false --css-parse-tailwind-directives=true",
     "preview": "astro preview",
     "astro": "astro"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.14"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
