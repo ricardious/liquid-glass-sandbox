@@ -130,26 +130,65 @@ const filterId = "exported-liquid-filter";
                 type="button"
                 class="w-full rounded-full border border-gray-200 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-700 transition hover:bg-gray-100 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
               >
-                Copy Package
+                Copy code
               </button>
               <button
                 id="download-svg-button"
                 type="button"
                 class="w-full rounded-full bg-gray-900 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-gray-700 sm:w-auto dark:bg-white dark:text-black dark:hover:bg-gray-200"
               >
-                Download Package
-              </button>
-              <button
-                id="download-preview-button"
-                type="button"
-                class="w-full rounded-full border border-gray-200 px-4 py-2 text-xs uppercase tracking-[0.2em] text-gray-700 transition hover:bg-gray-100 sm:w-auto dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
-              >
-                Download Preview HTML
+                Download .html
               </button>
             </div>
           </div>
 
-          <div class="mt-6 grid gap-4 xl:grid-cols-2">
+          <ol
+            class="mt-6 flex flex-col gap-1.5 text-sm leading-6 text-gray-600 dark:text-gray-400"
+          >
+            <li>
+              <span class="font-semibold text-gray-900 dark:text-gray-100"
+                >1.</span
+              > Press <span class="font-semibold">Download .html</span> (or Copy
+              code and save it as a
+              <code class="rounded bg-black/5 px-1 dark:bg-white/10">.html</code>
+              file).
+            </li>
+            <li>
+              <span class="font-semibold text-gray-900 dark:text-gray-100"
+                >2.</span
+              > Open that file in your browser — the glass already works (all
+              browsers).
+            </li>
+            <li>
+              <span class="font-semibold text-gray-900 dark:text-gray-100"
+                >3.</span
+              > Inside, replace
+              <code class="rounded bg-black/5 px-1 dark:bg-white/10"
+                >#your-background</code
+              > with your own image or section.
+            </li>
+          </ol>
+
+          <div
+            class="mt-4 overflow-hidden rounded-3xl border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]"
+          >
+            <textarea
+              id="generator-package-output"
+              readonly
+              class="block h-80 w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+            ></textarea>
+          </div>
+
+          <details
+            class="mt-6 overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-700"
+          >
+            <summary
+              class="cursor-pointer select-none px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-gray-500 transition hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              Individual files (advanced)
+            </summary>
+            <div class="px-4 pb-4">
+              <div class="grid gap-4 xl:grid-cols-2">
             <div>
               <div class="flex items-center justify-between gap-3">
                 <span
@@ -246,7 +285,33 @@ const filterId = "exported-liquid-filter";
                 ></textarea>
               </div>
             </div>
-          </div>
+            <div>
+              <div class="flex items-center justify-between gap-3">
+                <span
+                  class="text-[10px] uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400"
+                  >Generated JS (wire-up)</span
+                >
+                <button
+                  id="copy-js-button"
+                  type="button"
+                  class="rounded-full border border-gray-200 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/10"
+                >
+                  Copy JS
+                </button>
+              </div>
+              <div
+                class="mt-3 overflow-hidden rounded-3xl border border-gray-200 bg-[#f7f4ee] dark:border-gray-700 dark:bg-[#0f1217]"
+              >
+                <textarea
+                  id="generator-js-output"
+                  readonly
+                  class="block h-56 w-full resize-none border-0 bg-transparent p-4 pr-5 font-mono text-[11px] leading-6 text-gray-700 outline-none sm:p-5 sm:pr-6 sm:text-xs dark:text-gray-300"
+                ></textarea>
+              </div>
+            </div>
+            </div>
+            </div>
+          </details>
         </article>
       </section>
 
@@ -569,11 +634,15 @@ const filterId = "exported-liquid-filter";
               blur falloff.
             </li>
             <li>
-              3. Download the generated package when the preview looks right.
+              3. Download the package — it is a complete
+              <code class="rounded bg-white/10 px-1">.html</code> file. Open it
+              in a browser and the glass already works.
             </li>
             <li>
-              4. Use the exported SVG together with the CSS helpers inside any
-              cloned backdrop glass component.
+              4. Inside, swap
+              <code class="rounded bg-white/10 px-1">#your-background</code> for
+              your own image or section — the numbered STEP comments show exactly
+              what to keep and what to replace.
             </li>
           </ol>
           <a
@@ -602,7 +671,6 @@ const filterId = "exported-liquid-filter";
     const glass = document.getElementById("generator-glass");
     const cloneInner = document.getElementById("generator-clone-inner");
     const cloneWrapper = document.getElementById("generator-content-clone");
-    const backgroundLayer = document.getElementById("generator-background");
     const controls = document.getElementById("generator-controls");
     const resetButton = document.getElementById("generator-reset-button");
     const cssOutput = document.getElementById(
@@ -617,15 +685,19 @@ const filterId = "exported-liquid-filter";
     const tailwindOutput = document.getElementById(
       "generator-tailwind-output",
     ) as HTMLTextAreaElement | null;
+    const jsOutput = document.getElementById(
+      "generator-js-output",
+    ) as HTMLTextAreaElement | null;
+    const packageOutput = document.getElementById(
+      "generator-package-output",
+    ) as HTMLTextAreaElement | null;
     const copyCssButton = document.getElementById("copy-css-button");
     const copyHtmlButton = document.getElementById("copy-html-button");
     const copySvgOnlyButton = document.getElementById("copy-svg-only-button");
     const copyTailwindButton = document.getElementById("copy-tailwind-button");
+    const copyJsButton = document.getElementById("copy-js-button");
     const copyButton = document.getElementById("copy-svg-button");
     const downloadButton = document.getElementById("download-svg-button");
-    const downloadPreviewButton = document.getElementById(
-      "download-preview-button",
-    );
 
     if (
       scene &&
@@ -637,11 +709,11 @@ const filterId = "exported-liquid-filter";
       cssOutput &&
       htmlOutput &&
       svgOutput &&
-      tailwindOutput
+      tailwindOutput &&
+      jsOutput &&
+      packageOutput
     ) {
       const runtimeFilterId = "exported-liquid-filter";
-      const previewBackgroundUrl =
-        backgroundLayer?.getAttribute("data-background-url") ?? "";
       cloneWrapper.style.filter = `url(#${runtimeFilterId})`;
       syncCloneContent(cloneInner, realWorld);
 
@@ -893,7 +965,63 @@ const filterId = "exported-liquid-filter";
         return `    {/* ${getContentComment()} */}\n    <div class="space-y-3">\n      <div class="h-3 w-32 rounded-full bg-white/18"></div>\n      <div class="h-3 w-48 rounded-full bg-white/12"></div>\n      <div class="h-3 w-24 rounded-full bg-white/10"></div>\n    </div>`;
       };
 
-      const baseCss = `/* Base CSS required by the glass layer */
+      // Shared skeleton content styles (used by both export versions).
+      const contentSkeletonCss = `.glass-shell__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.glass-shell__label--pill {
+  font-size: 0.75rem;
+  letter-spacing: 0.34em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.glass-shell__panel-copy,
+.glass-shell__card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.glass-shell__line {
+  height: 12px;
+  border-radius: 999px;
+}
+
+.glass-shell__line--wide {
+  width: 192px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.glass-shell__line--mid {
+  width: 112px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.glass-shell__line--short {
+  width: 128px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.glass-shell__line--tiny {
+  width: 96px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-shell__card-chip {
+  width: 48px;
+  height: 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
+}`;
+
+      // ---- All-browsers / JS version: clone the backdrop + filter: url() ----
+      const baseCss = `/* Base CSS required by the glass layer (all-browsers / JS version) */
 .glass-shell {
   appearance: none;
   border: 0;
@@ -964,59 +1092,7 @@ const filterId = "exported-liquid-filter";
   padding: 20px;
 }
 
-.glass-shell__label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.glass-shell__label--pill {
-  font-size: 0.75rem;
-  letter-spacing: 0.34em;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.glass-shell__panel-copy,
-.glass-shell__card-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.glass-shell__line {
-  height: 12px;
-  border-radius: 999px;
-}
-
-.glass-shell__line--wide {
-  width: 192px;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.glass-shell__line--mid {
-  width: 112px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.glass-shell__line--short {
-  width: 128px;
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.glass-shell__line--tiny {
-  width: 96px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.glass-shell__card-chip {
-  width: 48px;
-  height: 32px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.14);
-}`;
+${contentSkeletonCss}`;
 
       const buildCssMarkup = () => `<style>
 ${baseCss}
@@ -1027,9 +1103,9 @@ ${baseCss}
         const attrs = getElementAttributes();
         const surfaceVariant = `glass-shell__surface--${state.elementType}`;
         const wrapperTag = tag === "button" ? "span" : "div";
-        return `<${tag} class="glass-shell"${attrs}>
+        return `<${tag} class="glass-shell" data-glass-shell data-glass-bg="#your-background"${attrs}>
   <${wrapperTag} class="glass-clone-wrap">
-    <${wrapperTag} class="glass-clone-inner"><!-- cloned background goes here --></${wrapperTag}>
+    <${wrapperTag} class="glass-clone-inner"><!-- background auto-cloned by the wire-up script --></${wrapperTag}>
   </${wrapperTag}>
   <${wrapperTag} class="glass-inner-overlay glass-shell__surface ${surfaceVariant}">
 ${getHtmlContentMarkup()}
@@ -1060,12 +1136,13 @@ ${getHtmlContentMarkup()}
 
         return `<${tag}
   class="relative overflow-hidden w-[${state.width}px] h-[${state.height}px] ${roundedClass}"
+  data-glass-shell data-glass-bg="#your-background"
 ${attrs}>
   <${wrapperTag}
-    class="absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
+    class="glass-clone-wrap absolute inset-0 z-[1] overflow-hidden rounded-[inherit]"
     style="filter:url(#${state.filterName})"
   >
-    <${wrapperTag} class="pointer-events-none absolute left-0 top-0 origin-top-left"><!-- cloned background goes here --></${wrapperTag}>
+    <${wrapperTag} class="glass-clone-inner pointer-events-none absolute left-0 top-0 origin-top-left"><!-- background auto-cloned by the wire-up script --></${wrapperTag}>
   </${wrapperTag}>
   <${wrapperTag} class="${sharedSurface}${surfaceLayout}">
 ${getTailwindContentMarkup()}
@@ -1079,8 +1156,7 @@ ${getTailwindContentMarkup()}
         maximumDisplacement: number;
       }) => {
         const scale = assets.maximumDisplacement * state.scaleMultiplier;
-        return `<!-- SVG filter assets -->
-<svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none;overflow:hidden">
+        return `<svg aria-hidden="true" width="0" height="0" style="position:absolute;pointer-events:none;overflow:hidden">
   <defs>
     <filter id="${state.filterName}" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
       <feGaussianBlur in="SourceGraphic" stdDeviation="${state.blurStdDev}" result="blurred" />
@@ -1097,103 +1173,111 @@ ${getTailwindContentMarkup()}
 </svg>`;
       };
 
-      const buildPreviewDocument = (assets: {
-        displacementUrl: string;
-        specularUrl: string;
-        maximumDisplacement: number;
-      }) => `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${state.filterName || "liquid-glass-preview"}</title>
-    <style>
-      html, body {
-        margin: 0;
-        min-height: 100%;
-      }
+      const buildScriptMarkup = () => `<!-- Wire-up: clones the background behind each glass shell and keeps it aligned -->
+<script>
+  (function () {
+    document.querySelectorAll("[data-glass-shell]").forEach(function (shell) {
+      var selector = shell.getAttribute("data-glass-bg");
+      var bg = selector ? document.querySelector(selector) : shell.parentElement;
+      var inner = shell.querySelector(".glass-clone-inner");
+      if (!bg || !inner) return;
 
-      body {
-        display: grid;
-        place-items: center;
-        min-height: 100vh;
-        overflow: hidden;
-        background: #0d1218;
-        font-family: "Inter", system-ui, sans-serif;
-      }
+      var clone = bg.cloneNode(true);
+      clone.removeAttribute("id");
+      clone.querySelectorAll("[id]").forEach(function (node) {
+        node.removeAttribute("id");
+      });
+      Object.assign(clone.style, {
+        position: "absolute",
+        inset: "0",
+        width: "100%",
+        height: "100%",
+        margin: "0",
+      });
+      inner.replaceChildren(clone);
 
-      .preview-scene {
-        position: relative;
-        width: min(92vw, 920px);
-        height: min(76vh, 640px);
-        overflow: hidden;
-        border-radius: 32px;
-        background-image:
-          radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 35%),
-          linear-gradient(180deg, rgba(9, 14, 20, 0.1), rgba(5, 8, 12, 0.72)),
-          url("${previewBackgroundUrl}");
-        background-size: auto, auto, 560px auto;
-        background-position: center, center, center;
-        background-repeat: no-repeat, no-repeat, repeat;
-      }
-
-      .preview-title {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        z-index: 0;
-        color: rgba(255, 255, 255, 0.75);
-        font-size: clamp(2rem, 3vw, 3rem);
-        letter-spacing: 0.02em;
-        text-transform: none;
-      }
-
-      .preview-center {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-${baseCss}
-    </style>
-  </head>
-  <body>
-    <div class="preview-scene">
-      <div class="preview-title">Preview Layer</div>
-      <div class="preview-center">
-${buildHtmlMarkup()}
-      </div>
-    </div>
-${buildSvgMarkup(assets)}
-    <script>
-      const scene = document.querySelector(".preview-scene");
-      const shell = document.querySelector(".glass-shell");
-      const cloneInner = document.querySelector(".glass-clone-inner");
-      const updateClone = () => {
-        if (!scene || !shell || !cloneInner) return;
-        const sceneRect = scene.getBoundingClientRect();
-        const shellRect = shell.getBoundingClientRect();
-        cloneInner.style.width = sceneRect.width + "px";
-        cloneInner.style.height = sceneRect.height + "px";
-        cloneInner.style.transform =
-          "translate(" +
-          -(shellRect.left - sceneRect.left) +
-          "px, " +
-          -(shellRect.top - sceneRect.top) +
-          "px)";
-        cloneInner.style.backgroundImage =
-          "radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 35%), linear-gradient(180deg, rgba(9,14,20,0.1), rgba(5,8,12,0.72)), url('${previewBackgroundUrl}')";
-        cloneInner.style.backgroundSize = "auto, auto, 560px auto";
-        cloneInner.style.backgroundPosition = "center, center, center";
-        cloneInner.style.backgroundRepeat = "no-repeat, no-repeat, repeat";
+      var sync = function () {
+        var bgRect = bg.getBoundingClientRect();
+        var shellRect = shell.getBoundingClientRect();
+        inner.style.width = bgRect.width + "px";
+        inner.style.height = bgRect.height + "px";
+        inner.style.transform =
+          "translate(" + (bgRect.left - shellRect.left) + "px, " +
+          (bgRect.top - shellRect.top) + "px)";
       };
-      window.addEventListener("load", updateClone);
-      window.addEventListener("resize", updateClone);
-    <\/script>
-  </body>
+
+      sync();
+      window.addEventListener("scroll", sync, { passive: true });
+      window.addEventListener("resize", sync);
+      if (window.ResizeObserver) new ResizeObserver(sync).observe(bg);
+    });
+  })();
+<\/script>`;
+
+      // A complete, runnable HTML document (works in every browser): save it as
+      // .html, open it, done. Uses filter:url() on a cloned backdrop + a small
+      // wire-up script (the backdrop-filter shorthand renders a displaced ghost
+      // with this displacement map, so the clone approach is the reliable one).
+      const composePackage = () => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${state.filterName || "liquid-glass"}</title>
+
+  <!-- ============================================================
+       HOW TO USE
+       1. Save this file as page.html and open it — it works as-is.
+       2. STEP 2: replace #your-background with your own image / section.
+       3. STEP 3: move or resize .glass-shell to place the glass.
+       The glass refracts whatever element data-glass-bg points at.
+       ============================================================ -->
+
+  <!-- STEP 1 · Glass helper styles — keep as-is -->
+${cssOutput.value}
+
+  <style>
+    /* Demo layout only — safe to delete once you paste into your own page */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0d1218;
+      font-family: system-ui, sans-serif;
+    }
+    .glass-stage {
+      position: relative;
+      width: 600px;
+      height: 380px;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+    /* STEP 3 · Where the glass sits over the background */
+    .glass-stage .glass-shell {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="glass-stage">
+    <!-- STEP 2 · The background the glass refracts. Replace the inline
+         background below with your own image, gradient or content. -->
+    <div id="your-background" style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #1f6f78, transparent 60%), radial-gradient(circle at 70% 70%, #b45f9c, transparent 55%), #10222b;"></div>
+
+    <!-- STEP 3 · The glass panel (data-glass-bg points at #your-background) -->
+${htmlOutput.value.replace(/^/gm, "    ")}
+  </div>
+
+  <!-- STEP 4 · SVG filter — required once per page, can live anywhere -->
+${svgOutput.value}
+
+  <!-- STEP 5 · Wire-up script — clones the background & keeps it aligned -->
+${jsOutput.value}
+</body>
 </html>`;
 
       const render = () => {
@@ -1227,6 +1311,8 @@ ${buildSvgMarkup(assets)}
         htmlOutput.value = buildHtmlMarkup();
         svgOutput.value = buildSvgMarkup(assets);
         tailwindOutput.value = buildTailwindMarkup();
+        jsOutput.value = buildScriptMarkup();
+        packageOutput.value = composePackage();
       };
 
       controls
@@ -1365,48 +1451,30 @@ ${buildSvgMarkup(assets)}
         }, 1400);
       });
 
+      copyJsButton?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(jsOutput.value);
+        copyJsButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyJsButton.textContent = "Copy JS";
+        }, 1400);
+      });
+
       copyButton?.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(
-          `${cssOutput.value}\n\n${htmlOutput.value}\n\n${svgOutput.value}\n\n${tailwindOutput.value}`,
-        );
+        await navigator.clipboard.writeText(composePackage());
         copyButton.textContent = "Copied";
         window.setTimeout(() => {
-          copyButton.textContent = "Copy Package";
+          copyButton.textContent = "Copy code";
         }, 1400);
       });
 
       downloadButton?.addEventListener("click", () => {
-        const blob = new Blob(
-          [
-            `${cssOutput.value}\n\n${htmlOutput.value}\n\n${svgOutput.value}\n\n${tailwindOutput.value}`,
-          ],
-          { type: "text/plain;charset=utf-8" },
-        );
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = `${state.filterName || "liquid-glass-filter"}.txt`;
-        anchor.click();
-        URL.revokeObjectURL(url);
-      });
-
-      downloadPreviewButton?.addEventListener("click", () => {
-        const assets = createLiquidAssets({
-          width: state.width,
-          height: state.height,
-          radius: state.radius,
-          bezelWidth: state.bezelWidth,
-          glassThickness: state.glassThickness,
-          refractiveIndex: state.refractiveIndex,
-          surfaceType: state.surfaceType as "convex_squircle",
-        });
-        const blob = new Blob([buildPreviewDocument(assets)], {
+        const blob = new Blob([composePackage()], {
           type: "text/html;charset=utf-8",
         });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = url;
-        anchor.download = `${state.filterName || "liquid-glass-preview"}.html`;
+        anchor.download = `${state.filterName || "liquid-glass"}.html`;
         anchor.click();
         URL.revokeObjectURL(url);
       });
