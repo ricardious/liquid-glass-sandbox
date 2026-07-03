@@ -57,7 +57,7 @@ const filterId = "exported-liquid-filter";
             >
               <div
                 id="generator-background"
-                class="absolute inset-0 opacity-90"
+                class="generator-bg-layer absolute inset-0 opacity-90"
                 style={`background-image: url(${botanical.src});`}
                 data-background-url={botanical.src}
               >
@@ -1478,7 +1478,10 @@ ${buildSvgMarkup(assets)}
   </script>
 
   <style>
-    #generator-background {
+    /* Class-based so the styling survives when the layer is cloned into the
+       refracted glass layer (syncCloneContent strips ids). Keeping this on an
+       id selector froze the refracted background and reset its scale. */
+    .generator-bg-layer {
       background-position: center center;
       background-repeat: repeat;
       background-size: 560px auto;
