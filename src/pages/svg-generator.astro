@@ -845,30 +845,6 @@ const filterId = "exported-liquid-filter";
         return "";
       };
 
-      const getPreviewInnerMarkup = () => {
-        if (state.elementType === "button") {
-          return `  <span class="glass-shell__label">Launch</span>`;
-        }
-
-        if (state.elementType === "card") {
-          return `  <div class="glass-shell__card-chip"></div>
-  <div class="glass-shell__card-copy">
-    <div class="glass-shell__line glass-shell__line--wide"></div>
-    <div class="glass-shell__line glass-shell__line--mid"></div>
-  </div>`;
-        }
-
-        if (state.elementType === "pill") {
-          return `  <span class="glass-shell__label glass-shell__label--pill">Status Active</span>`;
-        }
-
-        return `  <div class="glass-shell__panel-copy">
-    <div class="glass-shell__line glass-shell__line--short"></div>
-    <div class="glass-shell__line glass-shell__line--wide"></div>
-    <div class="glass-shell__line glass-shell__line--tiny"></div>
-  </div>`;
-      };
-
       const getContentComment = () => {
         if (state.elementType === "button") {
           return "Replace this label with your button text";
