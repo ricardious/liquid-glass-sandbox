@@ -1,0 +1,105 @@
+---
+import { primaryNav, projectLinks } from "@lib/site";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const year = new Date().getFullYear();
+---
+
+<footer
+  class="border-t border-gray-200 bg-white text-gray-900 dark:border-gray-800 dark:bg-[#0a0a0a] dark:text-gray-100"
+>
+  <div
+    class="mx-auto max-w-screen-2xl px-4 py-14 sm:px-6 md:px-8 md:py-16"
+  >
+    <div
+      class="grid gap-10 sm:grid-cols-2 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-12"
+    >
+      <!-- Brand -->
+      <div>
+        <a
+          href={`${base}/`}
+          class="inline-flex items-center gap-3 text-zinc-900 dark:text-white"
+          aria-label="Liquid Glass home"
+        >
+          <img src={`${base}/favicon.svg`} alt="" class="h-8 w-8" />
+          <span class="font-display text-2xl tracking-tight">Liquid Glass</span>
+        </a>
+        <p
+          class="mt-5 max-w-xs text-sm leading-relaxed text-gray-500 dark:text-gray-400"
+        >
+          A study of refraction, optics, and surface tension on the web — built
+          with pure math, SVG displacement maps, and Astro.
+        </p>
+      </div>
+
+      <!-- Explore -->
+      <nav aria-label="Footer navigation">
+        <span
+          class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+          >Explore</span
+        >
+        <ul class="mt-5 space-y-3">
+          {
+            primaryNav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Resources -->
+      <div>
+        <span
+          class="text-[10px] uppercase tracking-[0.28em] text-gray-500 dark:text-gray-400"
+          >Resources</span
+        >
+        <ul class="mt-5 space-y-3">
+          <li>
+            <a
+              href={projectLinks.article.url}
+              target="_blank"
+              rel="noreferrer"
+              class="text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              {projectLinks.article.label}
+            </a>
+          </li>
+          <li>
+            <a
+              href={projectLinks.github.url}
+              target="_blank"
+              rel="noreferrer"
+              class="text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              {projectLinks.github.label}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div
+      class="mt-12 flex flex-col gap-3 border-t border-gray-200 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:text-gray-400"
+    >
+      <p>© {year} ricardious · MIT Licensed</p>
+      <p>
+        Refraction effect after{" "}
+        <a
+          href={projectLinks.article.url}
+          target="_blank"
+          rel="noreferrer"
+          class="underline underline-offset-2 transition hover:text-gray-900 dark:hover:text-white"
+          >{projectLinks.article.credit}</a
+        > · Built with Astro
+      </p>
+    </div>
+  </div>
+</footer>
