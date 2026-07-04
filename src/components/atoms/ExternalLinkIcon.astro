@@ -1,0 +1,24 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+  class:list={[
+    "shrink-0 opacity-70 transition duration-200 group-hover:translate-x-px group-hover:-translate-y-px group-hover:opacity-100",
+    className ?? "h-3 w-3",
+  ]}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <path d="M7 17 17 7"></path>
+  <path d="M7 7h10v10"></path>
+</svg>

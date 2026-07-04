@@ -1,4 +1,5 @@
 ---
+import ExternalLinkIcon from "@components/atoms/ExternalLinkIcon.astro";
 import { primaryNav, projectLinks } from "@lib/site";
 import { cn } from "@lib/utils";
 
@@ -62,17 +63,19 @@ const currentPath = rawPath === "/" ? `${base}/` : `${base}${rawPath}`;
               href={projectLinks.article.url}
               target="_blank"
               rel="noreferrer"
-              class="rounded-2xl border border-black/8 px-3 py-2 text-[11px] tracking-[0.14em] uppercase text-zinc-600 transition hover:bg-black/[0.035] hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+              class="group flex items-center justify-between gap-2 rounded-2xl border border-black/8 px-3 py-2 text-[11px] tracking-[0.14em] uppercase text-zinc-600 transition hover:bg-black/[0.035] hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
             >
-              Article
+              <span>Article<span class="sr-only"> (opens in new tab)</span></span>
+              <ExternalLinkIcon />
             </a>
             <a
               href={projectLinks.github.url}
               target="_blank"
               rel="noreferrer"
-              class="rounded-2xl border border-black/8 px-3 py-2 text-[11px] tracking-[0.14em] uppercase text-zinc-600 transition hover:bg-black/[0.035] hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+              class="group flex items-center justify-between gap-2 rounded-2xl border border-black/8 px-3 py-2 text-[11px] tracking-[0.14em] uppercase text-zinc-600 transition hover:bg-black/[0.035] hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
             >
-              GitHub
+              <span>GitHub<span class="sr-only"> (opens in new tab)</span></span>
+              <ExternalLinkIcon />
             </a>
           </div>
         </div>
@@ -113,17 +116,19 @@ const currentPath = rawPath === "/" ? `${base}/` : `${base}${rawPath}`;
           href={projectLinks.article.url}
           target="_blank"
           rel="noreferrer"
-          class="rounded-full border border-black/8 px-3 py-1.5 text-xs tracking-[0.16em] uppercase text-zinc-600 transition hover:bg-white/55 hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+          class="group inline-flex items-center gap-1.5 rounded-full border border-black/8 px-3 py-1.5 text-xs tracking-[0.16em] uppercase text-zinc-600 transition hover:bg-white/55 hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
         >
-          Article
+          Article<span class="sr-only"> (opens in new tab)</span>
+          <ExternalLinkIcon />
         </a>
         <a
           href={projectLinks.github.url}
           target="_blank"
           rel="noreferrer"
-          class="rounded-full border border-black/8 px-3 py-1.5 text-xs tracking-[0.16em] uppercase text-zinc-600 transition hover:bg-white/55 hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
+          class="group inline-flex items-center gap-1.5 rounded-full border border-black/8 px-3 py-1.5 text-xs tracking-[0.16em] uppercase text-zinc-600 transition hover:bg-white/55 hover:text-zinc-900 dark:border-white/8 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
         >
-          GitHub
+          GitHub<span class="sr-only"> (opens in new tab)</span>
+          <ExternalLinkIcon />
         </a>
       </div>
     </div>
